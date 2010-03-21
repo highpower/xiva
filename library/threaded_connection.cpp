@@ -1,0 +1,30 @@
+#include "acsetup.hpp"
+
+#include <boost/static_assert.hpp>
+
+#include "details/threaded_connection.hpp"
+
+namespace xiva { namespace details {
+
+threaded_connection::threaded_connection()
+{
+}
+
+threaded_connection::~threaded_connection() {
+}
+
+std::string
+threaded_connection::name() const {
+	boost::mutex::scoped_lock lock(mutex_);
+	return name_;
+}
+
+void
+threaded_connection::name(std::string const &name) {
+	if (&name != &name_) {
+		boost::mutex::scoped_lock lock(mutex_);
+		name_.assign(name);
+	}
+}
+
+}} // namespaces

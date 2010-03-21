@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<xiva>
+  <variables>
+    <variable name="path">/usr/lib/xiva</variable>
+  </variables>
+  <endpoint>
+    <port>8081</port>
+    <backlog>1000</backlog>
+    <address>127.0.0.1</address>
+  </endpoint>
+  <read-timeout>3000</read-timeout>
+  <write-timeout>3000</write-timeout>
+  <inactive-timeout>60000</inactive-timeout>
+  <modules>
+    <module id="logger">${path}/xiva-syslog.so</module>
+    <module id="stdin-reader">${path}/xiva-stdin-reader.so</module>
+  </modules>
+  <logger>
+    <name>xiva-test</name>
+  </logger>
+</xiva>

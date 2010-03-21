@@ -1,0 +1,84 @@
+AC_INIT([xiva], [0.6.1], [highpower@yandex-team.ru])
+AM_INIT_AUTOMAKE(1.9)
+
+AC_GNU_SOURCE
+AC_CONFIG_SUBDIRS([libltdl])
+AC_CONFIG_HEADERS(config/config.h)
+
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_LANG([C++])
+AM_PATH_PYTHON
+
+AC_LIBLTDL_CONVENIENCE
+AC_SUBST(INCLTDL)
+AC_SUBST(LIBLTDL)
+
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
+AM_MAINTAINER_MODE
+AX_PYTHON_DEVEL
+
+CPPFLAGS="$CPPFLAGS -pthread"
+AX_PREFIX_CONFIG_H(config/acsetup.hpp)
+for i in -W -Wall -Wextra -Wlint -fexceptions -frtti -ftemplate-depth-128; do
+	AX_CHECK_COMPILER_FLAGS([$i], [CXXFLAGS="$CXXFLAGS $i"], [])
+done
+
+AX_BOOST_PREFIX([], [AC_MSG_ERROR(boost installation is not found)])
+
+AX_BOOST_REQUIRED([array.hpp])
+AX_BOOST_REQUIRED([bind.hpp])
+AX_BOOST_REQUIRED([cstdint.hpp])
+AX_BOOST_REQUIRED([current_function.hpp])
+AX_BOOST_REQUIRED([date_time/posix_time/posix_time_types.hpp])
+AX_BOOST_REQUIRED([date_time/posix_time/ptime.hpp])
+AX_BOOST_REQUIRED([function.hpp])
+AX_BOOST_REQUIRED([intrusive_ptr.hpp])
+AX_BOOST_REQUIRED([iterator/filter_iterator.hpp])
+AX_BOOST_REQUIRED([lexical_cast.hpp])
+AX_BOOST_REQUIRED([mpl/list.hpp])
+AX_BOOST_REQUIRED([range.hpp])
+AX_BOOST_REQUIRED([ref.hpp])
+AX_BOOST_REQUIRED([shared_ptr.hpp])
+AX_BOOST_REQUIRED([static_assert.hpp])
+AX_BOOST_REQUIRED([type.hpp])
+AX_BOOST_REQUIRED([type_traits.hpp])
+
+AX_BOOST_THREAD([], [AC_MSG_ERROR(boost::thread is not found)])
+AX_BOOST_MULTI_INDEX([], [AC_MSG_ERROR(boost::multi_index is not found)])
+AX_BOOST_SYSTEM([], [])
+
+ax_have_boost_asio="yes"
+AX_BOOST_HEADER([asio.hpp], [], [ax_have_boost_asio="no"])
+if test "f$ax_have_boost_asio" != "fno"; then
+    AC_DEFINE([HAVE_BOOST_ASIO], 1, [set to 1 if you have asio inside the boost installation])
+else
+    AC_DEFINE([HAVE_BOOST_ASIO], 0, [set to 0 if you have not asio inside the boost installation])
+    AC_CHECK_HEADER([asio.hpp], [], [AC_MSG_ERROR([asio is not found])])
+fi
+
+ax_have_boost_python="yes"
+AX_BOOST_PYTHON([], [ax_have_boost_python="no"])
+AM_CONDITIONAL(HAVE_PYTHON, [test "f$ax_have_boost_python" != "fno"])
+
+ax_have_boost_unit_test="yes"
+AX_BOOST_UNIT_TEST([], [ax_have_boost_unit_test="no"])
+AM_CONDITIONAL(HAVE_BOOST_UNIT_TEST, [test "f$ax_have_boost_unit_test" != "fno"])
+
+ax_have_daemon="yes"
+AX_BOOST_REGEX([], [ax_have_daemon="no"])
+PKG_CHECK_MODULES([LIBXML], [libxml-2.0], [], [ax_have_daemon="no"])
+AC_SUBST(LIBXML_LIBS)
+AC_SUBST(LIBXML_CFLAGS)
+AM_CONDITIONAL(HAVE_DAEMON, [test "f$ax_have_daemon" != "fno"])
+
+AC_SUBST(INCLTDL)
+AC_SUBST(LIBLTDL)
+
+AC_CONFIG_FILES([Makefile include/Makefile include/xiva/Makefile 
+	include/details/Makefile library/Makefile stdext/Makefile 
+	daemon/Makefile python/Makefile tests/Makefile utils/Makefile])
+
+AC_OUTPUT

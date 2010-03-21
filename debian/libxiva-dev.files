@@ -1,0 +1,4 @@
+usr/lib/libxiva.a
+usr/lib/libxiva.la
+usr/include/xiva.hpp
+usr/include/xiva/*.hpp

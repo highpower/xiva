@@ -1,0 +1,165 @@
+xiva (0.5.1-4) karmic; urgency=low
+
+  * build on karmik with boost=1.42.0
+
+ -- Oleg V Obolenskiy <highpower@highpower-laptop>  Tue, 09 Feb 2010 14:57:29 +0300
+
+xiva (0.5.1-3) unstable; urgency=low
+
+  * set architecture any to libxiva-dev because it has .a file
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 21 Jan 2010 14:48:04 +0300
+
+xiva (0.5.1-2) unstable; urgency=low
+
+  * tear down boost::iterator_range
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 23 Dec 2009 15:40:54 +0300
+
+xiva (0.5.1-1) unstable; urgency=low
+
+  * allow build with boost 1.40
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 22 Dec 2009 19:10:18 +0300
+
+xiva (0.5.1-0) unstable; urgency=low
+
+  * allow sending messages by connection_id
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 16 Dec 2009 14:24:19 +0300
+
+xiva (0.4.4-0) unstable; urgency=low
+
+  * removed messages_count()
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 03 Dec 2009 16:43:52 +0300
+
+xiva (0.4.3-0) unstable; urgency=low
+
+  * throw error in accept for first accept only
+  * added message_count() in server
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 02 Dec 2009 18:41:23 +0300
+
+xiva (0.4.2-1) unstable; urgency=low
+
+  * Suppress EMFILE error in acceptor
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 01 Dec 2009 19:28:29 +0300
+
+xiva (0.4.2-0) unstable; urgency=low
+
+  * Added inactive timeout
+  * Small fixes in acceptor
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 01 Dec 2009 13:46:51 +0300
+
+xiva (0.4.1-12) unstable; urgency=low
+
+  * decrease optimization level and suppress stripping files
+  * ignore SIGPIPE in util
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 25 Nov 2009 18:12:53 +0300
+
+xiva (0.4.1-11) unstable; urgency=low
+
+  * ignore SIGPIPE
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 24 Nov 2009 19:44:16 +0300
+
+xiva (0.4.1-10) unstable; urgency=low
+
+  * fixed misprint on close connection
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 24 Nov 2009 18:53:59 +0300
+
+xiva (0.4.1-9) unstable; urgency=low
+
+  * append attach_receiver_matcher() into server
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 23 Nov 2009 19:23:29 +0300
+
+xiva (0.4.1-8) unstable; urgency=low
+
+  * up version
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 19 Nov 2009 15:26:05 +0300
+
+xiva (0.4.1-7) hardy; urgency=low
+
+  * Graceful shutdown was implemented.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Tue, 03 Nov 2009 21:20:17 +0300
+
+xiva (0.4.1-6) unstable; urgency=low
+
+  * Some cosmetic changes were made.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Tue, 03 Nov 2009 13:32:37 +0300
+
+xiva (0.4.1-5) unstable; urgency=low
+
+  * Server really works (e.g. sends messages). This is the time to measure
+    its performance and to speed it up.
+
+  * Plugin which reads messages from stdin is implemented.
+
+  * Plans for the near future are decided to be in TODO :).
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Tue, 03 Nov 2009 00:00:00 +0300
+
+xiva (0.4.1-4) unstable; urgency=low
+
+  * Need for message_sender interface is realized. This interface is to be able
+    to put messages from dynamically loaded modules.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Mon, 02 Nov 2009 13:52:18 +0300
+
+xiva (0.4.1-3) unstable; urgency=low
+
+  * Free list allocator was removed due to its poor performance. All
+    production general-purpose allocators I am aware of (tc_malloc,
+    jemalloc and ptmalloc3) perform faster (boost::fast_pool_allocator 
+    sucks as well!).
+
+  * m4 scripts was improved to work on various platforms
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Fri, 30 Oct 2009 14:29:08 +0300
+
+xiva (0.4.1-2) unstable; urgency=low
+
+  * accept() added by highpower
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 29 Oct 2009 17:42:35 +0300
+
+xiva (0.4.1-1) unstable; urgency=low
+
+  * Architecture was changed sufficiently: particurarly, levelization of
+    physical dependencies was performed as well as many minor changes. 
+
+  * Python binding was implemented.
+
+  * Unit tests are implemented now with boost::test instead of cppunit.
+
+  * Notifications when connection opens or closes were implemented and 
+    tested.
+
+  * Node-based STL containers now use single-threaded free-list allocator.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Thu, 29 Oct 2009 13:55:07 +0300
+
+xiva (0.3.1-2) unstable; urgency=low
+
+  * Implementation of connection manager was replaced with one based on 
+    boost::multi_index to support multiple connection from one user.
+
+  * Small refactoring was done to ensure that every translation unit
+    can be compiled itself.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Wed, 07 Oct 2009 15:11:37 +0400
+
+xiva (0.3.1-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Oleg Obolenskiy <highpower@yandex-team.ru>  Sat, 07 Mar 2009 01:39:27 +0300

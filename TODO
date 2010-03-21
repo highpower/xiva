@@ -1,0 +1,11 @@
+* Replace std::ostream construction in connection_impl with copying to 
+  streambuf_iterator<char>
+
+* Fix http error response to send text representing error as well http
+  status.
+
+* Make python binding usable.
+
+* Implement asynchronous (in separate thread) receiver recognizing.
+
+* Implement fast (asynchronous) logger.

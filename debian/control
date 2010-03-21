@@ -1,0 +1,49 @@
+Source: xiva
+Priority: optional
+Maintainer: Oleg Obolenskiy <highpower@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0), automake1.9, libtool, autotools-dev, libboost-dev, libboost-thread-dev, libboost-regex-dev, libboost-date-time-dev, libasio-dev
+Standards-Version: 3.6.1
+Section: libs
+
+Package: libxiva
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ This is the core package.
+
+Package: libxiva-dev
+Section: libdevel
+Architecture: any
+Depends: libxiva(=${Source-Version})
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ This is the package containing header files.
+
+Package: xiva-daemon
+Section: binary
+Architecture: any
+Depends: ${shlibs:Depends}, libxiva(=${Source-Version})
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ Daemon package.
+
+Package: xiva-syslog
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, libxiva(=${Source-Version})
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ Syslog logger package.
+
+Package: xiva-stdin-reader
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, libxiva(=${Source-Version})
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ This package contains message reader which reads content from stdin.
+
+Package: xiva-utils
+Section: binary
+Architecture: any
+Depends: ${shlibs:Depends}, libxiva(=${Source-Version})
+Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
+ This package contains utility which reads content from unix socket.
+
