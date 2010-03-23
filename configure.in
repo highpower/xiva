@@ -68,10 +68,7 @@ AX_BOOST_UNIT_TEST([], [ax_have_boost_unit_test="no"])
 AM_CONDITIONAL(HAVE_BOOST_UNIT_TEST, [test "f$ax_have_boost_unit_test" != "fno"])
 
 ax_have_daemon="yes"
-AX_BOOST_REGEX([], [ax_have_daemon="no"])
-PKG_CHECK_MODULES([LIBXML], [libxml-2.0], [], [ax_have_daemon="no"])
-AC_SUBST(LIBXML_LIBS)
-AC_SUBST(LIBXML_CFLAGS)
+AM_PATH_XML2([2.6.29], [], [ax_have_daemon="no"])
 AM_CONDITIONAL(HAVE_DAEMON, [test "f$ax_have_daemon" != "fno"])
 
 AC_SUBST(INCLTDL)

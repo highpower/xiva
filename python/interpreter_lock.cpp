@@ -1,35 +1,40 @@
 #include "acsetup.hpp"
-#include "gil.hpp"
+#include "interpreter_lock.hpp"
 
 #include <Python.h>
 
 namespace xiva { namespace python {
 
-static void
-lock_interpreter() {
+int
+interpreter_init::count_ = 0;
+
+interpreter_init::interpreter_init()
+{
+	if (0 == count_++) {
+		PyEval_InitThreads();
+	}
 }
 
-static void
-unlock_interpreter() {
+interpreter_init::~interpreter_init() {
+	--count_;
 }
-
 
 interpreter_lock::interpreter_lock()
 {
-	lock_interpreter();
+	PyEval_AcquireLock();
 }
 
 interpreter_lock::~interpreter_lock() {
-	unlock_interpreter();
+	PyEval_ReleaseLock();
 }
 
 interpreter_unlock::interpreter_unlock()
 {
-	unlock_interpreter();
+	PyEval_ReleaseLock();
 }
 
 interpreter_unlock::~interpreter_unlock() {
-	lock_interpreter();
+	PyEval_AcquireLock();
 }
 
 }} // namespaces

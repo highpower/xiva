@@ -1,6 +1,6 @@
 #include "acsetup.hpp"
 #include "python_listener.hpp"
-#include "gil.hpp"
+#include "interpreter_lock.hpp"
 
 namespace xiva { namespace python {
 

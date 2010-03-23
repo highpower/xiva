@@ -47,8 +47,8 @@ public:
 	virtual unsigned short listener_threads() const;
 	virtual unsigned short validator_threads() const;
 
-	virtual std::string value(std::string const &name) const;
-	virtual enumeration<std::string>::ptr_type value_list(std::string const &prefix) const;
+	virtual std::string value(char const *name) const;
+	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const;
 	
 private:
 	python_settings(python_settings const &);

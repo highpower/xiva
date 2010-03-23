@@ -21,6 +21,22 @@
 
 namespace xiva { namespace python {
 
+class interpreter_init {
+
+public:
+	interpreter_init();
+	virtual ~interpreter_init();
+	
+private:
+	interpreter_init(interpreter_init const &);
+	interpreter_init& operator = (interpreter_init const &);
+	
+private:
+	static int count_;	
+};
+
+static interpreter_init init_;
+
 class interpreter_lock {
 
 public:
