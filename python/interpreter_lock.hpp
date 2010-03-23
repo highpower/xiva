@@ -1,4 +1,4 @@
-/** @file xml_xml_variable_map.hpp */
+/** @file gil.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,36 +16,49 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DAEMON_XML_VARIABLE_MAP_HPP_INCLUDED
-#define XIVA_DAEMON_XML_VARIABLE_MAP_HPP_INCLUDED
+#ifndef XIVA_PYTHON_GIL_HPP_INCLUDED
+#define XIVA_PYTHON_GIL_HPP_INCLUDED
 
-#include <map>
-#include <string>
-#include <boost/regex.hpp>
+namespace xiva { namespace python {
 
-#include "xiva/reference_counted.hpp"
-
-namespace xiva { namespace daemon {
-
-class xml_variable_map : public reference_counted {
+class interpreter_init {
 
 public:
-	xml_variable_map();
-	virtual ~xml_variable_map();
-	
-	void resolve_variables(std::string &str);
-	void add_variable(std::string const &name, std::string const &value);
+	interpreter_init();
+	virtual ~interpreter_init();
 	
 private:
-	xml_variable_map(xml_variable_map const &);
-	xml_variable_map& operator = (xml_variable_map const &);
-	std::string const& find_variable(std::string const &name) const;
+	interpreter_init(interpreter_init const &);
+	interpreter_init& operator = (interpreter_init const &);
 	
 private:
-	boost::regex regex_;
-	std::map<std::string, std::string> vars_;
+	static int count_;	
+};
+
+static interpreter_init init_;
+
+class interpreter_lock {
+
+public:
+	interpreter_lock();
+	virtual ~interpreter_lock();
+
+private:
+	interpreter_lock(interpreter_lock const &);
+	interpreter_lock& operator = (interpreter_lock const &);
+};
+
+class interpreter_unlock {
+
+public:
+	interpreter_unlock();
+	virtual ~interpreter_unlock();
+
+private:
+	interpreter_unlock(interpreter_unlock const &);
+	interpreter_unlock& operator = (interpreter_unlock const &);
 };
 
 }} // namespaces
 
-#endif // XIVA_DAEMON_XML_VARIABLE_MAP_HPP_INCLUDED
+#endif // XIVA_PYTHON_GIL_HPP_INCLUDED

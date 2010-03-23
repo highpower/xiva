@@ -2,11 +2,11 @@
 
 #include "server.hpp"
 #include "server_class.hpp"
-
-#include "gil.hpp"
 #include "python_matcher.hpp"
 #include "python_listener.hpp"
 #include "python_settings.hpp"
+#include "interpreter_lock.hpp"
+
 #include "details/server_impl.hpp"
 
 namespace xiva { namespace python {

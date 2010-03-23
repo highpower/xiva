@@ -26,7 +26,7 @@
 
 namespace xiva { namespace daemon {
 
-class xml_variable_map;
+class variable_map;
 
 class xml_settings : public settings {
 
@@ -46,8 +46,8 @@ public:
 	virtual unsigned short listener_threads() const;
 	virtual unsigned short matcher_threads() const;
 
-	virtual std::string value(std::string const &name) const;
-	virtual enumeration<std::string>::ptr_type value_list(std::string const &prefix) const;
+	virtual std::string value(char const *name) const;
+	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const;
 	
 private:
 	xml_settings(xml_settings const &);
@@ -58,7 +58,7 @@ private:
 
 private:
 	xml::doc doc_;
-	boost::intrusive_ptr<xml_variable_map> vars_;
+	boost::intrusive_ptr<variable_map> vars_;
 }; 	
 
 }} // namespaces

@@ -25,7 +25,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xml.hpp"
-#include "xml_variable_map.hpp"
+#include "variable_map.hpp"
 #include "xiva/enumeration.hpp"
 
 namespace xiva { namespace daemon {
@@ -34,7 +34,7 @@ template <typename Item>
 class xml_enumeration : public enumeration<Item> {
 
 public:
-	xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<xml_variable_map> const &vars, std::string const &name);
+	xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<variable_map> const &vars, char const *name);
 	virtual ~xml_enumeration();
 	
 	virtual Item next() const;
@@ -48,18 +48,18 @@ private:
 	xmlNodeSetPtr ns_;
 	xml::xpath_object obj_;
 	xml::xpath_context ctx_;
-	boost::intrusive_ptr<xml_variable_map> vars_;
+	boost::intrusive_ptr<variable_map> vars_;
 	mutable std::size_t count_;
 };
 
 template <typename Item> inline
-xml_enumeration<Item>::xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<xml_variable_map> const &vars, std::string const &name) : 
+xml_enumeration<Item>::xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<variable_map> const &vars, char const *name) : 
 	ns_(0), vars_(vars), count_(0)
 {
 	ctx_.reset(xmlXPathNewContext(doc));
 	xml::throw_unless(ctx_);
 	
-	obj_.reset(xmlXPathEvalExpression((xmlChar const*) name.c_str(), ctx_.get()));
+	obj_.reset(xmlXPathEvalExpression((xmlChar const*) name, ctx_.get()));
 	xml::throw_unless(obj_);
 	
 	ns_ = obj_->nodesetval;

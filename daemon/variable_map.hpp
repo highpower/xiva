@@ -1,4 +1,4 @@
-/** @file gil.hpp */
+/** @file variable_map.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,33 +16,36 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_GIL_HPP_INCLUDED
-#define XIVA_PYTHON_GIL_HPP_INCLUDED
+#ifndef XIVA_DAEMON_VARIABLE_MAP_HPP_INCLUDED
+#define XIVA_DAEMON_VARIABLE_MAP_HPP_INCLUDED
 
-namespace xiva { namespace python {
+#include <map>
+#include <string>
 
-class interpreter_lock {
+#include "xiva/reference_counted.hpp"
 
-public:
-	interpreter_lock();
-	virtual ~interpreter_lock();
+namespace xiva { namespace daemon {
 
-private:
-	interpreter_lock(interpreter_lock const &);
-	interpreter_lock& operator = (interpreter_lock const &);
-};
-
-class interpreter_unlock {
+class variable_map : public reference_counted {
 
 public:
-	interpreter_unlock();
-	virtual ~interpreter_unlock();
-
+	variable_map();
+	virtual ~variable_map();
+	
+	void resolve_variables(std::string &str);
+	void add_variable(std::string const &name, std::string const &value);
+	
 private:
-	interpreter_unlock(interpreter_unlock const &);
-	interpreter_unlock& operator = (interpreter_unlock const &);
+	variable_map(variable_map const &);
+	variable_map& operator = (variable_map const &);
+	
+	std::string const& find_variable(std::string const &name) const;
+	void resolve_variables(std::string &str, std::string::size_type begin, std::string::size_type end);
+	
+private:
+	std::map<std::string, std::string> vars_;
 };
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_GIL_HPP_INCLUDED
+#endif // XIVA_DAEMON_VARIABLE_MAP_HPP_INCLUDED

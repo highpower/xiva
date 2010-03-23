@@ -3,24 +3,23 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <boost/lexical_cast.hpp>
 #include <libxml/xinclude.h>
 
 #include "xiva/error.hpp"
-#include "xml_enumeration.hpp"
-#include "xml_variable_map.hpp"
 #include "command_line.hpp"
+#include "variable_map.hpp"
+#include "xml_enumeration.hpp"
 
 namespace xiva { namespace daemon {
 
 xml_settings::xml_settings(char const *name) :
-	doc_(0), vars_(new xml_variable_map())
+	doc_(0), vars_(new variable_map())
 {
 	init(name);
 }
 
 xml_settings::xml_settings(int argc, char *argv[]) :
-	doc_(0), vars_(new xml_variable_map())
+	doc_(0), vars_(new variable_map())
 {
 	command_line args(argc, argv);
 	if (args.is_help_mode()) {
@@ -49,46 +48,46 @@ xml_settings::address() const {
 
 unsigned short
 xml_settings::port() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/endpoint/port"));
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/endpoint/port");
 }
 
 unsigned short
 xml_settings::backlog() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/endpoint/backlog"));
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/endpoint/backlog");
 }
 
 unsigned short
 xml_settings::read_timeout() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/read-timeout"));
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/read-timeout");
 }
 
 unsigned short
 xml_settings::write_timeout() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/write-timeout"));
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/write-timeout");
 }
 
 unsigned int
 xml_settings::inactive_timeout() const {
-	return boost::lexical_cast<unsigned int>(value("/" XIVA_PACKAGE_NAME "/inactive-timeout"));
+	return as<unsigned int>("/" XIVA_PACKAGE_NAME "/inactive-timeout");
 }
 
 unsigned short
 xml_settings::listener_threads() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/listener-threads"));
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/listener-threads");
 }
 
 unsigned short
 xml_settings::matcher_threads() const {
-	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
+	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
 }
 
 std::string
-xml_settings::value(std::string const &name) const {
+xml_settings::value(char const *name) const {
 
 	std::string result;
 	xml::xpath_context ctx(xmlXPathNewContext(doc_.get()));
 	xml::throw_unless(ctx);
-	xml::xpath_object object(xmlXPathEvalExpression((xmlChar const*) name.c_str(), ctx.get()));
+	xml::xpath_object object(xmlXPathEvalExpression((xmlChar const*) name, ctx.get()));
 	xml::throw_unless(object);
 	
 	xmlNodeSetPtr ns = object->nodesetval;
@@ -98,13 +97,13 @@ xml_settings::value(std::string const &name) const {
 			result.assign(value);
 		}
 	}
-	else throw error("nonexistent config param: %s", name.c_str());
+	else throw error("nonexistent config param: %s", name);
 	vars_->resolve_variables(result);
 	return result;
 }
 
 enumeration<std::string>::ptr_type
-xml_settings::value_list(std::string const &name) const {
+xml_settings::value_list(char const *name) const {
 	return enumeration<std::string>::ptr_type(new
 		 xml_enumeration<std::string>(doc_.get(), vars_, name));
 }

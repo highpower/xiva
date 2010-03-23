@@ -63,11 +63,11 @@ python_settings::matcher_threads() const {
 
 
 std::string
-python_settings::value(std::string const &name) const {
+python_settings::value(char const *name) const {
 }
 
 enumeration<std::string>::ptr_type
-python_settings::value_list(std::string const &prefix) const {
+python_settings::value_list(char const *prefix) const {
 }
 	
 }} // namespaces
