@@ -1,3 +1,10 @@
+xiva (0.6.2-0) unstable; urgency=low
+
+  * remove validate_temeout
+  * rename validator_threads to matcher_threads
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 22 Mar 2010 17:29:53 +0300
+
 xiva (0.6.1-0) unstable; urgency=low
 
   * websocket support

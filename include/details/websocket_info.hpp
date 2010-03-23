@@ -34,6 +34,7 @@ public:
 	websocket_info();
 	friend std::ostream& operator << (std::ostream &stream, websocket_info const &val);
 
+	bool empty() const;
 	bool valid() const;
 
 	void parse(request const &req);
@@ -47,7 +48,13 @@ private:
 	std::string origin_;
 	std::string protocol_;
 	std::string location_;
+	bool empty_;
 };
+
+inline bool
+websocket_info::empty() const {
+	return empty_;
+}
 
 inline bool
 websocket_info::valid() const {

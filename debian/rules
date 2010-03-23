@@ -3,6 +3,7 @@
 CXX = g++
 ACLOCAL = /usr/bin/aclocal-1.9
 AUTOMAKE = /usr/bin/automake-1.9
+LIBTOOLIZE = /usr/bin/libtoolize
 
 LDFLAGS = `pkg-config --libs yandex-platform`
 CXXFLAGS = `pkg-config --cflags yandex-platform`
@@ -21,7 +22,7 @@ autogen: autogen-stamp
 
 autogen-stamp:
 	dh_testdir
-	ACLOCAL="$(ACLOCAL)" AUTOMAKE="$(AUTOMAKE)" ./autogen.sh
+	ACLOCAL="$(ACLOCAL)" AUTOMAKE="$(AUTOMAKE)" LIBTOOLIZE="$(LIBTOOLIZE) --force --copy --ltdl" ./autogen.sh
 	touch autogen-stamp
 
 configure: configure-stamp

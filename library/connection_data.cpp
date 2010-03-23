@@ -8,7 +8,7 @@
 namespace xiva { namespace details {
 
 connection_data::connection_data() :
-	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), validate_timeout_(0)
+	read_timeout_(0), write_timeout_(0), inactive_timeout_(0)
 {
 }
 
@@ -21,7 +21,6 @@ connection_data::init(settings const &s) {
 	read_timeout_ = s.read_timeout();
 	write_timeout_ = s.write_timeout();
 	inactive_timeout_ = s.inactive_timeout();
-	validate_timeout_ = s.validate_timeout();
 }
 
 boost::intrusive_ptr<receiver_matcher> const&

@@ -75,14 +75,14 @@ threaded_connection_validator::init(settings const &s) {
 	assert(logger_);
 	
 	boost::function<void()> f = boost::bind(&threaded_connection_validator::thread_func, this);
-	unsigned short threads = s.validator_threads();
+	unsigned short threads = s.matcher_threads();
 	for (unsigned short i = 0; i < threads; ++i) {
 		create_thread(f);
 	}
 }
 						
 
-bool
+void
 threaded_connection_validator::validate(connection_type_ptr conn, request_impl &req) {
 
 	matcher_->check(req);
@@ -91,7 +91,6 @@ threaded_connection_validator::validate(connection_type_ptr conn, request_impl &
 	rp_ptr->req.swap(req);
 
 	input_queue_.push(queue_item_type(rp_ptr, conn));
-	return false; // start validate timer
 }
 
 void

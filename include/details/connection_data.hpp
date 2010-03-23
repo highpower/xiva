@@ -37,7 +37,6 @@ public:
 	unsigned short read_timeout() const;
 	unsigned short write_timeout() const;
 	unsigned int inactive_timeout() const;
-	unsigned int validate_timeout() const;
 
 	boost::intrusive_ptr<receiver_matcher> const& matcher() const;
 	void matcher(boost::intrusive_ptr<receiver_matcher> const &m);
@@ -47,7 +46,7 @@ public:
 
 private:
 	unsigned short read_timeout_, write_timeout_;
-	unsigned int inactive_timeout_, validate_timeout_;
+	unsigned int inactive_timeout_;
 	boost::intrusive_ptr<receiver_matcher> matcher_;
 	//boost::intrusive_ptr<connection_manager> manager_;
 };
@@ -65,11 +64,6 @@ connection_data::write_timeout() const {
 inline unsigned int
 connection_data::inactive_timeout() const {
 	return inactive_timeout_;
-}
-
-inline unsigned int
-connection_data::validate_timeout() const {
-	return validate_timeout_;
 }
 
 }} // namespaces

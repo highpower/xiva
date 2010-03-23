@@ -32,12 +32,16 @@ static std::string const
 WS_STR_LOCATION = "WebSocket-Location";
 
 
-websocket_info::websocket_info() {
+websocket_info::websocket_info() : empty_(true) {
 }
 
 
 std::ostream&
 operator << (std::ostream &stream, websocket_info const &val) {
+
+	if (!val.valid()) {
+		throw std::logic_error("can not print websocket headers");
+	}
 
 	stream << "HTTP/1.1 101 Web Socket Protocol Handshake" << http_constants::endl;
 	stream << WS_STR_UPGRADE << ": " << WS_STR_WEBSOCKET << http_constants::endl;
@@ -59,9 +63,11 @@ operator << (std::ostream &stream, websocket_info const &val) {
 
 void
 websocket_info::parse(request const &req) {
+
 	if (req.header(WS_STR_CONNECTION) != WS_STR_UPGRADE || req.header(WS_STR_UPGRADE) != WS_STR_WEBSOCKET) {
 		return;
 	}
+	empty_ = false;
 
 	std::string const &host = req.header(WS_STR_HOST);
 	if (host.empty()) {

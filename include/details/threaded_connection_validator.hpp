@@ -54,7 +54,7 @@ public:
 	typedef threaded_connection connection_type;
 	typedef boost::intrusive_ptr<connection_type> connection_type_ptr;
 
-	bool validate(connection_type_ptr conn, request_impl &req);
+	void validate(connection_type_ptr conn, request_impl &req);
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void init(settings const &s);
 

@@ -72,7 +72,6 @@ public:
 	void handle_cleanup(syst::error_code const &code);
 	void handle_timeout(syst::error_code const &code);
 	void handle_inactive_timeout(syst::error_code const &code);
-	void handle_validate_timeout(syst::error_code const &code);
 
 	char const* address() const;
 	asio::ip::tcp::socket& socket();
@@ -198,7 +197,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
                 handle_error(code);
                 return;
         }
-        boost::intrusive_ptr<ConnectionBase> self(this);
         try {
                 typedef streambuf_type::const_buffers_type buffers_type;
                 typedef asio::buffers_iterator<buffers_type> iterator_type;
@@ -207,18 +205,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
                 request_impl req(iterator_type::begin(data), iterator_type::end(data));
 		ws_info_.parse(req);
 
-		if (ct_.validator().validate(self, req)) {
-	                if (ConnectionBase::nameref().empty()) {
-    	                    throw http_error(http_error::not_found);
-        	        }
-			insert_valid_connection();
-		}
-		else {
-			connection_impl_ptr_type self(this);
-	    		timer_.expires_from_now(boost::posix_time::milliseconds(data_.validate_timeout()));
-		        timer_.async_wait(boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_validate_timeout, self,
-		                asio::placeholders::error));
-		}
+                boost::intrusive_ptr<ConnectionBase> self(this);
+                ct_.validator().validate(self, req);
         }
         catch (http_error const &h) {
                 write_http_error(h);
@@ -274,18 +262,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_inactive_timeout(syst:
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_validate_timeout(syst::error_code const &code) {
-        if (!code) {
-                logger_->info("validate timeout was reached with connection[%lu] from %s", ConnectionBase::id(), address());
-                cleanup();
-        }
-}
-
-template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::read() {
 
-        connection_impl_ptr_type self(this);
         try {
+	        connection_impl_ptr_type self(this);
                 asio::async_read_until(socket_, in_, header_checker(),
                         boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_read, self, asio::placeholders::error));
                 setup_timeout(data_.read_timeout());
@@ -298,9 +278,14 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_headers(char const *content_type) {
 
-        connection_impl_ptr_type self(this);
+        if (!ws_info_.empty() && !ws_info_.valid()) {
+                cleanup();
+                return;
+        }
+
         try {
                 print_headers(content_type, out_);
+                connection_impl_ptr_type self(this);
                 asio::async_write(socket_, out_,
                         boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_write_headers, self,
                         asio::placeholders::error));
@@ -329,7 +314,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
         try {
                 std::ostream stream(&out_);
                 std::string const &content = message->content();
-                if (ws_info_.valid()) {
+                if (!ws_info_.empty()) {
                         ws_info_.write_message(stream, content);
                 }
                 else {
@@ -349,16 +334,16 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_last_message() {
 
-        if (ws_info_.valid()) {
+        if (!ws_info_.empty()) {
                 cleanup();
                 return;
         }
 
-        connection_impl_ptr_type self(this);
         try {
                 std::ostream stream(&out_);
                 stream << 0 << http_constants::endl;
                 writing_message_ = true;
+                connection_impl_ptr_type self(this);
                 asio::async_write(socket_, out_, boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_cleanup,
                         self, asio::placeholders::error));
                 setup_timeout(data_.write_timeout());
@@ -372,15 +357,15 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error const &http) {
 
         logger_->error("http error occured with connection[%lu] from %s: %s", ConnectionBase::id(), address(), http.what());
-        if (ws_info_.valid()) {
+        if (!ws_info_.empty()) {
                 cleanup();
                 return;
         }
 
-        connection_impl_ptr_type self(this);
         try {
                 print_error(out_, http);
                 std::ostream stream(&out_);
+                connection_impl_ptr_type self(this);
                 asio::async_write(socket_, out_, boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_cleanup,
                         self, asio::placeholders::error));
                 setup_timeout(data_.write_timeout());
@@ -450,7 +435,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(char const *con
 
         std::ostream stream(&buf);
 
-        if (ws_info_.valid()) {
+        if (!ws_info_.empty()) {
                 stream << ws_info_;
         }
 	else {
@@ -463,9 +448,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(char const *con
         stream << http_header("Content-Type", content_type);
         stream << http_constants::endl;
 }
-
-
-
 
 
 }} // namespaces

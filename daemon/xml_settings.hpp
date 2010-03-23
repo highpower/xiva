@@ -42,10 +42,9 @@ public:
 	virtual unsigned short read_timeout() const;
 	virtual unsigned short write_timeout() const;
 	virtual unsigned int inactive_timeout() const;
-	virtual unsigned int validate_timeout() const;
 
 	virtual unsigned short listener_threads() const;
-	virtual unsigned short validator_threads() const;
+	virtual unsigned short matcher_threads() const;
 
 	virtual std::string value(std::string const &name) const;
 	virtual enumeration<std::string>::ptr_type value_list(std::string const &prefix) const;

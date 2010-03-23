@@ -72,19 +72,14 @@ xml_settings::inactive_timeout() const {
 	return boost::lexical_cast<unsigned int>(value("/" XIVA_PACKAGE_NAME "/inactive-timeout"));
 }
 
-unsigned int
-xml_settings::validate_timeout() const {
-	return boost::lexical_cast<unsigned int>(value("/xiva/validate-timeout"));
-}
-
 unsigned short
 xml_settings::listener_threads() const {
-	return boost::lexical_cast<unsigned short>(value("/xiva/listener-threads"));
+	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/listener-threads"));
 }
 
 unsigned short
-xml_settings::validator_threads() const {
-	return boost::lexical_cast<unsigned short>(value("/xiva/validator-threads"));
+xml_settings::matcher_threads() const {
+	return boost::lexical_cast<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
 }
 
 std::string

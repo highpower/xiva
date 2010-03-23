@@ -39,10 +39,9 @@ public:
 	virtual unsigned short read_timeout() const = 0;
 	virtual unsigned short write_timeout() const = 0;
 	virtual unsigned int inactive_timeout() const = 0;
-	virtual unsigned int validate_timeout() const = 0;
 
 	virtual unsigned short listener_threads() const = 0;
-	virtual unsigned short validator_threads() const = 0;
+	virtual unsigned short matcher_threads() const = 0;
 
 	
 	virtual std::string value(std::string const &name) const = 0;
