@@ -2,6 +2,7 @@
 
 #include "server.hpp"
 #include "server_class.hpp"
+#include "python_logger.hpp"
 #include "python_matcher.hpp"
 #include "python_listener.hpp"
 #include "python_settings.hpp"
@@ -34,6 +35,8 @@ server::load(std::string const &name) {
 
 void
 server::attach_logger(py::object const &impl) {
+	boost::intrusive_ptr<logger> l(new python_logger(impl));
+	impl_->attach_logger(l);
 }
 
 void

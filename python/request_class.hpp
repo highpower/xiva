@@ -1,4 +1,4 @@
-/** @file python_logger.hpp */
+/** @file request_class.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,37 +16,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_PYTHON_LOGGER_HPP_INCLUDED
-#define XIVA_PYTHON_PYTHON_LOGGER_HPP_INCLUDED
-
-#include <cstdarg>
-#include <boost/python.hpp>
-
-#include "xiva/logger.hpp"
-
-namespace py = boost::python;
+#ifndef XIVA_PYTHON_REQUEST_CLASS_HPP_INCLUDED
+#define XIVA_PYTHON_REQUEST_CLASS_HPP_INCLUDED
 
 namespace xiva { namespace python {
 
-class python_logger : public logger {
-
-public:
-	python_logger(py::object const &impl);
-	virtual ~python_logger();
-
-	virtual void info(char const *format, ...);
-	virtual void debug(char const *format, ...);
-	virtual void error(char const *format, ...);
-	
-private:
-	python_logger(python_logger const &);
-	python_logger& operator = (python_logger const &);
-	void invoke(char const *method, char const *format, va_list args);
-
-private:
-	py::object impl_;
-};
+void 
+register_request_class() throw ();
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_PYTHON_LOGGER_HPP_INCLUDED
+#endif // XIVA_PYTHON_REQUEST_CLASS_HPP_INCLUDED
