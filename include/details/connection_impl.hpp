@@ -40,6 +40,7 @@
 #include "details/connection_base.hpp"
 #include "details/connection_data.hpp"
 #include "details/http.hpp"
+#include "details/http_constants.hpp"
 #include "details/request_impl.hpp"
 #include "details/header_checker.hpp"
 #include "details/websocket_info.hpp"
@@ -114,6 +115,7 @@ private:
 	std::list<message_ptr_type> messages_;
 
 	websocket_info ws_info_;
+	bool is_policy_;
 };
 
 template <typename ConnectionBase, typename ConnectionTraits> inline char const*
@@ -130,7 +132,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::socket() {
 template <typename ConnectionBase, typename ConnectionTraits> 
 connection_impl<ConnectionBase, ConnectionTraits>::connection_impl(
 	asio::io_service &io, boost::intrusive_ptr<logger> const &log, connection_data const &data, ConnectionTraits &ct) :
-		io_(io), data_(data), ct_(ct), writing_message_(false), logger_(log), timer_(io_), socket_(io_)
+		io_(io), data_(data), ct_(ct), writing_message_(false), logger_(log), timer_(io_), socket_(io_), is_policy_(false)
 {
 }
 
@@ -189,7 +191,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::insert_valid_connection() {
         write_headers(matcher->content_type());
 }
 
-
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code const &code) {
         timer_.cancel();
@@ -202,8 +203,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
                 typedef asio::buffers_iterator<buffers_type> iterator_type;
 
                 buffers_type data = in_.data();
-                request_impl req(iterator_type::begin(data), iterator_type::end(data));
-		ws_info_.parse(req);
+                iterator_type begin = iterator_type::begin(data);
+                iterator_type end = iterator_type::end(data);
+                is_policy_ = data_.is_policy(begin, end);
+                if (is_policy_) {
+                        logger_->debug("policy request for connection[%lu] from %s", ConnectionBase::id(), address());
+                    	if (data_.policy_data().empty()) {
+                                logger_->error("can not answer policy data for connection[%lu] from %s", ConnectionBase::id(), address());
+                                cleanup();
+                        }
+                        else {
+                                write_last_message();
+                        }
+                        return;
+                }
+                request_impl req(begin, end);
+                ws_info_.parse(req);
 
                 boost::intrusive_ptr<ConnectionBase> self(this);
                 ct_.validator().validate(self, req);
@@ -278,7 +293,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_headers(char const *content_type) {
 
-        if (!ws_info_.empty() && !ws_info_.valid()) {
+        if (is_policy_ || (!ws_info_.empty() && !ws_info_.valid())) {
                 cleanup();
                 return;
         }
@@ -341,7 +356,12 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_last_message() {
 
         try {
                 std::ostream stream(&out_);
-                stream << 0 << http_constants::endl;
+                if (is_policy_) {
+                        stream << data_.policy_data() << '\0';
+                }
+                else {
+                        stream << 0 << http_constants::endl;
+                }
                 writing_message_ = true;
                 connection_impl_ptr_type self(this);
                 asio::async_write(socket_, out_, boost::bind(&connection_impl<ConnectionBase, ConnectionTraits>::handle_cleanup,
@@ -357,7 +377,7 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error const &http) {
 
         logger_->error("http error occured with connection[%lu] from %s: %s", ConnectionBase::id(), address(), http.what());
-        if (!ws_info_.empty()) {
+        if (is_policy_ || !ws_info_.empty()) {
                 cleanup();
                 return;
         }

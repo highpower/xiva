@@ -7,6 +7,7 @@
 
 namespace xiva { namespace tests {
 
+/*
 BOOST_AUTO_TEST_SUITE(settings_test)
 
 BOOST_AUTO_TEST_CASE(test_value) {
@@ -28,5 +29,6 @@ BOOST_AUTO_TEST_CASE(test_enumeration) {
 }
 
 BOOST_AUTO_TEST_SUITE_END();
+ */
 
 }} // namespaces

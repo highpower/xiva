@@ -16,6 +16,7 @@ python_settings::python_settings(py::object const &impl) :
 	init_if_exists(impl, "listener_threads", listener_threads_);
 	init_if_exists(impl, "matcher_threads", matcher_threads_);
 	init_if_exists(impl, "address", address_);
+	init_if_exists(impl, "policy_file_name", policy_file_name_);
 }
 
 python_settings::~python_settings() {
@@ -61,6 +62,10 @@ python_settings::matcher_threads() const {
 	return matcher_threads_;
 }
 
+std::string
+python_settings::policy_file_name() const {
+	return policy_file_name_;
+}
 
 std::string
 python_settings::value(char const *name) const {

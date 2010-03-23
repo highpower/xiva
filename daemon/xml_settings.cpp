@@ -82,6 +82,11 @@ xml_settings::matcher_threads() const {
 }
 
 std::string
+xml_settings::policy_file_name() const {
+	return value("/" XIVA_PACKAGE_NAME "/policy-file-name");
+}
+
+std::string
 xml_settings::value(char const *name) const {
 
 	std::string result;

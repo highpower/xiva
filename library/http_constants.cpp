@@ -28,6 +28,9 @@ range<char const*> const
 http_constants::protocol_version = make_range("http/1.1");
 
 range<char const*> const
+http_constants::policy_file_request = make_range("<policy-file-request/>");
+
+range<char const*> const
 http_constants::reversed_headers_end = make_range("\n\r\n\r");
 
 range<char const*> const

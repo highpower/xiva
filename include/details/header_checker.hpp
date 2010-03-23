@@ -49,6 +49,13 @@ header_checker::operator () (Iter first, Iter last) const {
 	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
 	
 	iterator_type begin(last), end(first);
+	if (first != last && *first == '<') {
+		if (*begin == '\0') {
+			return std::make_pair(last, true);
+		}
+		return std::make_pair(last, false);
+	}
+
 	iterator_type pos = std::find(begin, end, '\n');
 	if (end != pos) {
 		range<iterator_type> range(pos, end);

@@ -1,3 +1,9 @@
+xiva (0.6.3-0) unstable; urgency=low
+
+  * added support policy-file-request
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 23 Mar 2010 17:55:29 +0300
+
 xiva (0.6.2-0) unstable; urgency=low
 
   * remove validate_temeout

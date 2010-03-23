@@ -44,6 +44,8 @@ public:
 	virtual unsigned short listener_threads() const = 0;
 	virtual unsigned short matcher_threads() const = 0;
 
+	virtual std::string policy_file_name() const = 0;
+
 	virtual std::string value(char const *name) const = 0;
 	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const = 0;
 	

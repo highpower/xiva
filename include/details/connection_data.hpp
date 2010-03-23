@@ -22,6 +22,8 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
+#include "details/http_constants.hpp"
+#include "details/functors.hpp"
 
 namespace xiva { namespace details {
 
@@ -44,12 +46,27 @@ public:
 	//boost::intrusive_ptr<connection_manager> const& manager() const;
 	//void manager(boost::intrusive_ptr<connection_manager> const &m);
 
+	template <typename Iter>
+	static bool is_policy(Iter begin, Iter end);
+
+	std::string const& policy_data() const;
+
 private:
 	unsigned short read_timeout_, write_timeout_;
 	unsigned int inactive_timeout_;
 	boost::intrusive_ptr<receiver_matcher> matcher_;
 	//boost::intrusive_ptr<connection_manager> manager_;
+	std::string policy_data_;
 };
+
+template <typename Iter> bool
+connection_data::is_policy(Iter begin, Iter end) {
+	if (std::distance(begin, end) < http_constants::policy_file_request.size()) {
+		return false;
+	}
+	return std::equal(
+		http_constants::policy_file_request.begin(), http_constants::policy_file_request.end(), begin, ci_equal<char>());
+}
 
 inline unsigned short
 connection_data::read_timeout() const {
@@ -65,6 +82,12 @@ inline unsigned int
 connection_data::inactive_timeout() const {
 	return inactive_timeout_;
 }
+
+inline std::string const&
+connection_data::policy_data() const {
+	return policy_data_;
+}
+
 
 }} // namespaces
 

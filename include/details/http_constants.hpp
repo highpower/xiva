@@ -34,6 +34,7 @@ struct http_constants {
 	static range<char const*> const cookie;
 	static range<char const*> const param_delimiter;
 	static range<char const*> const protocol_version;
+	static range<char const*> const policy_file_request;
 
 	static range<char const*> const reversed_headers_end;
 	static range<char const*> const reversed_nonstd_headers_end;
