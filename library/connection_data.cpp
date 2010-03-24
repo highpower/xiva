@@ -30,7 +30,7 @@ connection_data::init(settings const &s) {
 	try {
 		policy_file_name = s.policy_file_name();
 	}
-	catch( std::exception &e) {
+	catch (std::exception const &e) {
 		// suppress
 	}
 
@@ -68,17 +68,10 @@ connection_data::matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
 	matcher_ = m;
 }
 
-/*
-boost::intrusive_ptr<connection_manager> const&
-connection_data::manager() const {
-	return manager_;
-}
-
 void
-connection_data::manager(boost::intrusive_ptr<connection_manager> const &m) {
-	assert(m);
-	manager_ = m;
+connection_data::attach_logger(boost::intrusive_ptr<logger> const &log) {
+	assert(log);
+	logger_ = log;
 }
- */
 
 }} // namespaces

@@ -22,6 +22,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
+#include "xiva/logger.hpp"
 #include "details/http_constants.hpp"
 #include "details/functors.hpp"
 
@@ -43,8 +44,8 @@ public:
 	boost::intrusive_ptr<receiver_matcher> const& matcher() const;
 	void matcher(boost::intrusive_ptr<receiver_matcher> const &m);
 
-	//boost::intrusive_ptr<connection_manager> const& manager() const;
-	//void manager(boost::intrusive_ptr<connection_manager> const &m);
+	boost::intrusive_ptr<logger> const& log() const;
+	void attach_logger(boost::intrusive_ptr<logger> const &log);
 
 	template <typename Iter>
 	static bool is_policy(Iter begin, Iter end);
@@ -55,7 +56,7 @@ private:
 	unsigned short read_timeout_, write_timeout_;
 	unsigned int inactive_timeout_;
 	boost::intrusive_ptr<receiver_matcher> matcher_;
-	//boost::intrusive_ptr<connection_manager> manager_;
+	boost::intrusive_ptr<logger> logger_;
 	std::string policy_data_;
 };
 
@@ -86,6 +87,11 @@ connection_data::inactive_timeout() const {
 inline std::string const&
 connection_data::policy_data() const {
 	return policy_data_;
+}
+
+inline boost::intrusive_ptr<logger> const&
+connection_data::log() const {
+	return logger_;
 }
 
 

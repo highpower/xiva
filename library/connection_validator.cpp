@@ -27,7 +27,7 @@ connection_validator::validate(connection_type_ptr conn, request_impl &req) {
 
 	matcher_->check(req);
         std::string receiver = matcher_->receiver(req);
-        conn->validate_result(receiver);
+        conn->validate_result(receiver, matcher_->content_type());
 }
 
 void

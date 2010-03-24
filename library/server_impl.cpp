@@ -52,6 +52,11 @@ server_impl::stop() {
 
 void
 server_impl::start(settings const &s) {
+
+	if (!logger_) {
+		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
+	}
+	data_.attach_logger(logger_);
 	data_.init(s);
 
 	boost::intrusive_ptr<receiver_matcher> matcher = data_.matcher();
@@ -94,9 +99,6 @@ server_impl::start(settings const &s) {
 
 	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));	
 
-	if (!logger_) {
-		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
-	}
 	acceptor_->attach_logger(logger_);
 	message_queue_->attach_logger(logger_);
 	connection_traits_->attach_logger(logger_);

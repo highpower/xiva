@@ -60,9 +60,10 @@ void threaded_connection_validator::pop() {
 		boost::mutex::scoped_lock sl(mutex_);
 		l.swap(validated_connections_);
 		sl.unlock();
+		char const *content_type = matcher_->content_type();
 		for (std::deque<connection_type_ptr>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
 			connection_type_ptr &conn = *i;
-			conn->validate_result(conn->nameref());
+			conn->validate_result(conn->nameref(), content_type);
 		}
 	}
 	catch (std::exception const &e) {
