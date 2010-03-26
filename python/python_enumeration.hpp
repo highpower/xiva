@@ -19,30 +19,35 @@
 #ifndef XIVA_PYTHON_PYTHON_ENUMERATION_HPP_INCLUDED
 #define XIVA_PYTHON_PYTHON_ENUMERATION_HPP_INCLUDED
 
+#include <boost/python.hpp>
 #include "xiva/enumeration.hpp"
 
-namespace xiva { namespace details {
+namespace py = boost::python;
+
+namespace xiva { namespace python {
 
 template <typename Item>
 class python_enumeration : public enumeration<Item> {
 
 public:
-	python_enumeration(py::object const &impl);
+	python_enumeration(py::tuple const &tuple);
 	virtual ~python_enumeration();
 	
 	virtual Item next() const;
-	virtual bool has_more() const;
+	virtual bool empty() const;
 
 private:
 	python_enumeration(python_enumeration const &);
 	python_enumeration& operator = (python_enumeration const &);
 
 private:
-	py::tuple items_;
+	py::tuple tuple_;
+	mutable std::size_t number_;
 };
 
 template <typename Item> inline
-python_enumeration<Item>::python_enumeration()
+python_enumeration<Item>::python_enumeration(py::tuple const &tuple) :
+	tuple_(tuple)
 {
 }
 
@@ -52,10 +57,12 @@ python_enumeration<Item>::~python_enumeration() {
 
 template <typename Item> inline Item
 python_enumeration<Item>::next() const {
+
 }
 
 template <typename Item> inline bool
-python_enumeration<Item>::has_more() const {
+python_enumeration<Item>::empty() const {
+	return number_ == py::len(tuple_);
 }
 
 }} // namespaces

@@ -39,12 +39,12 @@ public:
 	virtual unsigned short port() const;
 	virtual unsigned short backlog() const;
 
-	virtual unsigned short read_timeout() const;
-	virtual unsigned short write_timeout() const;
+	virtual unsigned int read_timeout() const;
+	virtual unsigned int write_timeout() const;
 	virtual unsigned int inactive_timeout() const;
 
-	virtual unsigned short listener_threads() const;
 	virtual unsigned short matcher_threads() const;
+	virtual unsigned short listener_threads() const;
 
 	virtual std::string policy_file_name() const;
 
@@ -54,24 +54,19 @@ public:
 private:
 	python_settings(python_settings const &);
 	python_settings& operator = (python_settings const &);
-	template <typename Result> void init_if_exists(py::object const &impl, char const *method, Result &res) const;
+	template <typename Result> Result get(char const *method, Result const &defval) const;
 
 private:
-	std::string address_, policy_file_name_;
-	unsigned short port_, backlog_, read_timeout_, write_timeout_;
-	unsigned int inactive_timeout_;
-	unsigned short listener_threads_, matcher_threads_;
+	py::object impl_;
 };
 
-template <typename Result> inline void
-python_settings::init_if_exists(py::object const &impl, char const *method, Result &res) const {
-	if (!impl) {
-		return;
+template <typename Result> inline Result
+python_settings::get(char const *method, Result const &defval) const {
+	if (impl_) {
+		return defval;
 	}
-	py::object func = impl.attr(method);
-	if (func) {
-		res = py::call<Result>(func.ptr());
-	}
+	py::object func = impl_.attr(method);
+	return (func) ? py::call<Result>(func.ptr()) : defval;
 }
 
 }} // namespaces

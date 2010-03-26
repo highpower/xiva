@@ -36,18 +36,14 @@ public:
 	virtual ~connection_data();
 
 	void init(settings const &s);
-	unsigned short read_timeout() const;
-	unsigned short write_timeout() const;
+	unsigned int read_timeout() const;
+	unsigned int write_timeout() const;
 	unsigned int inactive_timeout() const;
 
 	boost::intrusive_ptr<receiver_matcher> const& matcher() const;
 	void matcher(boost::intrusive_ptr<receiver_matcher> const &m);
 
-	//boost::intrusive_ptr<connection_manager> const& manager() const;
-	//void manager(boost::intrusive_ptr<connection_manager> const &m);
-
-	template <typename Iter>
-	static bool is_policy(Iter begin, Iter end);
+	template <typename Iter> static bool is_policy(Iter begin, Iter end);
 
 	std::string const& policy_data() const;
 
@@ -55,7 +51,6 @@ private:
 	unsigned short read_timeout_, write_timeout_;
 	unsigned int inactive_timeout_;
 	boost::intrusive_ptr<receiver_matcher> matcher_;
-	//boost::intrusive_ptr<connection_manager> manager_;
 	std::string policy_data_;
 };
 
@@ -68,12 +63,12 @@ connection_data::is_policy(Iter begin, Iter end) {
 		http_constants::policy_file_request.begin(), http_constants::policy_file_request.end(), begin, ci_equal<char>());
 }
 
-inline unsigned short
+inline unsigned int
 connection_data::read_timeout() const {
 	return read_timeout_;
 }
 
-inline unsigned short
+inline unsigned int
 connection_data::write_timeout() const {
 	return write_timeout_;
 }
@@ -87,7 +82,6 @@ inline std::string const&
 connection_data::policy_data() const {
 	return policy_data_;
 }
-
 
 }} // namespaces
 

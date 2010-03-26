@@ -56,12 +56,12 @@ xml_settings::backlog() const {
 	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/endpoint/backlog");
 }
 
-unsigned short
+unsigned int
 xml_settings::read_timeout() const {
 	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/read-timeout");
 }
 
-unsigned short
+unsigned int
 xml_settings::write_timeout() const {
 	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/write-timeout");
 }
@@ -72,13 +72,13 @@ xml_settings::inactive_timeout() const {
 }
 
 unsigned short
-xml_settings::listener_threads() const {
-	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/listener-threads");
+xml_settings::matcher_threads() const {
+	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
 }
 
 unsigned short
-xml_settings::matcher_threads() const {
-	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
+xml_settings::listener_threads() const {
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/listener-threads");
 }
 
 std::string

@@ -39,12 +39,12 @@ public:
 	virtual unsigned short port() const;
 	virtual unsigned short backlog() const;
 
-	virtual unsigned short read_timeout() const;
-	virtual unsigned short write_timeout() const;
+	virtual unsigned int read_timeout() const;
+	virtual unsigned int write_timeout() const;
 	virtual unsigned int inactive_timeout() const;
 
-	virtual unsigned short listener_threads() const;
 	virtual unsigned short matcher_threads() const;
+	virtual unsigned short listener_threads() const;
 
 	virtual std::string policy_file_name() const;
 

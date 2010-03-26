@@ -1,22 +1,12 @@
 #include "acsetup.hpp"
 #include "python_settings.hpp"
+#include "python_enumeration.hpp"
 
 namespace xiva { namespace python {
 
 python_settings::python_settings(py::object const &impl) :
-	address_("127.0.0.1"), port_(8080), backlog_(1024), 
-	read_timeout_(5000), write_timeout_(5000), inactive_timeout_(60000),
-	listener_threads_(5), matcher_threads_(5)
+	impl_(impl)
 {
-	init_if_exists(impl, "port", port_);
-	init_if_exists(impl, "backlog", backlog_);
-	init_if_exists(impl, "read_timeout", read_timeout_);
-	init_if_exists(impl, "write_timeout", write_timeout_);
-	init_if_exists(impl, "inactive_timeout", inactive_timeout_);
-	init_if_exists(impl, "listener_threads", listener_threads_);
-	init_if_exists(impl, "matcher_threads", matcher_threads_);
-	init_if_exists(impl, "address", address_);
-	init_if_exists(impl, "policy_file_name", policy_file_name_);
 }
 
 python_settings::~python_settings() {
@@ -24,55 +14,60 @@ python_settings::~python_settings() {
 	
 std::string
 python_settings::address() const {
-	return address_;
+	return get<std::string>("address", "127.0.0.1");
 }
 
 unsigned short
 python_settings::port() const {
-	return port_;
+	return get<unsigned short>("port", 8080);
 }
 
 unsigned short
 python_settings::backlog() const {
-	return backlog_;
+	return get<unsigned short>("backlog", 1024);
 }
 
-unsigned short
+unsigned int
 python_settings::read_timeout() const {
-	return read_timeout_;
+	return get<unsigned int>("read_timeout", 5000);
 }
 
-unsigned short
+unsigned int
 python_settings::write_timeout() const {
-	return write_timeout_;
+	return get<unsigned int>("write_timeout", 5000);
 }
 
 unsigned int
 python_settings::inactive_timeout() const {
-	return inactive_timeout_;
-}
-
-unsigned short
-python_settings::listener_threads() const {
-	return listener_threads_;
+	return get<unsigned int>("inactive_timeout", 60000);
 }
 
 unsigned short
 python_settings::matcher_threads() const {
-	return matcher_threads_;
+	return get<unsigned short>("matcher_threads", 5);
+}
+
+unsigned short
+python_settings::listener_threads() const {
+	return get<unsigned short>("listener_threads", 5);
 }
 
 std::string
 python_settings::policy_file_name() const {
-	return policy_file_name_;
+	return get<std::string>("policy_file_name", "");
 }
 
 std::string
 python_settings::value(char const *name) const {
+	return impl_ ? py::call_method<std::string>(impl_.ptr(), "value", name) : std::string();
 }
 
 enumeration<std::string>::ptr_type
 python_settings::value_list(char const *prefix) const {
+	if (impl_) {
+		py::tuple tuple = py::call_method<py::tuple>(impl_.ptr(), "value_list", prefix);
+		return enumeration<std::string>::ptr_type(new python_enumeration<std::string>(tuple));
+	}
 }
 	
 }} // namespaces

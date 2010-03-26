@@ -1,4 +1,4 @@
-/** @file details_forward.hpp */
+/** @file python_request.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,25 +16,39 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_FORWARD_HPP_INCLUDED
-#define XIVA_DETAILS_FORWARD_HPP_INCLUDED
+#ifndef XIVA_PYTHON_PYTHON_REQUEST_HPP_INCLUDED
+#define XIVA_PYTHON_PYTHON_REQUEST_HPP_INCLUDED
 
-namespace xiva {
+#include <boost/python.hpp>
 
-class logger;
-class message;
-class request;
-class settings;
-class http_error;
-class component_set;
-class message_sender;
-class receiver_matcher;
-class connection_listener;
+#include "xiva/forward.hpp"
 
-namespace details {
+namespace py = boost::python;
 
-class server_impl;
+namespace xiva { namespace python {
+
+class python_request {
+
+public:
+	python_request(request const &req);
+	virtual ~python_request();
+	
+	py::str url() const;
+	
+	py::str param(std::string const &name) const;
+	bool has_param(std::string const &name) const;
+	py::list params(std::string const &name) const;
+	
+	py::str header(std::string const &name) const;
+	bool has_header(std::string const &name) const;
+
+	py::str cookie(std::string const &name) const;
+	bool has_cookie(std::string const &name) const;
+
+private:
+	request const &req_;
+};
 
 }} // namespaces
 
-#endif // XIVA_DETAILS_FORWARD_HPP_INCLUDED
+#endif // XIVA_PYTHON_PYTHON_REQUEST_HPP_INCLUDED
