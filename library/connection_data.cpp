@@ -1,11 +1,11 @@
 #include "acsetup.hpp"
-#include "details/connection_data.hpp"
 
 #include <fstream>
 #include <stdexcept>
 
 #include "xiva/settings.hpp"
 #include "xiva/receiver_matcher.hpp"
+#include "details/connection_data.hpp"
 
 namespace xiva { namespace details {
 
@@ -19,7 +19,6 @@ connection_data::~connection_data() {
 
 void
 connection_data::init(settings const &s) {
-
 	read_timeout_ = s.read_timeout();
 	write_timeout_ = s.write_timeout();
 	inactive_timeout_ = s.inactive_timeout();
@@ -29,7 +28,7 @@ connection_data::init(settings const &s) {
 		policy_file_name = s.policy_file_name();
 	}
 	catch (std::exception const &e) {
-		(void) e; // suppress
+		// suppress
 	}
 
 	if (!policy_file_name.empty()) {
@@ -64,6 +63,12 @@ void
 connection_data::matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
 	assert(m);
 	matcher_ = m;
+}
+
+void
+connection_data::attach_logger(boost::intrusive_ptr<logger> const &log) {
+	assert(log);
+	logger_ = log;
 }
 
 }} // namespaces

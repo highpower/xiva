@@ -84,7 +84,7 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::accept() {
         try {
                 acceptor_ptr_type self(this);
-                connection_ptr_type conn(new ConnectionImpl(io_, logger_, data_, ct_));
+                connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
                 acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first,
                         self, conn, asio::placeholders::error));
         }
@@ -97,7 +97,7 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::accept_again() {
         try {
                 acceptor_ptr_type self(this);
-                connection_ptr_type conn(new ConnectionImpl(io_, logger_, data_, ct_));
+                connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
                 acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again,
                         self, conn, asio::placeholders::error));
         }

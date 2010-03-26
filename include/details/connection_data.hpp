@@ -22,12 +22,11 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
+#include "xiva/logger.hpp"
 #include "details/http_constants.hpp"
 #include "details/functors.hpp"
 
 namespace xiva { namespace details {
-
-//class connection_manager;
 
 class connection_data {
 
@@ -43,15 +42,19 @@ public:
 	boost::intrusive_ptr<receiver_matcher> const& matcher() const;
 	void matcher(boost::intrusive_ptr<receiver_matcher> const &m);
 
-	template <typename Iter> static bool is_policy(Iter begin, Iter end);
+	boost::intrusive_ptr<logger> const& log() const;
+	void attach_logger(boost::intrusive_ptr<logger> const &log);
+
+	template <typename Iter>
+	static bool is_policy(Iter begin, Iter end);
 
 	std::string const& policy_data() const;
 
 private:
-	unsigned short read_timeout_, write_timeout_;
-	unsigned int inactive_timeout_;
-	boost::intrusive_ptr<receiver_matcher> matcher_;
 	std::string policy_data_;
+	boost::intrusive_ptr<logger> logger_;
+	boost::intrusive_ptr<receiver_matcher> matcher_;
+	unsigned int read_timeout_, write_timeout_, inactive_timeout_;
 };
 
 template <typename Iter> bool
@@ -81,6 +84,11 @@ connection_data::inactive_timeout() const {
 inline std::string const&
 connection_data::policy_data() const {
 	return policy_data_;
+}
+
+inline boost::intrusive_ptr<logger> const&
+connection_data::log() const {
+	return logger_;
 }
 
 }} // namespaces
