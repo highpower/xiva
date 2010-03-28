@@ -15,12 +15,24 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_CONFIG_HPP_INCLUDED
-#define XIVA_CONFIG_HPP_INCLUDED
+#ifndef XIVA_RESPONSE_HPP_INCLUDED
+#define XIVA_RESPONSE_HPP_INCLUDED
 
-#ifdef WIN32
-#else
-#define XIVA_API
-#endif // WIN32
+#include "xiva/config.hpp"
 
-#endif // XIVA_CONFIG_HPP_INCLUDED
+namespace xiva {
+
+class XIVA_API response {
+
+public:
+	response();
+	virtual ~response();
+
+private:
+	response(response const &);
+	response& operator = (response const &);
+};
+
+} // namespace
+
+#endif // XIVA_RESPONSE_HPP_INCLUDED

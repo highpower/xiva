@@ -1,4 +1,3 @@
-/** @file websocket_info.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 

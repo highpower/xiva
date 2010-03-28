@@ -7,7 +7,7 @@ libxiva_la_SOURCES = acceptor_base.cpp component_set.cpp \
 	connection_traits_base.cpp error.cpp http_constants.cpp http.cpp \
 	http_error.cpp logger.cpp matcher_invoker.cpp message.cpp \
 	message_queue.cpp message_sender.cpp receiver_matcher.cpp \
-	request.cpp request_impl.cpp server.cpp server_impl.cpp \
+	request.cpp request_impl.cpp response.cpp server.cpp server_impl.cpp \
 	settings.cpp stdio_logger.cpp system_error.cpp threaded_connection.cpp \
 	threaded_listener.cpp threaded_matcher_invoker.cpp url_matcher.cpp \
 	websocket_info.cpp
