@@ -23,11 +23,11 @@
 
 namespace xiva { namespace details {
 
-template <typename Base, typename Type> 
+template <typename Base, typename Type>
 struct pointer_access {
 };
 
-template <typename Base, typename Type> 
+template <typename Base, typename Type>
 struct pointer_access<Base, Type*> {
 	Type* operator -> () const;
 };
@@ -47,11 +47,11 @@ public:
 
 	class bool_convertible;
 	operator bool_convertible const* () const;
-	
+
 private:
 	resource(resource const &);
 	resource& operator = (resource const &);
-	
+
 private:
 	Type value_;
 	Traits traits_;
@@ -62,25 +62,25 @@ struct default_traits {
 	static Type default_value();
 };
 
-template <typename Base, typename Type> inline Type* 
+template <typename Base, typename Type> inline Type*
 pointer_access<Base, Type*>::operator -> () const {
 	return static_cast<Base const*>(this)->get();
 };
 
 
-template <typename Type, typename Traits> inline 
+template <typename Type, typename Traits> inline
 resource<Type, Traits>::resource() :
-	value_(Traits::default_value()), traits_()
+	value_(Traits::default_value()), traits_() 
 {
 }
 
-template <typename Type, typename Traits> inline 
+template <typename Type, typename Traits> inline
 resource<Type, Traits>::resource(Type value, Traits const &traits) :
 	value_(value), traits_(traits)
 {
 }
 
-template <typename Type, typename Traits> inline 
+template <typename Type, typename Traits> inline
 resource<Type, Traits>::~resource() {
 	if (Traits::default_value() != value_) {
 		traits_.destroy(value_);

@@ -6,7 +6,6 @@
 
 #include "xiva/settings.hpp"
 
-
 namespace xiva { namespace details {
 
 threaded_listener::threaded_listener()
@@ -31,7 +30,7 @@ threaded_listener::thread_func() {
 			notify_connection_opened(dt.first, dt.second);
 		}
 		else {
-			notify_connection_closed(dt.first, dt.second);			
+			notify_connection_closed(dt.first, dt.second);
 		}
 	}
 }

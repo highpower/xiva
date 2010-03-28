@@ -12,8 +12,7 @@
 
 namespace xiva { namespace details {
 
-compound_listener::compound_listener()
-{
+compound_listener::compound_listener() {
 }
 
 compound_listener::~compound_listener() {
@@ -55,13 +54,11 @@ void
 compound_listener::notify_connection_opened(std::string const &to, globals::connection_id const &id) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-			boost::bind(&connection_listener::connection_opened, _1, boost::cref(to), boost::cref(id)));
+		    boost::bind(&connection_listener::connection_opened, _1, boost::cref(to), id));
 	}
 	catch (std::exception const &e) {
-		if (!logger_) {
-			throw;
-		}
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		throw;
 	}
 }
 
@@ -69,13 +66,11 @@ void
 compound_listener::notify_connection_closed(std::string const &to, globals::connection_id const &id) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-			boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), boost::cref(id)));
+		    boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), id));
 	}
 	catch (std::exception const &e) {
-		if (!logger_) {
-			throw;
-		}
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		throw;
 	}
 }
 

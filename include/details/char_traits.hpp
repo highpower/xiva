@@ -28,7 +28,7 @@ struct char_traits;
 
 template <>
 struct char_traits<char> {
-	
+
 	static bool is_space(char value);
 	static bool is_alpha(char value);
 	static bool is_alpha_numeric(char value);

@@ -1,4 +1,4 @@
-/** @file threaded_reference_counted.hpp */
+/** @file threaded_shared.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,34 +16,31 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_THREADED_REFERENCE_COUNTED_HPP_INCLUDED
-#define XIVA_THREADED_REFERENCE_COUNTED_HPP_INCLUDED
+#ifndef XIVA_DETAILS_THREADED_SHARED_HPP_INCLUDED
+#define XIVA_DETAILS_THREADED_SHARED_HPP_INCLUDED
 
 #include <cassert>
-
-#include "xiva/config.hpp"
-
 #include <boost/thread/mutex.hpp>
 
-namespace xiva {
+namespace xiva { namespace details {
 
-class threaded_reference_counted;
+class threaded_shared;
 
-void intrusive_ptr_add_ref(threaded_reference_counted *object); 
-void intrusive_ptr_release(threaded_reference_counted *object); 
+void intrusive_ptr_add_ref(threaded_shared *object);
+void intrusive_ptr_release(threaded_shared *object);
 
-class XIVA_API threaded_reference_counted {
+class threaded_shared {
 
 public:
-	threaded_reference_counted();
-	virtual ~threaded_reference_counted();
+	threaded_shared();
+	virtual ~threaded_shared();
 
 private:
-	threaded_reference_counted(const threaded_reference_counted &);
-	threaded_reference_counted& operator = (const threaded_reference_counted &);
+	threaded_shared(const threaded_shared &);
+	threaded_shared& operator = (const threaded_shared &);
 
-	friend void intrusive_ptr_add_ref(threaded_reference_counted *object);
-	friend void intrusive_ptr_release(threaded_reference_counted *object);
+	friend void intrusive_ptr_add_ref(threaded_shared *object);
+	friend void intrusive_ptr_release(threaded_shared *object);
 
 protected:
 	mutable boost::mutex mutex_;
@@ -53,25 +50,25 @@ private:
 };
 
 inline
-threaded_reference_counted::threaded_reference_counted() : 
+threaded_shared::threaded_shared() :
 	count_(0)
 {
 }
 
-inline 
-threaded_reference_counted::~threaded_reference_counted() {
+inline
+threaded_shared::~threaded_shared() {
 	assert(0 == count_);
 }
 
-inline XIVA_API void
-intrusive_ptr_add_ref(threaded_reference_counted *object) {
+inline void
+intrusive_ptr_add_ref(threaded_shared *object) {
 	boost::mutex::scoped_lock lock(object->mutex_);
 	++object->count_;
 }
 
 
-inline XIVA_API void
-intrusive_ptr_release(threaded_reference_counted *object) {
+inline void
+intrusive_ptr_release(threaded_shared *object) {
 	bool last = false;
 	{
 		boost::mutex::scoped_lock lock(object->mutex_);
@@ -82,6 +79,6 @@ intrusive_ptr_release(threaded_reference_counted *object) {
 	}
 }
 
-} // namespace
+}} // namespaces
 
-#endif // XIVA_THREADED_REFERENCE_COUNTED_HPP_INCLUDED
+#endif // XIVA_DETAILS_THREADED_SHARED_HPP_INCLUDED

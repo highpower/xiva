@@ -19,10 +19,12 @@
 #ifndef XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 
+#include <iterator>
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/logger.hpp"
+
 #include "details/http_constants.hpp"
 #include "details/functors.hpp"
 
@@ -59,11 +61,13 @@ private:
 
 template <typename Iter> bool
 connection_data::is_policy(Iter begin, Iter end) {
-	if (std::distance(begin, end) < http_constants::policy_file_request.size()) {
+
+	typedef typename std::iterator_traits<Iter>::value_type char_type;
+	if (std::distance(begin, end) < http_constants<char_type>::policy_file_request.size()) {
 		return false;
 	}
-	return std::equal(
-		http_constants::policy_file_request.begin(), http_constants::policy_file_request.end(), begin, ci_equal<char>());
+	return std::equal(http_constants<char_type>::policy_file_request.begin(), 
+		http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>());
 }
 
 inline unsigned int

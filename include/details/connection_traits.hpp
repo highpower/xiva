@@ -35,10 +35,8 @@ class connection_traits : public connection_traits_base {
 
 public:
 	typedef connection_manager<ConnectionBase> ConnectionManager;
-
 	typedef boost::intrusive_ptr<ConnectionManager> connection_manager_ptr_type;
 	typedef boost::intrusive_ptr<ConnectionValidator> connection_validator_ptr_type;
-
 
 	connection_traits(connection_manager_ptr_type cm, connection_validator_ptr_type cv);
 	virtual ~connection_traits();
@@ -53,7 +51,6 @@ private:
 	connection_manager_ptr_type cm_;
 	connection_validator_ptr_type cv_;
 };
-
 
 template <typename ConnectionBase, typename ConnectionValidator> inline
 connection_traits<ConnectionBase, ConnectionValidator>::connection_traits(connection_manager_ptr_type cm, connection_validator_ptr_type cv) :
@@ -89,7 +86,6 @@ connection_traits<ConnectionBase, ConnectionValidator>::init(settings const &s) 
 	cm_->init(s);
 	cv_->init(s);
 }
-
 
 }} // namespaces
 

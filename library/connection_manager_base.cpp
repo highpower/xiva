@@ -3,8 +3,7 @@
 
 namespace xiva { namespace details {
 
-connection_manager_base::connection_manager_base()
-{
+connection_manager_base::connection_manager_base() {
 }
 
 connection_manager_base::~connection_manager_base() {

@@ -7,7 +7,7 @@
 namespace xiva { namespace python {
 
 python_request::python_request(request const &req) :
-	req_(req)
+	req_(req) 
 {
 }
 
@@ -56,7 +56,7 @@ python_request::has_cookie(std::string const &name) const {
 	return req_.has_cookie(name);
 }
 
-void 
+void
 register_request_class() throw () {
 
 	py::class_<python_request> reg("request", py::no_init);

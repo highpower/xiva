@@ -1,4 +1,4 @@
-/** @file config.hpp */
+/** @file http_constants.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -20,11 +20,16 @@
 #define XIVA_DETAILS_HTTP_CONSTANTS_HPP_INCLUDED
 
 #include <string>
+
 #include "details/range.hpp"
 
 namespace xiva { namespace details {
 
-struct http_constants {
+template <typename Char>
+struct http_constants;
+
+template <>
+struct http_constants<char> {
 
 	static char const* const endl;
 	static std::string const empty_string;
@@ -41,6 +46,5 @@ struct http_constants {
 };
 
 }} // namespaces
-
 
 #endif // XIVA_DETAILS_HTTP_CONSTANTS_HPP_INCLUDED

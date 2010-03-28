@@ -3,8 +3,7 @@
 
 namespace xiva { namespace tests {
 
-mock_logger::mock_logger()
-{
+mock_logger::mock_logger() {
 }
 
 mock_logger::~mock_logger() {

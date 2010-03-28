@@ -7,11 +7,13 @@
 
 namespace py = boost::python;
 
-namespace xiva { namespace python {
+namespace xiva {
+namespace python {
 
 BOOST_PYTHON_MODULE(xiva) {
 	register_server_class();
 	register_request_class();
 }
 
-}} // namespaces
+}
+} // namespaces

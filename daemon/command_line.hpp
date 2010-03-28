@@ -33,12 +33,12 @@ public:
 	bool is_help_mode() const;
 	bool is_dump_mode() const;
 	bool is_config_file_set() const;
-	
+
 	std::string const& config_file() const;
 	std::string const& dump_variable() const;
 
 	static std::ostream& print_usage(std::ostream &stream);
-	
+
 private:
 	bool help_mode_;
 	std::string config_file_, dump_variable_;

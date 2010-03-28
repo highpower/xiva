@@ -49,7 +49,7 @@ public:
 	static http_header server();
 	static http_header connection_close();
 	static http_header connection_keep_alive();
-	
+
 private:
 	char const *name_, *value_;
 };

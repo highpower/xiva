@@ -1,7 +1,7 @@
 #include "acsetup.hpp"
 #include "xiva/logger.hpp"
 
-namespace xiva { 
+namespace xiva {
 
 logger::logger()
 {

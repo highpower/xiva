@@ -25,20 +25,21 @@
 
 namespace py = boost::python;
 
-namespace xiva { namespace python {
+namespace xiva {
+namespace python {
 
 class python_request {
 
 public:
 	python_request(request const &req);
 	virtual ~python_request();
-	
+
 	py::str url() const;
-	
+
 	py::str param(std::string const &name) const;
 	bool has_param(std::string const &name) const;
 	py::list params(std::string const &name) const;
-	
+
 	py::str header(std::string const &name) const;
 	bool has_header(std::string const &name) const;
 
@@ -49,6 +50,7 @@ private:
 	request const &req_;
 };
 
-}} // namespaces
+}
+} // namespaces
 
 #endif // XIVA_PYTHON_PYTHON_REQUEST_HPP_INCLUDED

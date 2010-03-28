@@ -21,15 +21,12 @@
 
 #include <boost/intrusive_ptr.hpp>
 
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
-#include "xiva/reference_counted.hpp"
-#include "xiva/logger.hpp"
-
 
 namespace xiva { namespace details {
 
-
-class connection_traits_base : public reference_counted {
+class connection_traits_base : public shared {
 
 public:
 	connection_traits_base();
@@ -42,7 +39,6 @@ private:
 	connection_traits_base(connection_traits_base const &);
 	connection_traits_base& operator = (connection_traits_base const &);
 };
-
 
 }} // namespaces
 

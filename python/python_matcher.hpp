@@ -32,7 +32,7 @@ class python_matcher : public receiver_matcher {
 public:
 	python_matcher(py::object const &impl);
 	virtual ~python_matcher();
-	
+
 	virtual bool threaded() const;
 	virtual char const* content_type() const;
 	virtual std::string receiver(request const &req) const;
@@ -40,7 +40,7 @@ public:
 private:
 	python_matcher(python_matcher const &);
 	python_matcher& operator = (python_matcher const &);
-	
+
 private:
 	py::object impl_;
 };

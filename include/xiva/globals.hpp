@@ -21,7 +21,7 @@
 
 namespace xiva {
 
-class message_sender; 
+class message_sender;
 
 struct globals {
 	typedef void (provider_type) (message_sender&);

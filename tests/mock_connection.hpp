@@ -31,14 +31,14 @@ class mock_connection : public details::connection {
 public:
 	mock_connection(std::string const &to);
 	virtual ~mock_connection();
-	
+
 	bool finished() const;
 	std::size_t message_count() const;
-	
+
 	virtual void finish();
 	virtual void send(boost::shared_ptr<message> const &m);
-	virtual void validate_result(std::string const &to, char const *content_type);
-	
+	virtual void matched(std::string const &to, char const *content_type);
+
 private:
 	mock_connection(mock_connection const &);
 	mock_connection& operator = (mock_connection const &);

@@ -35,7 +35,7 @@ public:
 
 	virtual void connection_opened(std::string const &to, globals::connection_id const &id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id const &id) throw (std::exception);
-	
+
 private:
 	python_listener(python_listener const &);
 	python_listener& operator = (python_listener const &);

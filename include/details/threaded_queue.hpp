@@ -54,7 +54,7 @@ threaded_queue<Item>::threaded_queue() :
 {
 }
 
-template <typename Item> inline 
+template <typename Item> inline
 threaded_queue<Item>::~threaded_queue() {
 }
 

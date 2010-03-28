@@ -1,4 +1,4 @@
-/** @file gil.hpp */
+/** @file interpreter_lock.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_GIL_HPP_INCLUDED
-#define XIVA_PYTHON_GIL_HPP_INCLUDED
+#ifndef XIVA_PYTHON_INTERPRETER_LOCK_HPP_INCLUDED
+#define XIVA_PYTHON_INTERPRETER_LOCK_HPP_INCLUDED
 
 namespace xiva { namespace python {
 
@@ -26,13 +26,13 @@ class interpreter_init {
 public:
 	interpreter_init();
 	virtual ~interpreter_init();
-	
+
 private:
 	interpreter_init(interpreter_init const &);
 	interpreter_init& operator = (interpreter_init const &);
-	
+
 private:
-	static int count_;	
+	static int count_;
 };
 
 static interpreter_init init_;
@@ -61,4 +61,4 @@ private:
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_GIL_HPP_INCLUDED
+#endif // XIVA_PYTHON_INTERPRETER_LOCK_HPP_INCLUDED

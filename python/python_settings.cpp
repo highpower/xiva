@@ -11,7 +11,7 @@ python_settings::python_settings(py::object const &impl) :
 
 python_settings::~python_settings() {
 }
-	
+
 std::string
 python_settings::address() const {
 	return get<std::string>("address", "127.0.0.1");
@@ -69,5 +69,5 @@ python_settings::value_list(char const *prefix) const {
 		return enumeration<std::string>::ptr_type(new python_enumeration<std::string>(tuple));
 	}
 }
-	
+
 }} // namespaces

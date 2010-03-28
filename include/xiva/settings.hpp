@@ -48,17 +48,17 @@ public:
 
 	virtual std::string value(char const *name) const = 0;
 	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const = 0;
-	
+
 	std::string value(std::string const &name) const;
 	enumeration<std::string>::ptr_type value_list(std::string const &prefix) const;
-	
+
 	template <typename X> X as(char const *name) const;
 	template <typename X> X as(std::string const &name) const;
 
 private:
 	settings(settings const &);
 	settings& operator = (settings const &);
-}; 	
+};
 
 template <typename X> inline X
 settings::as(char const *name) const {

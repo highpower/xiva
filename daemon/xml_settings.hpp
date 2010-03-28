@@ -50,7 +50,7 @@ public:
 
 	virtual std::string value(char const *name) const;
 	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const;
-	
+
 private:
 	xml_settings(xml_settings const &);
 	xml_settings& operator = (xml_settings const &);
@@ -61,7 +61,7 @@ private:
 private:
 	xml::doc doc_;
 	boost::intrusive_ptr<variable_map> vars_;
-}; 	
+};
 
 }} // namespaces
 

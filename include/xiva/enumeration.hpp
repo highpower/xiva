@@ -22,17 +22,17 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/config.hpp"
-#include "xiva/reference_counted.hpp"
+#include "xiva/shared.hpp"
 
 namespace xiva {
 
 template <typename Item>
-class XIVA_API enumeration : public reference_counted {
+class XIVA_API enumeration : public shared {
 
 public:
 	enumeration();
 	virtual ~enumeration();
-	
+
 	typedef Item value_type;
 	typedef enumeration<value_type> type;
 	typedef boost::intrusive_ptr<type> ptr_type;
@@ -46,8 +46,7 @@ private:
 };
 
 template <typename Item> inline
-enumeration<Item>::enumeration()
-{
+enumeration<Item>::enumeration() {
 }
 
 template <typename Item> inline

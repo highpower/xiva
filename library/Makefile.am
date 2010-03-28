@@ -1,15 +1,15 @@
 lib_LTLIBRARIES = libxiva.la
 
 libxiva_la_LDFLAGS = @BOOST_THREAD_LDFLAGS@ @BOOST_SYSTEM_LDFLAGS@
-libxiva_la_SOURCES = acceptor_base.cpp component_set.cpp compound_listener.cpp \
-	connection.cpp connection_base.cpp connection_data.cpp \
-	connection_listener.cpp connection_manager_base.cpp \
-	connection_traits_base.cpp connection_validator.cpp error.cpp \
-	http_constants.cpp http.cpp http_error.cpp logger.cpp \
-	message.cpp message_queue.cpp message_sender.cpp receiver_matcher.cpp \
-	request.cpp request_impl.cpp server.cpp server_impl.cpp settings.cpp \
-	stdio_logger.cpp system_error.cpp threaded_connection.cpp \
-	threaded_connection_validator.cpp threaded_listener.cpp url_matcher.cpp \
+libxiva_la_SOURCES = acceptor_base.cpp component_set.cpp \
+	compound_listener.cpp connection_base.cpp connection.cpp \
+	connection_data.cpp connection_listener.cpp connection_manager_base.cpp \
+	connection_traits_base.cpp error.cpp http_constants.cpp http.cpp \
+	http_error.cpp logger.cpp matcher_invoker.cpp message.cpp \
+	message_queue.cpp message_sender.cpp receiver_matcher.cpp \
+	request.cpp request_impl.cpp server.cpp server_impl.cpp \
+	settings.cpp stdio_logger.cpp system_error.cpp threaded_connection.cpp \
+	threaded_listener.cpp threaded_matcher_invoker.cpp url_matcher.cpp \
 	websocket_info.cpp
 
 noinst_LTLIBRARIES = libxiva-loader.la

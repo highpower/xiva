@@ -34,7 +34,7 @@ public:
 
 	std::string const& content() const;
 	void content(std::string const &value);
-	
+
 private:
 	message(message const &);
 	message& operator = (message const &);
@@ -43,10 +43,9 @@ private:
 	std::string content_;
 };
 
-template <typename Iter> inline 
+template <typename Iter> inline
 message::message(Iter begin, Iter end) :
-	content_(begin, end)
-{
+		content_(begin, end) {
 }
 
 } // namespace

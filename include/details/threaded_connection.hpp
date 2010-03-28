@@ -23,12 +23,12 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-#include "xiva/threaded_reference_counted.hpp"
 #include "details/connection_base.hpp"
+#include "details/threaded_shared.hpp"
 
 namespace xiva { namespace details {
 
-class threaded_connection : public threaded_reference_counted, public connection_base {
+class threaded_connection : public threaded_shared, public connection_base {
 
 public:
 	threaded_connection();
@@ -46,12 +46,10 @@ private:
 	std::string name_;
 };
 
-
 inline std::string const&
 threaded_connection::nameref() const {
 	return name_;
 }
-
 
 }} // namespaces
 

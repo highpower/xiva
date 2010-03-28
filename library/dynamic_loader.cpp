@@ -16,8 +16,7 @@ struct handle_traits : public default_traits<lt_dlhandle> {
 	void destroy(lt_dlhandle handle);
 };
 
-dynamic_loader::dynamic_loader()
-{
+dynamic_loader::dynamic_loader() {
 	lt_dlinit();
 }
 
@@ -28,7 +27,7 @@ dynamic_loader::~dynamic_loader() {
 
 void
 dynamic_loader::load_module(std::string const &name, settings const &s, component_set &cs) {
-	
+
 	typedef void (*register_func_type)(settings const &, component_set &);
 	if (name.empty()) {
 		throw error("cannot load empty module");
@@ -36,7 +35,7 @@ dynamic_loader::load_module(std::string const &name, settings const &s, componen
 
 	resource<lt_dlhandle, handle_traits> handle(lt_dlopen(name.c_str()));
 	check_loaded(handle);
-	
+
 	register_func_type func = (register_func_type) lt_dlsym(handle.get(), "xiva_register_module");
 	if (!func) {
 		throw error("cannot find xiva_register_module function in %s", name.c_str());

@@ -1,11 +1,11 @@
 #include "acsetup.hpp"
+#include "details/connection_data.hpp"
 
 #include <fstream>
 #include <stdexcept>
 
 #include "xiva/settings.hpp"
 #include "xiva/receiver_matcher.hpp"
-#include "details/connection_data.hpp"
 
 namespace xiva { namespace details {
 
@@ -49,7 +49,7 @@ connection_data::init(settings const &s) {
 		std::string data;
 		data.resize(size);
 		is.read(&data[0], size);
-		
+
 		policy_data_.swap(data);
 	}
 }

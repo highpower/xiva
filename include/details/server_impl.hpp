@@ -31,7 +31,7 @@
 #include "xiva/forward.hpp"
 #include "xiva/component_set.hpp"
 #include "xiva/globals.hpp"
-#include "xiva/reference_counted.hpp"
+
 #include "details/asio.hpp"
 #include "details/connection_data.hpp"
 #include "details/compound_listener.hpp"
@@ -86,7 +86,7 @@ private:
 	boost::intrusive_ptr<compound_listener> listener_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<receiver_matcher> matcher_;
-	boost::intrusive_ptr<message_queue> message_queue_;	
+	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<connection_traits_base> connection_traits_;
 };

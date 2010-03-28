@@ -23,20 +23,18 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
-#include "xiva/reference_counted.hpp"
-
 
 namespace xiva { namespace details {
 
-
-class connection_manager_base : public reference_counted {
+class connection_manager_base : public shared {
 
 public:
 	connection_manager_base();
 	virtual ~connection_manager_base();
-	
+
 	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
 
 	virtual void finish() = 0;
@@ -52,7 +50,6 @@ private:
 	connection_manager_base(connection_manager_base const &);
 	connection_manager_base& operator = (connection_manager_base const &);
 };
-
 
 }} // namespaces
 

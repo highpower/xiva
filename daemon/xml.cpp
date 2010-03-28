@@ -50,15 +50,14 @@ attr_value(xmlNodePtr node, char const *name) {
 }
 
 extern "C" void
-xiva_xml_null_error(void *ctx, char const *format, ...) {
+	xiva_xml_null_error(void *ctx, char const *format, ...) {
 
 	(void) ctx;
 	(void) format;
 
 }
 
-xml_setup::xml_setup()
-{
+xml_setup::xml_setup() {
 	xmlSetGenericErrorFunc(0, &xiva_xml_null_error);
 }
 

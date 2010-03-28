@@ -17,18 +17,18 @@ namespace xiva { namespace tests {
 
 using namespace details;
 
-typedef boost::mpl::list<std::vector<char>, std::list<char>, 
-	range<char const*>, std::string> line_reader_test_types;
+typedef boost::mpl::list<std::vector<char>, std::list<char>,
+range<char const*>, std::string> line_reader_test_types;
 
 BOOST_AUTO_TEST_SUITE(line_reader_test)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_read_lines, Range, line_reader_test_types) {
-	
+
 	char const* values[] = { "123", "456", "789" };
-	
+
 	Range const value = as<Range>("123\n456\n789");
 	typedef typename Range::const_iterator iterator_type;
-	
+
 	range<iterator_type> result;
 	line_reader<iterator_type> reader(value.begin(), value.end());
 
@@ -39,12 +39,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_read_lines, Range, line_reader_test_types) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_read_spaces, Range, line_reader_test_types) {
 
-	
+
 	char const* values[] = { "123\n 123\n 123\n 123", "456", "789" };
-	
+
 	Range const value = as<Range>("123\n 123\n 123\n 123\n456\n789");
 	typedef typename Range::const_iterator iterator_type;
-	
+
 	range<iterator_type> result;
 	line_reader<iterator_type> reader(value.begin(), value.end());
 

@@ -23,11 +23,11 @@ queue_thread_push_func(threaded_queue<std::size_t> &queue) {
 }
 
 BOOST_AUTO_TEST_CASE(test_queue_push) {
-	
+
 	threaded_queue<std::size_t> queue;
 	boost::function<void()> f = boost::bind(&queue_thread_push_func, boost::ref(queue));
 	boost::thread thread(f);
-	
+
 	std::size_t item = 0;
 	for (std::size_t i = 0; queue.pop(item); ++i) {
 		BOOST_CHECK_EQUAL(i, item);

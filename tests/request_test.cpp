@@ -18,8 +18,8 @@ namespace xiva { namespace tests {
 
 using namespace details;
 
-typedef boost::mpl::list<std::vector<char>, 
-	std::list<char>, std::string> request_test_types;
+typedef boost::mpl::list<std::vector<char>,
+std::list<char>, std::string> request_test_types;
 
 BOOST_AUTO_TEST_SUITE(request_test)
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_get, Range, request_test_types) {
 	stream << "GET /test?id=1;reason=test HTTP/1.1\r\n";
 	stream << "\r\n";
 	std::string content = stream.str();
-	
+
 	Range range(content.begin(), content.end());
 	request_impl req(range.begin(), range.end());
 	BOOST_CHECK_EQUAL("1", req.param("id"));
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_cookies, Range, request_test_types) {
 	stream << "Cookie: reason=test; id=1\r\n";
 	stream << "\r\n";
 	std::string content = stream.str();
-	
+
 	Range range(content.begin(), content.end());
 	request_impl req(range.begin(), range.end());
 	BOOST_CHECK_EQUAL("1", req.cookie("id"));
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_complex_get, Range, request_test_types) {
 	stream << " text/html\r\n";
 	stream << "\r\n";
 	std::string content = stream.str();
-	
+
 	Range range(content.begin(), content.end());
 	request_impl req(range.begin(), range.end());
 	BOOST_CHECK_EQUAL("text/css; text/html", req.header("accept"));
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_bad_method, Range, request_test_types) {
 	std::stringstream stream;
 	stream << "post /test?id=1;reason=test http/1.1\r\n";
 	stream << "r\n";
- 	std::string content = stream.str();
-	
+	std::string content = stream.str();
+
 	Range range(content.begin(), content.end());
 	BOOST_CHECK_EXCEPTION(request_impl(range.begin(), range.end()), http_error, is_bad_method);
 }
@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_bad_protocol_version, Range, request_test_typ
 	std::stringstream stream;
 	stream << "get /test?id=1;reason=test http/0.9\r\n";
 	stream << "\r\n";
- 	std::string content = stream.str();
-	
+	std::string content = stream.str();
+
 	Range range(content.begin(), content.end());
 	BOOST_CHECK_EXCEPTION(request_impl(range.begin(), range.end()), http_error, is_bad_protocol_version);
 }

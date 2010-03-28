@@ -21,7 +21,7 @@
 
 namespace xiva { namespace python {
 
-void 
+void
 register_request_class() throw ();
 
 }} // namespaces

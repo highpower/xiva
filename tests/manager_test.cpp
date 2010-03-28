@@ -41,14 +41,14 @@ BOOST_AUTO_TEST_CASE(test_add) {
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
-	
+
 	connection_ptr_type conn(new mock_connection("highpower"));
 	manager.insert_connection(conn);
 	BOOST_CHECK_EXCEPTION(manager.insert_connection(conn), error, accept_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_deletion) {
-	
+
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_messaging) {
 	fill_connections(manager, connections, 10, "swan");
 	fill_connections(manager, connections, 10, "bobuk");
 	fill_connections(manager, connections, 5, "highpower");
-	
+
 	manager.send("highpower", boost::shared_ptr<message>());
 	for (std::size_t i = 0 ; i < 1000; ++i) {
 		manager.send("swan", boost::shared_ptr<message>());
@@ -101,17 +101,16 @@ BOOST_AUTO_TEST_CASE(test_finishing) {
 	fill_connections(manager, connections, 10, "swan");
 	fill_connections(manager, connections, 10, "bobuk");
 	fill_connections(manager, connections, 5, "highpower");
-	
+
 	for (std::vector<connection_ptr_type>::const_iterator i = connections.begin(), end = connections.end(); i != end; ++i) {
 		BOOST_CHECK(!(*i)->finished());
 	}
 	manager.finish();
 	for (std::vector<connection_ptr_type>::const_iterator i = connections.begin(), end = connections.end(); i != end; ++i) {
-		BOOST_CHECK((*i)->finished());	
+		BOOST_CHECK((*i)->finished());
 	}
-	
-}	
 
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

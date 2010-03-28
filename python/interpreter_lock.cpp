@@ -8,8 +8,7 @@ namespace xiva { namespace python {
 int
 interpreter_init::count_ = 0;
 
-interpreter_init::interpreter_init()
-{
+interpreter_init::interpreter_init() {
 	if (0 == count_++) {
 		PyEval_InitThreads();
 	}
@@ -19,8 +18,7 @@ interpreter_init::~interpreter_init() {
 	--count_;
 }
 
-interpreter_lock::interpreter_lock()
-{
+interpreter_lock::interpreter_lock() {
 	PyEval_AcquireLock();
 }
 
@@ -28,8 +26,7 @@ interpreter_lock::~interpreter_lock() {
 	PyEval_ReleaseLock();
 }
 
-interpreter_unlock::interpreter_unlock()
-{
+interpreter_unlock::interpreter_unlock() {
 	PyEval_ReleaseLock();
 }
 

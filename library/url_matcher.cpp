@@ -34,7 +34,7 @@ url_matcher::receiver(request const &req) const {
 
 std::string
 url_matcher::receiver(std::string const &url) const {
-	
+
 	std::string::const_iterator s = url.begin();
 	std::string::size_type spos = url.rfind('/');
 	if (std::string::npos != spos) {

@@ -19,7 +19,7 @@ python_logger::info(char const *format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	
+
 	interpreter_lock lock;
 	invoke("info", format, args);
 	va_end(args);
@@ -30,7 +30,7 @@ python_logger::debug(char const *format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	
+
 	interpreter_lock lock;
 	invoke("debug", format, args);
 	va_end(args);
@@ -41,7 +41,7 @@ python_logger::error(char const *format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	
+
 	interpreter_lock lock;
 	invoke("error", format, args);
 	va_end(args);

@@ -6,8 +6,7 @@
 
 namespace xiva {
 
-error::error(char const *format, ...)
-{
+error::error(char const *format, ...) {
 	va_list args;
 	va_start(args, format);
 	vsnprintf(buffer_, message_size, format, args);

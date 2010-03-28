@@ -17,8 +17,7 @@ wrap_strerror(int, char const *buffer) {
 }
 
 system_error::system_error(char const *message) :
-	error("%s", message)
-{
+		error("%s", message) {
 }
 
 system_error::~system_error() throw () {

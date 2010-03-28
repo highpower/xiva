@@ -22,19 +22,19 @@
 #include <string>
 #include <boost/intrusive_ptr.hpp>
 
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
-#include "xiva/reference_counted.hpp"
 
 namespace xiva { namespace details {
 
-class acceptor_base : public reference_counted {
+class acceptor_base : public shared {
 
 public:
 	acceptor_base();
 	virtual ~acceptor_base();
 
 	virtual void accept() = 0;
-	
+
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
 	virtual void bind(std::string const &addr, unsigned short port, unsigned short backlog) = 0;
 	virtual void stop() = 0;

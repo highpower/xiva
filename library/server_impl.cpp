@@ -8,19 +8,17 @@
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
 
-
 #include "details/acceptor.hpp"
 #include "details/url_matcher.hpp"
 #include "details/stdio_logger.hpp"
 #include "details/message_queue.hpp"
 #include "details/threaded_listener.hpp"
 #include "details/connection.hpp"
-#include "details/connection_validator.hpp"
+#include "details/matcher_invoker.hpp"
 #include "details/threaded_connection.hpp"
-#include "details/threaded_connection_validator.hpp"
+#include "details/threaded_matcher_invoker.hpp"
 #include "details/connection_manager.hpp"
 #include "details/connection_traits.hpp"
-
 
 namespace xiva { namespace details {
 
@@ -28,7 +26,6 @@ server_impl::server_impl() :
 	io_(), strand_(io_), data_()
 {
 	listener_ = boost::intrusive_ptr<compound_listener>(new threaded_listener());
-
 }
 
 server_impl::~server_impl() {
@@ -65,45 +62,39 @@ server_impl::start(settings const &s) {
 	}
 
 	if (data_.matcher()->threaded()) {
-		typedef threaded_connection_validator connection_validator_type;
+		typedef threaded_matcher_invoker invoker_type;
+        typedef invoker_type::connection_type connection_type;
+        typedef connection_manager<connection_type> manager_type;
+		typedef connection_traits<connection_type, invoker_type> traits_type;
+		typedef acceptor<connection_type, traits_type> acceptor_type;
 
-		typedef connection_validator_type::connection_type connection_base_type;
-		typedef connection_manager<connection_base_type> connection_manager_type;
-		typedef connection_traits<connection_base_type, connection_validator_type> connection_traits_type;
-		typedef acceptor<connection_base_type, connection_traits_type> acceptor_type;
-
-		boost::intrusive_ptr<connection_manager_type> cm(new connection_manager_type(listener_));
-		boost::intrusive_ptr<connection_validator_type> cv(new connection_validator_type(io_, data_));
-		boost::intrusive_ptr<connection_traits_type> ct(new connection_traits_type(cm, cv));
-		
+		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
+		boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, data_));
+		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
 		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, data_, *ct));
 		connection_manager_ = cm;
 		connection_traits_ = ct;
 	}
 	else {
-		typedef connection_validator connection_validator_type;
+		typedef matcher_invoker invoker_type;
+		typedef invoker_type::connection_type connection_type;
+		typedef connection_manager<connection_type> manager_type;
+		typedef connection_traits<connection_type, invoker_type> traits_type;
+		typedef acceptor<connection_type, traits_type> acceptor_type;
 
-		typedef connection_validator_type::connection_type connection_base_type;
-		typedef connection_manager<connection_base_type> connection_manager_type;
-		typedef connection_traits<connection_base_type, connection_validator_type> connection_traits_type;
-		typedef acceptor<connection_base_type, connection_traits_type> acceptor_type;
-
-		boost::intrusive_ptr<connection_manager_type> cm(new connection_manager_type(listener_));
-		boost::intrusive_ptr<connection_validator_type> cv(new connection_validator_type(data_));
-		boost::intrusive_ptr<connection_traits_type> ct(new connection_traits_type(cm, cv));
-		
+		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
+		boost::intrusive_ptr<invoker_type> cv(new invoker_type(data_));
+		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
 		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, data_, *ct));
+		
 		connection_manager_ = cm;
 		connection_traits_ = ct;
 	}
 
-	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));	
-
+	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));
 	acceptor_->attach_logger(logger_);
 	message_queue_->attach_logger(logger_);
 	connection_traits_->attach_logger(logger_);
-
-	//data_.manager(connection_manager_);
 	connection_traits_->init(s);
 
 	acceptor_->bind(s.address(), s.port(), s.backlog());
@@ -137,7 +128,6 @@ server_impl::attach_logger(boost::intrusive_ptr<logger> const &log) {
 
 void
 server_impl::attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
-
 	assert(m);
 	matcher_ = m;
 	data_.matcher(m);

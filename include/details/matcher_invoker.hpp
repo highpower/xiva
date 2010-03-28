@@ -1,4 +1,4 @@
-/** @file connection_validator.hpp */
+/** @file matcher_invoker.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,47 +16,44 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_CONNECTION_VALIDATOR_HPP_INCLUDED
-#define XIVA_DETAILS_CONNECTION_VALIDATOR_HPP_INCLUDED
+#ifndef XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED
+#define XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED
 
 #include <string>
 #include <exception>
-
 #include <boost/intrusive_ptr.hpp>
 
-#include "xiva/forward.hpp"
-#include "xiva/receiver_matcher.hpp"
-#include "xiva/reference_counted.hpp"
+#include "xiva/shared.hpp"
 #include "xiva/logger.hpp"
-
-#include "details/connection.hpp"
-
+#include "xiva/forward.hpp"
 
 namespace xiva { namespace details {
 
+class connection;
 class request_impl;
 class connection_data;
 
-
-class connection_validator : public reference_counted {
+class matcher_invoker : public shared {
 
 public:
-	explicit connection_validator(connection_data const &data);
-	virtual ~connection_validator();
-	
-        typedef connection connection_type;
-	typedef boost::intrusive_ptr<connection_type> connection_type_ptr;
+	explicit matcher_invoker(connection_data const &data);
+	virtual ~matcher_invoker();
 
-	void validate(connection_type_ptr conn, request_impl &req);
-	void attach_logger(boost::intrusive_ptr<logger> const &log);
+	typedef connection connection_type;
+	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
+
 	void init(settings const &s);
+	void attach_logger(boost::intrusive_ptr<logger> const &log);
+	void invoke_matcher(connection_ptr_type conn, request_impl &req);
+
+private:
+	matcher_invoker(matcher_invoker const &);
+	matcher_invoker& operator = (matcher_invoker const &);
 
 private:
 	boost::intrusive_ptr<receiver_matcher> matcher_;
 };
 
-
-
 }} // namespaces
 
-#endif // XIVA_DETAILS_CONNECTION_VALIDATOR_HPP_INCLUDED
+#endif // XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED

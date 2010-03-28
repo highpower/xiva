@@ -28,11 +28,11 @@ class url_matcher : public receiver_matcher {
 public:
 	url_matcher();
 	virtual ~url_matcher();
-	
+
 	virtual bool threaded() const;
 	virtual char const* content_type() const;
 	virtual std::string receiver(request const &req) const;
-	
+
 	std::string receiver(std::string const &url) const;
 
 private:

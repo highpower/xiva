@@ -17,10 +17,10 @@ namespace xiva { namespace tests {
 
 using namespace details;
 
-typedef boost::mpl::list<std::vector<char>, std::list<char>, 
-	range<char const*>, std::string> string_test_types;
+typedef boost::mpl::list<std::vector<char>, std::list<char>,
+range<char const*>, std::string> string_test_types;
 
-BOOST_AUTO_TEST_SUITE(string_test) 
+BOOST_AUTO_TEST_SUITE(string_test)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_trim, Range, string_test_types) {
 
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_trim_right, Range, string_test_types) {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_split, Range, string_test_types) {
-	
+
 	Range value, head, tail;
 	value = as<Range>("best test best test best");
 	while (!value.empty()) {
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_split, Range, string_test_types) {
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_split_first_of, Range, string_test_types) {
-	
+
 	Range value, head, tail;
 	value = as<Range>("a&b;c&d;e&f");
 	while (!value.empty()) {

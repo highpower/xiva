@@ -36,7 +36,7 @@ class xml_enumeration : public enumeration<Item> {
 public:
 	xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<variable_map> const &vars, char const *name);
 	virtual ~xml_enumeration();
-	
+
 	virtual Item next() const;
 	virtual bool empty() const;
 
@@ -53,15 +53,15 @@ private:
 };
 
 template <typename Item> inline
-xml_enumeration<Item>::xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<variable_map> const &vars, char const *name) : 
+xml_enumeration<Item>::xml_enumeration(xmlDocPtr doc, boost::intrusive_ptr<variable_map> const &vars, char const *name) :
 	ns_(0), vars_(vars), count_(0)
 {
 	ctx_.reset(xmlXPathNewContext(doc));
 	xml::throw_unless(ctx_);
-	
+
 	obj_.reset(xmlXPathEvalExpression((xmlChar const*) name, ctx_.get()));
 	xml::throw_unless(obj_);
-	
+
 	ns_ = obj_->nodesetval;
 }
 
@@ -71,11 +71,11 @@ xml_enumeration<Item>::~xml_enumeration() {
 
 template <typename Item> inline Item
 xml_enumeration<Item>::next() const {
-	
+
 	assert(ns_);
 	xmlNodePtr node = ns_->nodeTab[count_];
 	++count_;
-	
+
 	std::string buffer(xml::text_value(node));
 	vars_->resolve_variables(buffer);
 	return boost::lexical_cast<Item>(buffer);

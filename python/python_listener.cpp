@@ -23,5 +23,5 @@ python_listener::connection_closed(std::string const &to, globals::connection_id
 	interpreter_lock lock;
 	py::call_method<void>(impl_.ptr(), "connection_closed", to, id);
 }
-	
+
 }} // namespaces

@@ -1,13 +1,11 @@
 #include "acsetup.hpp"
+#include "details/threaded_connection.hpp"
 
 #include <boost/static_assert.hpp>
 
-#include "details/threaded_connection.hpp"
-
 namespace xiva { namespace details {
 
-threaded_connection::threaded_connection()
-{
+threaded_connection::threaded_connection() {
 }
 
 threaded_connection::~threaded_connection() {

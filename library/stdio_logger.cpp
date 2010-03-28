@@ -41,7 +41,7 @@ stdio_logger::error(char const *format, ...) {
 void
 stdio_logger::print_message(char const *level, char const *format, va_list args) {
 	char buffer[1024];
-	int res = vsnprintf(buffer, sizeof(buffer), format, args);
+	int res = vsnprintf(buffer, sizeof(buffer) - 1, format, args);
 	system_error::throw_unless(static_cast<std::size_t>(res) < sizeof(buffer));
 	buffer[sizeof(buffer) - 1] = '\0';
 	fprintf(stderr, "%s %s\n", level, buffer);

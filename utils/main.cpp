@@ -43,15 +43,15 @@ line_end_checker::operator () (Iter begin, Iter end) const {
 
 void
 read(asio::local::stream_protocol::socket &socket) {
-	
+
 	typedef std::allocator<char> char_allocator;
-	
+
 	syst::error_code code;
 	asio::basic_streambuf<char_allocator> buf;
 	std::istream stream(&buf);
 
 	std::string line;
-	line_end_checker checker;	
+	line_end_checker checker;
 	while (true) {
 		asio::read_until(socket, buf, checker, code);
 		if (code || !std::getline(stream, line)) {
@@ -63,17 +63,17 @@ read(asio::local::stream_protocol::socket &socket) {
 
 void
 start_read(std::string const &path) {
-	
+
 	asio::io_service io;
 	asio::local::stream_protocol::socket socket(io);
 	asio::local::stream_protocol::acceptor acceptor(io);
 	asio::local::stream_protocol::endpoint endpoint(path);
-	
+
 	acceptor.open(endpoint.protocol());
 	acceptor.set_option(asio::local::stream_protocol::acceptor::reuse_address(true));
 	acceptor.bind(endpoint);
 	acceptor.listen();
-	
+
 	while (true) {
 		acceptor.accept(socket);
 		read(socket);
@@ -88,7 +88,7 @@ start_write(std::string const &path) {
 	asio::local::stream_protocol::socket socket(io);
 	asio::local::stream_protocol::endpoint endpoint(path);
 	socket.connect(endpoint);
-	
+
 	std::string line;
 	while (std::getline(std::cin, line)) {
 		line.push_back('\n');
@@ -128,7 +128,6 @@ main(int argc, char *argv[]) {
 			}
 			if (listening && !path.empty()) {
 				signal(SIGPIPE, SIG_IGN);
-				
 				xiva::utils::start_read(path);
 				return EXIT_SUCCESS;
 			}

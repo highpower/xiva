@@ -23,12 +23,12 @@
 #include <exception>
 
 #include "xiva/config.hpp"
+#include "xiva/shared.hpp"
 #include "xiva/globals.hpp"
-#include "xiva/reference_counted.hpp"
 
 namespace xiva {
 
-class XIVA_API connection_listener : public reference_counted {
+class XIVA_API connection_listener : public shared {
 
 public:
 	connection_listener();
@@ -36,7 +36,7 @@ public:
 
 	virtual void connection_opened(std::string const &to, globals::connection_id const &id) throw (std::exception) = 0;
 	virtual void connection_closed(std::string const &to, globals::connection_id const &id) throw (std::exception) = 0;
-	
+
 private:
 	connection_listener(connection_listener const &);
 	connection_listener& operator = (connection_listener const &);

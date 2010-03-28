@@ -13,7 +13,7 @@
 namespace xiva { namespace python {
 
 python_server::python_server() :
-	impl_(new details::server_impl())
+	impl_(new details::server_impl()) 
 {
 }
 
@@ -57,6 +57,9 @@ register_server_class() throw () {
 	reg.def("stop", &python_server::stop);
 	reg.def("load", &python_server::load);
 	reg.def("start", &python_server::start);
+	reg.def("attach_logger", &python_server::attach_logger);
+	reg.def("add_connection_listener", &python_server::add_connection_listener);
+	reg.def("attach_receiver_matcher", &python_server::attach_receiver_matcher);
 }
 
 }} // namespaces

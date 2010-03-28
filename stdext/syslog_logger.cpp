@@ -63,7 +63,7 @@ syslog_logger::error(char const *format, ...) {
 }
 
 extern "C" XIVA_API void
-xiva_register_module(settings const &s, component_set &cs) {
+	xiva_register_module(settings const &s, component_set &cs) {
 	std::string logname  = s.value("/xiva/logger/name");
 	boost::intrusive_ptr<logger> log(new syslog_logger(logname));
 	cs.attach_logger(log);

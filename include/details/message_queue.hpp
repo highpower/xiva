@@ -23,21 +23,21 @@
 #include <string>
 #include <utility>
 
-#include "details/asio.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
 #include "xiva/message_sender.hpp"
-#include "xiva/reference_counted.hpp"
+#include "details/asio.hpp"
 
 namespace xiva { namespace details {
 
 class connection_manager_base;
 
-class message_queue : public message_sender, public reference_counted {
+class message_queue : public message_sender, public shared {
 
 public:
 	message_queue(asio::io_service &io, boost::intrusive_ptr<connection_manager_base> const &cm);
@@ -47,7 +47,7 @@ public:
 	void pop_by_id();
 	void finish();
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
-	
+
 	virtual bool active() const;
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
 	virtual void send(globals::connection_id const &id, boost::shared_ptr<message> const &m);

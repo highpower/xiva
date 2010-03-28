@@ -32,7 +32,7 @@ class python_enumeration : public enumeration<Item> {
 public:
 	python_enumeration(py::tuple const &tuple);
 	virtual ~python_enumeration();
-	
+
 	virtual Item next() const;
 	virtual bool empty() const;
 
@@ -47,8 +47,7 @@ private:
 
 template <typename Item> inline
 python_enumeration<Item>::python_enumeration(py::tuple const &tuple) :
-	tuple_(tuple)
-{
+		tuple_(tuple) {
 }
 
 template <typename Item> inline

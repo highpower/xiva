@@ -61,7 +61,7 @@ class range_base<Iter, std::bidirectional_iterator_tag> : public range_base<Iter
 public:
 	range_base();
 	range_base(Iter begin, Iter end);
-	
+
 	typedef std::reverse_iterator<Iter> reverse_iterator;
 	typedef std::reverse_iterator<Iter> const_reverse_iterator;
 
@@ -78,10 +78,10 @@ class range_base<Iter, std::random_access_iterator_tag> : public range_base<Iter
 public:
 	range_base();
 	range_base(Iter begin, Iter end);
-	
+
 	typedef typename std::iterator_traits<Iter>::value_type value_type;
 	typedef typename std::iterator_traits<Iter>::difference_type size_type;
-	
+
 	value_type& operator [] (size_type index);
 	value_type const& operator [] (size_type index) const;
 };
@@ -96,7 +96,7 @@ public:
 
 template <typename Iter> inline
 range_base<Iter, std::forward_iterator_tag>::range_base() :
-	begin_(), end_()
+	begin_(), end_() 
 {
 }
 
@@ -106,7 +106,7 @@ range_base<Iter, std::forward_iterator_tag>::range_base(Iter begin, Iter end) :
 {
 }
 
-template <typename Iter> inline typename range_base<Iter, std::forward_iterator_tag>::iterator 
+template <typename Iter> inline typename range_base<Iter, std::forward_iterator_tag>::iterator
 range_base<Iter, std::forward_iterator_tag>::end() {
 	return end_;
 }
@@ -116,7 +116,7 @@ range_base<Iter, std::forward_iterator_tag>::end() const {
 	return end_;
 }
 
-template <typename Iter> inline typename range_base<Iter, std::forward_iterator_tag>::iterator 
+template <typename Iter> inline typename range_base<Iter, std::forward_iterator_tag>::iterator
 range_base<Iter, std::forward_iterator_tag>::begin() {
 	return begin_;
 }
@@ -141,15 +141,15 @@ range_base<Iter, std::forward_iterator_tag>::size() const {
 	return std::distance(begin_, end_);
 }
 
-template <typename Iter> inline 
+template <typename Iter> inline
 range_base<Iter, std::bidirectional_iterator_tag>::range_base() :
 	range_base<Iter, std::forward_iterator_tag>()
 {
 }
 
-template <typename Iter> inline 
+template <typename Iter> inline
 range_base<Iter, std::bidirectional_iterator_tag>::range_base(Iter begin, Iter end) :
-	range_base<Iter, std::forward_iterator_tag>(begin, end)
+	range_base<Iter, std::forward_iterator_tag>(begin, end) 
 {
 }
 
@@ -173,31 +173,31 @@ range_base<Iter, std::bidirectional_iterator_tag>::rbegin() const {
 	return const_reverse_iterator(this->end());
 }
 
-template <typename Iter> inline 
+template <typename Iter> inline
 range_base<Iter, std::random_access_iterator_tag>::range_base() :
-	range_base<Iter, std::bidirectional_iterator_tag>()
+	range_base<Iter, std::bidirectional_iterator_tag>() 
 {
 }
 
-template <typename Iter> inline 
+template <typename Iter> inline
 range_base<Iter, std::random_access_iterator_tag>::range_base(Iter begin, Iter end) :
-	range_base<Iter, std::bidirectional_iterator_tag>(begin, end)
+	range_base<Iter, std::bidirectional_iterator_tag>(begin, end) 
 {
 }
 
 template <typename Iter> inline typename range_base<Iter, std::random_access_iterator_tag>::value_type&
 range_base<Iter, std::random_access_iterator_tag>::operator [] (typename range_base<Iter, typename std::random_access_iterator_tag>::size_type index) {
- 	return *(this->begin() + index);
+	return *(this->begin() + index);
 }
 
 template <typename Iter> inline typename range_base<Iter, std::random_access_iterator_tag>::value_type const&
 range_base<Iter, std::random_access_iterator_tag>::operator [] (typename range_base<Iter, typename std::random_access_iterator_tag>::size_type index) const {
- 	return *(this->begin() + index);
+	return *(this->begin() + index);
 }
 
 template <typename Iter> inline
 range<Iter>::range() :
-	range_base<Iter, typename std::iterator_traits<Iter>::iterator_category>()
+	range_base<Iter, typename std::iterator_traits<Iter>::iterator_category>() 
 {
 }
 
@@ -246,7 +246,7 @@ make_range(char const *str) {
 	return range<char const*>(str, str + strlen(str));
 }
 
-template <typename Sequence> inline range<typename Sequence::const_iterator> 
+template <typename Sequence> inline range<typename Sequence::const_iterator>
 make_range(Sequence const &seq) {
 	return range<typename Sequence::const_iterator>(seq.begin(), seq.end());
 }

@@ -13,14 +13,13 @@
 namespace xiva { namespace daemon {
 
 xml_settings::xml_settings(char const *name) :
-	doc_(0), vars_(new variable_map())
+    doc_(0), vars_(new variable_map())
 {
 	init(name);
 }
 
 xml_settings::xml_settings(int argc, char *argv[]) :
-	doc_(0), vars_(new variable_map())
-{
+		doc_(0), vars_(new variable_map()) {
 	command_line args(argc, argv);
 	if (args.is_help_mode()) {
 		command_line::print_usage(std::cout);
@@ -94,7 +93,7 @@ xml_settings::value(char const *name) const {
 	xml::throw_unless(ctx);
 	xml::xpath_object object(xmlXPathEvalExpression((xmlChar const*) name, ctx.get()));
 	xml::throw_unless(object);
-	
+
 	xmlNodeSetPtr ns = object->nodesetval;
 	if (ns && ns->nodeNr) {
 		char const *value = xml::text_value(ns->nodeTab[0]);
@@ -110,7 +109,7 @@ xml_settings::value(char const *name) const {
 enumeration<std::string>::ptr_type
 xml_settings::value_list(char const *name) const {
 	return enumeration<std::string>::ptr_type(new
-		 xml_enumeration<std::string>(doc_.get(), vars_, name));
+	        xml_enumeration<std::string>(doc_.get(), vars_, name));
 }
 
 void
@@ -118,10 +117,10 @@ xml_settings::find_variables() {
 
 	xml::xpath_context ctx(xmlXPathNewContext(doc_.get()));
 	xml::throw_unless(ctx);
-	
+
 	xml::xpath_object object(xmlXPathEvalExpression((xmlChar const*) "/" XIVA_PACKAGE_NAME "/variables/variable", ctx.get()));
 	xml::throw_unless(object);
-	
+
 	xmlNodeSetPtr ns = object->nodesetval;
 	if (!ns || 0 == ns->nodeNr) {
 		return;
@@ -130,10 +129,10 @@ xml_settings::find_variables() {
 	for (std::size_t i = 0; i < static_cast<std::size_t>(ns->nodeNr); ++i) {
 		xmlNodePtr node = ns->nodeTab[i];
 		xml::throw_unless(node);
-		
+
 		char const *val = xml::text_value(node);
 		char const *name = xml::attr_value(node, "name");
-		
+
 		if (name && val) {
 			vars_->add_variable(name, val);
 		}

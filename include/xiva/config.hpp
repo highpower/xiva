@@ -20,7 +20,7 @@
 #define XIVA_CONFIG_HPP_INCLUDED
 
 #ifdef WIN32
-#else 
+#else
 #define XIVA_API
 #endif // WIN32
 

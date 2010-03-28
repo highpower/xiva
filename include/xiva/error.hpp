@@ -29,9 +29,9 @@ class error : public std::exception {
 
 public:
 	error(char const *format, ...);
-	
+
 	enum { message_size = 128 };
-	
+
 	virtual ~error() throw ();
 	virtual char const* what() const throw ();
 

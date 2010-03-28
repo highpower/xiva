@@ -1,12 +1,9 @@
 #include "acsetup.hpp"
+#include "details/request_impl.hpp"
 
 #include <algorithm>
-
 #include <boost/type_traits.hpp>
 #include <boost/static_assert.hpp>
-
-
-#include "details/request_impl.hpp"
 
 namespace xiva { namespace details {
 
@@ -19,7 +16,7 @@ public:
 
 	virtual bool empty() const;
 	virtual typename enumeration<typename Map::mapped_type>::value_type next() const;
-	
+
 private:
 	map_value_enumeration(map_value_enumeration const &);
 	map_value_enumeration& operator = (map_value_enumeration const &);
@@ -39,14 +36,14 @@ template <typename Map> inline std::string const&
 get(Map const &map, std::string const &name) {
 	BOOST_STATIC_ASSERT((boost::is_same<std::string, typename Map::mapped_type>::value));
 	typename Map::const_iterator i = map.find(name);
-	return (map.end() != i) ? i->second : http_constants::empty_string;
+	return (map.end() != i) ? i->second : http_constants<char>::empty_string;
 }
 
 request_impl::~request_impl() {
 }
 
 void
-request_impl::swap(request_impl &req) {
+request_impl::swap(request_impl &req) throw () {
 	std::swap(url_, req.url_);
 	std::swap(params_, req.params_);
 	std::swap(headers_, req.headers_);
@@ -102,7 +99,7 @@ map_value_enumeration<Map>::map_value_enumeration(typename Map::const_iterator b
 {
 }
 
-template <typename Map> inline 
+template <typename Map> inline
 map_value_enumeration<Map>::~map_value_enumeration() {
 }
 

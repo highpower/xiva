@@ -19,7 +19,6 @@
 #ifndef XIVA_DETAILS_CONNECTION_MANAGER_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_MANAGER_HPP_INCLUDED
 
-
 #include <cassert>
 #include <utility>
 #include <string>
@@ -27,35 +26,25 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/current_function.hpp>
 
-
-#include "xiva/forward.hpp"
-#include "xiva/globals.hpp"
-#include "xiva/reference_counted.hpp"
-#include "xiva/error.hpp"
-#include "xiva/logger.hpp"
-#include "xiva/connection_listener.hpp"
-
-
 #define BOOST_MULTI_INDEX_DISABLE_SERIALIZATION
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 
-namespace mi = boost::multi_index;
-
+#include "xiva/forward.hpp"
+#include "xiva/globals.hpp"
+#include "xiva/error.hpp"
+#include "xiva/logger.hpp"
+#include "xiva/connection_listener.hpp"
 
 #include "details/connection_manager_base.hpp"
 #include "details/compound_listener.hpp"
 #include "details/connection.hpp"
 
-
+namespace mi = boost::multi_index;
 
 namespace xiva { namespace details {
-
-class connection;
-class threaded_connection;
-
 
 template <typename ConnectionBase>
 struct cm_connection_id {
@@ -69,7 +58,6 @@ template <typename ConnectionBase>
 struct cm_connection_name {
 	typedef std::string result_type;
 	typedef boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
-
 	result_type const& operator () (connection_ptr_type const &conn) const;
 };
 
@@ -80,7 +68,7 @@ class connection_manager : public connection_manager_base {
 public:
 	connection_manager(boost::intrusive_ptr<compound_listener> const &l);
 	virtual ~connection_manager();
-	
+
 	typedef typename boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
 	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
 
@@ -121,20 +109,20 @@ private:
 
 template <typename ConnectionBase> globals::connection_id
 cm_connection_id<ConnectionBase>::operator () (connection_ptr_type const &conn) const {
-        assert(conn);
-        return conn->id();
+	assert(conn);
+	return conn->id();
 }
 
 template <typename ConnectionBase> std::string const&
 cm_connection_name<ConnectionBase>::operator () (connection_ptr_type const &conn) const {
-        assert(conn);
-        return conn->nameref();
+	assert(conn);
+	return conn->nameref();
 }
 
 
 template <typename ConnectionBase>
 connection_manager<ConnectionBase>::connection_manager(boost::intrusive_ptr<compound_listener> const &l) :
-        finished_(false), listener_(l)
+	finished_(false), listener_(l)
 {
 }
 
@@ -144,75 +132,75 @@ connection_manager<ConnectionBase>::~connection_manager() {
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::clear() {
-        connections_.clear();
+	connections_.clear();
 }
 
 template <typename ConnectionBase> bool
 connection_manager<ConnectionBase>::empty() const {
-        return connections_.empty();
+	return connections_.empty();
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::insert_connection(connection_ptr_type const &conn) {
-        if (finished()) {
-                return;
-        }
-        assert(conn);
-        std::pair<typename connection_set_type::iterator, bool> p = connections_.insert(conn);
-        if (p.second) {
-                fire_connection_opened(*conn);
-        }
-        else {
-                throw error("same connection");
-        }
+	if (finished()) {
+		return;
+	}
+	assert(conn);
+	std::pair<typename connection_set_type::iterator, bool> p = connections_.insert(conn);
+	if (p.second) {
+		fire_connection_opened(*conn);
+	}
+	else {
+		throw error("same connection");
+	}
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::remove_connection(connection_ptr_type const &conn) {
 
-        typedef typename connection_set_type::template nth_index<0>::type index_type;
+	typedef typename connection_set_type::template nth_index<0>::type index_type;
 
-        index_type &index = connections_.template get<0>();
-        index.erase(conn->id());
-        fire_connection_closed(*conn);
+	index_type &index = connections_.template get<0>();
+	index.erase(conn->id());
+	fire_connection_closed(*conn);
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::send(std::string const &to, boost::shared_ptr<message> const &m) {
-        if (finished()) {
-                return;
-        }
-        typedef typename connection_set_type::template nth_index<1>::type index_type;
-        index_type &index = connections_.template get<1>();
-        std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
-        for ( ; p.first != p.second; ++p.first) {
-                connection_ptr_type conn = *p.first;
-                logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
-                conn->send(m);
-        }
+	if (finished()) {
+		return;
+	}
+	typedef typename connection_set_type::template nth_index<1>::type index_type;
+	index_type &index = connections_.template get<1>();
+	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
+	for ( ; p.first != p.second; ++p.first) {
+		connection_ptr_type conn = *p.first;
+		logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
+		conn->send(m);
+	}
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost::shared_ptr<message> const &m) {
-        if (finished()) {
-                return;
-        }
-        typedef typename connection_set_type::template nth_index<0>::type index_type;
-        index_type &index = connections_.template get<0>();
-        std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
-        for ( ; p.first != p.second; ++p.first) {
-                connection_ptr_type conn = *p.first;
-                logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
-                conn->send(m);
-        }
+	if (finished()) {
+		return;
+	}
+	typedef typename connection_set_type::template nth_index<0>::type index_type;
+	index_type &index = connections_.template get<0>();
+	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
+	for ( ; p.first != p.second; ++p.first) {
+		connection_ptr_type conn = *p.first;
+		logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
+		conn->send(m);
+	}
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::finish() {
-        for (typename connection_set_type::iterator i = connections_.begin(), end = connections_.end(); i != end; ++i) {
-                (*i)->finish();
-        }
-        finished_ = true;
+	for (typename connection_set_type::iterator i = connections_.begin(), end = connections_.end(); i != end; ++i) {
+		(*i)->finish();
+	}
+	finished_ = true;
 }
 
 template <typename ConnectionBase> void
@@ -221,35 +209,36 @@ connection_manager<ConnectionBase>::wait_for_complete() {
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::init(settings const &s) {
-        listener_->init(s);
+	listener_->init(s);
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::add_connection_listener(listener_ptr_type const &l) {
-        listener_->add_connection_listener(l);
+	listener_->add_connection_listener(l);
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::attach_logger(boost::intrusive_ptr<logger> const &log) {
-        logger_ = log;
-        listener_->attach_logger(log);
+	logger_ = log;
+	listener_->attach_logger(log);
 }
 
 template <typename ConnectionBase> bool
 connection_manager<ConnectionBase>::finished() const {
-        return finished_;
+	return finished_;
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_opened(ConnectionBase const &conn) {
-        listener_->connection_opened(conn.name(), conn.id());
+	listener_->connection_opened(conn.name(), conn.id());
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_closed(ConnectionBase const &conn) {
-        listener_->connection_closed(conn.name(), conn.id());
+	listener_->connection_closed(conn.name(), conn.id());
 }
 
-}} // namespaces
+}
+} // namespaces
 
 #endif // XIVA_DETAILS_CONNECTION_MANAGER_HPP_INCLUDED

@@ -3,8 +3,7 @@
 
 namespace xiva {
 
-connection_listener::connection_listener()
-{
+connection_listener::connection_listener() {
 }
 
 connection_listener::~connection_listener() {

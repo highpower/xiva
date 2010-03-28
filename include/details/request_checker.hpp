@@ -1,4 +1,4 @@
-/** @file header_checker.hpp */
+/** @file request_checker.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,77 +16,103 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_HEADER_CHECKER_HPP_INCLUDED
-#define XIVA_DETAILS_HEADER_CHECKER_HPP_INCLUDED
+#ifndef XIVA_DETAILS_REQUEST_CHECKER_HPP_INCLUDED
+#define XIVA_DETAILS_REQUEST_CHECKER_HPP_INCLUDED
 
 #include <utility>
 #include <iterator>
 #include <algorithm>
 
-#include "details/asio.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/static_assert.hpp>
 
-#include "string_utils.hpp"
+#include "details/asio.hpp"
 #include "details/range.hpp"
+#include "details/string_utils.hpp"
 #include "details/http_constants.hpp"
 #include "details/iterator_checker.hpp"
 
 namespace xiva { namespace details {
 
-struct header_checker {
+struct http_request_checker {
+	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
+};
+
+struct websocket_request_checker {
 	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
 };
 
 template <typename Iter> inline std::pair<Iter, bool>
-header_checker::operator () (Iter first, Iter last) const {
-	
+http_request_checker::operator () (Iter first, Iter last) const {
+
 	typedef std::reverse_iterator<Iter> iterator_type;
-	
+	typedef typename std::iterator_traits<Iter>::value_type char_type;
+	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
+
 	iterator_checker<Iter> iter_check;
 	(void) iter_check;
-	
-	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
-	
-	iterator_type begin(last), end(first);
-	if (first != last && *first == '<') {
-		if (*begin == '\0') {
-			return std::make_pair(last, true);
-		}
-		return std::make_pair(last, false);
-	}
 
-	iterator_type pos = std::find(begin, end, '\n');
+	iterator_type begin(last), end(first);
+	iterator_type pos = std::find(begin, end, static_cast<char_type>('\n'));
 	if (end != pos) {
 		range<iterator_type> range(pos, end);
-		if (starts_with(range, http_constants::reversed_headers_end)) {
-			std::advance(pos, http_constants::reversed_headers_end.size());
+		if (starts_with(range, http_constants<char_type>::reversed_headers_end)) {
+			std::advance(pos, http_constants<char_type>::reversed_headers_end.size());
 			return std::make_pair(pos.base(), true);
 		}
-		else if (starts_with(range, http_constants::reversed_nonstd_headers_end)) {
-			std::advance(pos, http_constants::reversed_nonstd_headers_end.size());
+		else if (starts_with(range, http_constants<char_type>::reversed_nonstd_headers_end)) {
+			std::advance(pos, http_constants<char_type>::reversed_nonstd_headers_end.size());
 			return std::make_pair(pos.base(), true);
 		}
 	}
 	return std::make_pair(last, false);
 }
 
+template <typename Iter> inline std::pair<Iter, bool>
+websocket_request_checker::operator () (Iter first, Iter last) const {
+
+	typedef std::reverse_iterator<Iter> iterator_type;
+	typedef typename std::iterator_traits<Iter>::value_type char_type;
+	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
+
+	iterator_checker<Iter> iter_check;
+	(void) iter_check;
+
+	iterator_type begin(last), end(first);
+	if ((first != last) && (static_cast<char_type>('<') == *first)) {
+		return std::make_pair(last, (static_cast<char_type>(0) == *begin));
+	}
+	return std::make_pair(last, false);
+}
+
+class request_checker {
+
+public:
+	request_checker();
+	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
+
+private:
+	http_request_checker http_checker_;
+	websocket_request_checker websocket_checker_;
+};
+
+request_checker::request_checker() 
+{
+}
+
+template <typename Iter> inline std::pair<Iter, bool>
+request_checker::operator () (Iter first, Iter last) const {
+	std::pair<Iter, bool> result = websocket_checker_(first, last);
+	return (result.second) ? result : http_checker_(first, last);
+}
+
 }} // namespaces
 
-
-#if XIVA_HAVE_BOOST_ASIO
-namespace boost {
-#endif // XIVA_HAVE_BOOST_ASIO
-
-namespace asio {
+XIVA_BEGIN_ASIO_NAMESPACE
 
 template <>
-struct is_match_condition<xiva::details::header_checker> : public boost::true_type {};
+struct is_match_condition<xiva::details::request_checker> : public boost::true_type {};
 
-} // namespace asio
+XIVA_END_ASIO_NAMESPACE
 
-#if XIVA_HAVE_BOOST_ASIO
-}
-#endif // XIVA_HAVE_BOOST_ASIO
-
-#endif // XIVA_DETAILS_HTTP_COMPLETION_CHECKER_HPP_INCLUDED
+#endif // XIVA_DETAILS_REQUEST_CHECKER_HPP_INCLUDED

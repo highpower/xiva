@@ -37,7 +37,7 @@ public:
 	virtual void info(char const *format, ...);
 	virtual void debug(char const *format, ...);
 	virtual void error(char const *format, ...);
-	
+
 private:
 	python_logger(python_logger const &);
 	python_logger& operator = (python_logger const &);

@@ -35,6 +35,7 @@ namespace details {
 
 class server_impl;
 
-}} // namespaces
+}
+} // namespaces
 
 #endif // XIVA_DETAILS_FORWARD_HPP_INCLUDED

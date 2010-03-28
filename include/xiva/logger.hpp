@@ -1,4 +1,4 @@
- /** @file logger.hpp */
+/** @file logger.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -20,11 +20,11 @@
 #define XIVA_LOGGER_HPP_INCLUDED
 
 #include "xiva/config.hpp"
-#include "xiva/reference_counted.hpp"
+#include "xiva/shared.hpp"
 
 namespace xiva {
 
-class XIVA_API logger : public reference_counted {
+class XIVA_API logger : public shared {
 
 public:
 	logger();

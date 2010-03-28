@@ -1,8 +1,7 @@
 #include "acsetup.hpp"
+#include "details/connection_base.hpp"
 
 #include <boost/static_assert.hpp>
-
-#include "details/connection_base.hpp"
 
 namespace xiva { namespace details {
 

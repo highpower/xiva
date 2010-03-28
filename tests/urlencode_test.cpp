@@ -17,8 +17,8 @@ namespace xiva { namespace tests {
 
 using namespace details;
 
-typedef boost::mpl::list<std::vector<char>, std::list<char>, 
-	range<char const*>, std::string> urlencode_test_types;
+typedef boost::mpl::list<std::vector<char>, std::list<char>,
+range<char const*>, std::string> urlencode_test_types;
 
 BOOST_AUTO_TEST_SUITE(urlencode_test)
 

@@ -29,7 +29,7 @@ class XIVA_API http_error : public std::exception {
 
 public:
 	http_error(unsigned short code);
-	
+
 	virtual ~http_error() throw ();
 	virtual char const* what() const throw ();
 	unsigned short code() const;
@@ -42,14 +42,14 @@ public:
 	static unsigned short const method_not_allowed;
 	static unsigned short const entity_too_large;
 	static unsigned short const range_not_satisfiable;
-	
+
 	static unsigned short const internal_error;
 	static unsigned short const not_implemented;
 	static unsigned short const bad_gateway;
 	static unsigned short const service_unavailable;
 	static unsigned short const gateway_timeout;
 	static unsigned short const version_not_supported;
-	
+
 private:
 	unsigned short code_;
 };

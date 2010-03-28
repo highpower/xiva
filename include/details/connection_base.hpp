@@ -30,16 +30,13 @@ namespace xiva { namespace details {
 class connection_base {
 
 public:
-	globals::connection_id id() const;
-	
-	virtual void finish() = 0;
-	virtual void send(boost::shared_ptr<message> const &message) = 0;
-
-	virtual void validate_result(std::string const &name, char const *content_type) = 0;
-
-protected:
 	connection_base();
 	virtual ~connection_base();
+
+	virtual void finish() = 0;
+	virtual void send(boost::shared_ptr<message> const &message) = 0;
+	virtual void matched(std::string const &name, char const *content_type) = 0;
+	globals::connection_id id() const;
 
 private:
 	connection_base(connection_base const &);

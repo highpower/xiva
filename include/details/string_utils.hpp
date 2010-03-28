@@ -75,8 +75,7 @@ truncate(Range const &r, typename Range::size_type left, typename Range::size_ty
 }
 
 template <typename Range> inline bool
-do_split(Range const &r, typename Range::const_iterator pos,
-	typename Range::size_type size, Range &first, Range &second) {
+do_split(Range const &r, typename Range::const_iterator pos, typename Range::size_type size, Range &first, Range &second) {
 
 	typename Range::const_iterator begin = r.begin(), end = r.end();
 	first = Range(begin, pos);
@@ -96,45 +95,36 @@ split_once(Range const &r, typename Range::value_type c, Range &first, Range &se
 }
 
 template <typename Range, typename Delim> inline bool
-split_once(Range const &r, Delim const &delim, Range &first, Range &second, 
-	typename Delim::value_type const *sfinae = 0) {
+split_once(Range const &r, Delim const &delim, Range &first, Range &second, typename Delim::value_type const *sfinae = 0) {
 	(void) sfinae;
-	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, 
-		typename Delim::value_type>::value));
-	return do_split(r, std::search(r.begin(), r.end(), 
-		delim.begin(), delim.end()), delim.size(), first, second);
+	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Delim::value_type>::value));
+	return do_split(r, std::search(r.begin(), r.end(), delim.begin(), delim.end()), delim.size(), first, second);
 }
 
 template <typename Range> inline bool
 split_once(Range const &r, typename Range::value_type const *chars, Range &first, Range &second) {
 	typedef typename Range::value_type char_type;
 	range<char_type const*> delim(chars, chars + std::char_traits<char_type>::length(chars));
-	return split_once(r, delim, first, second, 
-		static_cast<typename range<typename Range::value_type const*>::value_type const*>(0));
+	return split_once(r, delim, first, second, static_cast<typename range<typename Range::value_type const*>::value_type const*>(0));
 }
 
 template <typename Range, typename Delim> inline bool
-split_first_of_once(Range const &r, Delim const &delim, Range &first, Range &second, 
-	typename Delim::value_type const *sfinae = 0) {
+split_first_of_once(Range const &r, Delim const &delim, Range &first, Range &second, typename Delim::value_type const *sfinae = 0) {
 	(void) sfinae;
-	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, 
-		typename Delim::value_type>::value));
-	return do_split(r, std::find_first_of(r.begin(), r.end(), 
-		delim.begin(), delim.end()), 1, first, second);
+	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Delim::value_type>::value));
+	return do_split(r, std::find_first_of(r.begin(), r.end(), delim.begin(), delim.end()), 1, first, second);
 }
 
 template <typename Range> inline bool
 split_first_of_once(Range const &r, typename Range::value_type const *chars, Range &first, Range &second) {
 	typedef typename Range::value_type char_type;
 	range<char_type const*> delim(chars, chars + std::char_traits<char_type>::length(chars));
-	return split_first_of_once(r, delim, first, second,
-		static_cast<typename range<typename Range::value_type const*>::value_type const*>(0));
+	return split_first_of_once(r, delim, first, second, static_cast<typename range<typename Range::value_type const*>::value_type const*>(0));
 }
 
 template <typename Range, typename Func> inline bool
 split_if_once(Range const &r, Func func, Range &first, Range &second) {
-	return do_split(r, std::find_if(r.begin(), r.end(), func), 
-		1, first, second);
+	return do_split(r, std::find_if(r.begin(), r.end(), func), 1, first, second);
 }
 
 template <typename Range, typename Prefix> inline bool

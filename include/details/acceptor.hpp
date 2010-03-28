@@ -26,7 +26,6 @@
 #include "xiva/error.hpp"
 #include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
-#include "xiva/reference_counted.hpp"
 
 #include "details/asio.hpp"
 #include "details/acceptor_base.hpp"
@@ -56,7 +55,7 @@ public:
 	void handle_accept_first(connection_ptr_type conn, syst::error_code const &code);
 	void handle_accept_again(connection_ptr_type conn, syst::error_code const &code);
 	void process_connection(connection_ptr_type conn);
-	
+
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void bind(std::string const &addr, unsigned short port, unsigned short backlog);
 	void stop();
@@ -72,7 +71,7 @@ private:
 
 template <typename ConnectionBase, typename ConnectionTraits>
 acceptor<ConnectionBase, ConnectionTraits>::acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-        io_(io), data_(data), ct_(ct), acceptor_(io_)
+	io_(io), data_(data), ct_(ct), acceptor_(io_)
 {
 }
 
@@ -82,80 +81,80 @@ acceptor<ConnectionBase, ConnectionTraits>::~acceptor() {
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::accept() {
-        try {
-                acceptor_ptr_type self(this);
-                connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-                acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first,
-                        self, conn, asio::placeholders::error));
-        }
-        catch (std::exception const &e) {
-                logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
-        }
+	try {
+		acceptor_ptr_type self(this);
+		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
+		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first,
+		                       self, conn, asio::placeholders::error));
+	}
+	catch (std::exception const &e) {
+		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::accept_again() {
-        try {
-                acceptor_ptr_type self(this);
-                connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-                acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again,
-                        self, conn, asio::placeholders::error));
-        }
-        catch (std::exception const &e) {
-                logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
-        }
+	try {
+		acceptor_ptr_type self(this);
+		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
+		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again,
+		                       self, conn, asio::placeholders::error));
+	}
+	catch (std::exception const &e) {
+		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first(connection_ptr_type conn, syst::error_code const &code) {
-        if (code) {
-                throw error("network error occured while first accepting connection: %s",
-                        code.message().c_str());
-        }
-        process_connection(conn);
+	if (code) {
+		throw error("network error occured while first accepting connection: %s",
+		            code.message().c_str());
+	}
+	process_connection(conn);
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::error_code const &code) {
-        if (code) {
-                logger_->error("network error occured while accepting connection: %s",
-                        code.message().c_str());
-                accept_again();
-        }
-        else {
-                process_connection(conn);
-        }
+	if (code) {
+		logger_->error("network error occured while accepting connection: %s",
+		               code.message().c_str());
+		accept_again();
+	}
+	else {
+		process_connection(conn);
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::process_connection(connection_ptr_type conn) {
-        conn->start();
-        logger_->info("connection with id %lu accepted from %s", conn->id(), conn->address());
-        accept_again();
+	conn->start();
+	logger_->info("connection with id %lu accepted from %s", conn->id(), conn->address());
+	accept_again();
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::attach_logger(boost::intrusive_ptr<logger> const &log) {
-        assert(log);
-        logger_ = log;
+	assert(log);
+	logger_ = log;
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::bind(std::string const &addr, unsigned short port, unsigned short backlog) {
 
-        asio::ip::address address = asio::ip::address::from_string(addr);
-        asio::ip::tcp::endpoint endpoint(address, port);
+	asio::ip::address address = asio::ip::address::from_string(addr);
+	asio::ip::tcp::endpoint endpoint(address, port);
 
-        acceptor_.open(endpoint.protocol());
-        acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+	acceptor_.open(endpoint.protocol());
+	acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 
-        acceptor_.bind(endpoint);
-        acceptor_.listen(backlog);
+	acceptor_.bind(endpoint);
+	acceptor_.listen(backlog);
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::stop() {
-        acceptor_.close();
+	acceptor_.close();
 }
 
 }} // namespaces

@@ -3,8 +3,7 @@
 
 namespace xiva {
 
-message_sender::message_sender()
-{
+message_sender::message_sender() {
 }
 
 message_sender::~message_sender() {

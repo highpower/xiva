@@ -22,18 +22,19 @@
 #include <string>
 
 #include "xiva/config.hpp"
-#include "xiva/reference_counted.hpp"
+#include "xiva/shared.hpp"
 
 namespace xiva {
 
 class request;
+class response;
 
-class XIVA_API receiver_matcher : public reference_counted {
+class XIVA_API receiver_matcher : public shared {
 
 public:
 	receiver_matcher();
 	virtual ~receiver_matcher();
-	
+
 	virtual bool threaded() const = 0;
 	virtual char const* content_type() const = 0;
 

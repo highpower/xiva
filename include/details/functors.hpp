@@ -75,19 +75,14 @@ struct ci_equal<char> : public std::binary_function<char, char, bool> {
 
 template <typename R1, typename R2> inline bool
 is_ci_less(R1 const &var, R2 const &target) {
-	
-	BOOST_STATIC_ASSERT((boost::is_same<typename R1::value_type, 
-		typename R2::value_type>::value));
-	return std::lexicographical_compare(var.begin(), var.end(), target.begin(), 
+	BOOST_STATIC_ASSERT((boost::is_same<typename R1::value_type, typename R2::value_type>::value));
+	return std::lexicographical_compare(var.begin(), var.end(), target.begin(),
 		target.end(), ci_less<typename R1::value_type>());
 }
 
 template <typename R1, typename R2> inline bool
 is_ci_equal(R1 const &var, R2 const &target) {
-
-	BOOST_STATIC_ASSERT((boost::is_same<typename R1::value_type, 
-		typename R2::value_type>::value));
-
+	BOOST_STATIC_ASSERT((boost::is_same<typename R1::value_type, typename R2::value_type>::value));
 	if (var.size() == target.size()) {
 		return std::equal(var.begin(), var.end(), target.begin(), 
 			ci_equal<typename R1::value_type>());

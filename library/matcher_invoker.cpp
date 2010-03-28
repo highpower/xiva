@@ -1,44 +1,42 @@
 #include "acsetup.hpp"
-#include "details/connection_validator.hpp"
+#include "details/matcher_invoker.hpp"
 
 #include <string>
+#include <cassert>
 
-#include "details/connection_data.hpp"
+#include "xiva/receiver_matcher.hpp"
+
+#include "details/connection.hpp"
 #include "details/request_impl.hpp"
-
-
+#include "details/connection_data.hpp"
 
 namespace xiva { namespace details {
 
-
-connection_validator::connection_validator(connection_data const &data) {
-
-	boost::intrusive_ptr<receiver_matcher> matcher = data.matcher();
-	assert(matcher);
-	assert(!matcher->threaded());
-	matcher_ = matcher;
+matcher_invoker::matcher_invoker(connection_data const &data)
+{
+	matcher_ = data.matcher();
+	assert(matcher_);
+	assert(!matcher_->threaded());
 }
 
-connection_validator::~connection_validator() {
+matcher_invoker::~matcher_invoker() {
 }
 
 void
-connection_validator::validate(connection_type_ptr conn, request_impl &req) {
+matcher_invoker::init(settings const &s) {
+	(void) s;
+}
 
+void
+matcher_invoker::attach_logger(boost::intrusive_ptr<logger> const &log) {
+	(void) log;
+}
+
+void
+matcher_invoker::invoke_matcher(matcher_invoker::connection_ptr_type conn, request_impl &req) {
 	matcher_->check(req);
-        std::string receiver = matcher_->receiver(req);
-        conn->validate_result(receiver, matcher_->content_type());
+	std::string receiver = matcher_->receiver(req);
+	conn->matched(receiver, matcher_->content_type());
 }
-
-void
-connection_validator::attach_logger(boost::intrusive_ptr<logger> const &log) {
-	(void)log;
-}
-
-void
-connection_validator::init(settings const &s) {
-	(void)s;
-}
-
 
 }} // namespaces

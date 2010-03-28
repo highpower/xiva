@@ -1,4 +1,4 @@
-/** @file reference_counted.hpp */
+/** @file shared.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_REFERENCE_COUNTED_HPP_INCLUDED
-#define XIVA_REFERENCE_COUNTED_HPP_INCLUDED
+#ifndef XIVA_SHARED_HPP_INCLUDED
+#define XIVA_SHARED_HPP_INCLUDED
 
 #include <cassert>
 
@@ -25,50 +25,49 @@
 
 namespace xiva {
 
-class reference_counted;
+class shared;
 
-void intrusive_ptr_add_ref(reference_counted *object); 
-void intrusive_ptr_release(reference_counted *object); 
+void intrusive_ptr_add_ref(shared *object);
+void intrusive_ptr_release(shared *object);
 
-class XIVA_API reference_counted {
+class XIVA_API shared {
 
 public:
-	reference_counted();
-	virtual ~reference_counted();
+	shared();
+	virtual ~shared();
 
 private:
-	reference_counted(const reference_counted &);
-	reference_counted& operator = (const reference_counted &);
+	shared(const shared &);
+	shared& operator = (const shared &);
 
-	friend void intrusive_ptr_add_ref(reference_counted *object);
-	friend void intrusive_ptr_release(reference_counted *object);
+	friend void intrusive_ptr_add_ref(shared *object);
+	friend void intrusive_ptr_release(shared *object);
 
 private:
 	int count_;
 };
 
 inline
-reference_counted::reference_counted() : 
-	count_(0)
-{
+shared::shared() :
+		count_(0) {
 }
 
-inline 
-reference_counted::~reference_counted() {
+inline
+shared::~shared() {
 	assert(0 == count_);
 }
 
 inline XIVA_API void
-intrusive_ptr_add_ref(reference_counted *object) {
+intrusive_ptr_add_ref(shared *object) {
 	++object->count_;
 }
 
 
 inline XIVA_API void
-intrusive_ptr_release(reference_counted *object) {
+intrusive_ptr_release(shared *object) {
 	if (0 == --object->count_) delete object;
 }
 
 } // namespace
 
-#endif // XIVA_REFERENCE_COUNTED_HPP_INCLUDED
+#endif // XIVA_SHARED_HPP_INCLUDED

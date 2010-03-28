@@ -34,7 +34,7 @@ class XIVA_API message_sender {
 public:
 	message_sender();
 	virtual ~message_sender();
-	
+
 	virtual bool active() const = 0;
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m) = 0;
 	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m) = 0;

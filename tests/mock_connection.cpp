@@ -34,7 +34,7 @@ mock_connection::send(boost::shared_ptr<message> const &m) {
 }
 
 void
-mock_connection::validate_result(std::string const &to, char const *content_type) {
+mock_connection::matched(std::string const &to, char const *content_type) {
 	(void) to;
 	(void) content_type;
 }

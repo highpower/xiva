@@ -34,7 +34,6 @@ class line_reader : private iterator_checker<Iter> {
 
 public:
 	line_reader(Iter begin, Iter end);
-	
 	bool multiline() const;
 	bool read_line(range<Iter> &line);
 
@@ -53,7 +52,7 @@ private:
 
 template <typename Iter> inline
 line_reader<Iter>::line_reader(Iter begin, Iter end) :
-	begin_(begin), end_(end), multiline_(false)
+	begin_(begin), end_(end), multiline_(false) 
 {
 }
 
@@ -65,18 +64,18 @@ line_reader<Iter>::multiline() const {
 
 template <typename Iter> inline bool
 line_reader<Iter>::read_line(range<Iter> &line) {
-	
+
 	if (end_ == begin_) return false;
 
 	multiline_ = false;
 	Iter position = begin_;
 
 	while (true) {
-		
+
 		Iter line_end = std::find_if(position, end_, line_end_check_);
 		Iter newline_begin = find_if_not(line_end, end_, line_end_check_);
 		line = range<Iter>(begin_, line_end);
-		
+
 		if (end_ == line_end || end_ == newline_begin) {
 			begin_ = end_;
 			return true;

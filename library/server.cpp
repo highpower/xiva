@@ -2,7 +2,7 @@
 #include "xiva/server.hpp"
 #include "details/server_impl.hpp"
 
-namespace xiva { 
+namespace xiva {
 
 server::server() :
 	impl_(new details::server_impl())

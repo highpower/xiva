@@ -22,9 +22,9 @@ var_constants<char>::begin_token[] = "${";
 
 template <typename String, typename Map> String
 substitute(String const &str, Map const &vars) {
-	
+
 	typedef typename String::value_type char_type;
-	
+
 	typename String::size_type begin = str.find(var_constants<char_type>::begin_token);
 	if (String::npos == begin) {
 		return str;
@@ -33,25 +33,24 @@ substitute(String const &str, Map const &vars) {
 	if (String::npos == end) {
 		throw error("bad variable syntax: %s", str.c_str());
 	}
-	
+
 	typename String::size_type send = end - (sizeof(var_constants<char_type>::end_token) - 1);
 	typename String::size_type sbegin = begin + (sizeof(var_constants<char_type>::begin_token) - 1);
-	
+
 	String copy(str);
 	String result = substitute(String(str, sbegin, send - sbegin + 1), vars);
-	
+
 	typename Map::const_iterator i = vars.find(result);
 	if (vars.end() == i) {
 		throw error("nonexistent variable: %s", result.c_str());
 	}
-	
+
 	copy.replace(begin, end - begin + 1, i->second);
 	return copy;
 }
 
 
-variable_map::variable_map()
-{
+variable_map::variable_map() {
 }
 
 variable_map::~variable_map() {

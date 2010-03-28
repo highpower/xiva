@@ -1,4 +1,4 @@
- /** @file component_set.hpp */
+/** @file component_set.hpp */
 // xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
@@ -33,7 +33,7 @@ class XIVA_API component_set {
 public:
 	component_set();
 	virtual ~component_set();
-	
+
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
 	virtual void attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) = 0;
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l) = 0;

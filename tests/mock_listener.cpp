@@ -1,12 +1,12 @@
 #include "acsetup.hpp"
-#include <stdexcept>
 #include "mock_listener.hpp"
+
+#include <stdexcept>
 #include <boost/lexical_cast.hpp>
 
 namespace xiva { namespace tests {
 
-mock_listener::mock_listener()
-{
+mock_listener::mock_listener() {
 }
 
 mock_listener::~mock_listener() {

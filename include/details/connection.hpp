@@ -22,13 +22,13 @@
 #include <string>
 #include <boost/intrusive_ptr.hpp>
 
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
-#include "xiva/reference_counted.hpp"
 #include "details/connection_base.hpp"
 
 namespace xiva { namespace details {
 
-class connection : public reference_counted, public connection_base {
+class connection : public shared, public connection_base {
 
 public:
 	connection();
@@ -51,7 +51,7 @@ inline std::string const&
 connection::name() const {
 	return name_;
 }
-	
+
 inline std::string const&
 connection::nameref() const {
 	return name_;
@@ -61,7 +61,6 @@ inline void
 connection::name(std::string const &name) {
 	name_.assign(name);
 }
-
 
 }} // namespaces
 

@@ -33,11 +33,11 @@ public:
 	virtual ~request();
 
 	virtual std::string const& url() const = 0;
-	
+
 	virtual bool has_param(std::string const &name) const = 0;
 	virtual std::string const& param(std::string const &name) const = 0;
 	virtual enumeration<std::string>::ptr_type params(std::string const &name) const = 0;
-	
+
 	virtual bool has_header(std::string const &name) const = 0;
 	virtual std::string const& header(std::string const &name) const = 0;
 

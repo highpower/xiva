@@ -9,7 +9,7 @@
 namespace xiva { namespace python {
 
 python_matcher::python_matcher(py::object const &impl) :
-	impl_(impl)
+	impl_(impl) 
 {
 }
 

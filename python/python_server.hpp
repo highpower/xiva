@@ -37,7 +37,7 @@ public:
 
 	void stop();
 	void start(py::object const &impl);
-	
+
 	void load(std::string const &name);
 	void attach_logger(py::object const &impl);
 	void attach_receiver_matcher(py::object const &impl);

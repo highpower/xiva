@@ -34,7 +34,7 @@ class python_settings : public settings {
 public:
 	python_settings(py::object const &impl);
 	virtual ~python_settings();
-	
+
 	virtual std::string address() const;
 	virtual unsigned short port() const;
 	virtual unsigned short backlog() const;
@@ -50,7 +50,7 @@ public:
 
 	virtual std::string value(char const *name) const;
 	virtual enumeration<std::string>::ptr_type value_list(char const *prefix) const;
-	
+
 private:
 	python_settings(python_settings const &);
 	python_settings& operator = (python_settings const &);

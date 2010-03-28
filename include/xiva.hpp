@@ -25,14 +25,16 @@
 #include "xiva/enumeration.hpp"
 #include "xiva/error.hpp"
 #include "xiva/forward.hpp"
+#include "xiva/globals.hpp"
 #include "xiva/http_error.hpp"
 #include "xiva/logger.hpp"
 #include "xiva/message.hpp"
 #include "xiva/message_sender.hpp"
 #include "xiva/receiver_matcher.hpp"
-#include "xiva/reference_counted.hpp"
 #include "xiva/request.hpp"
+#include "xiva/response.hpp"
 #include "xiva/server.hpp"
 #include "xiva/settings.hpp"
+#include "xiva/shared.hpp"
 
 #endif // XIVA_HPP_INCLUDED

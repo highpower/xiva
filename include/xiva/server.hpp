@@ -44,7 +44,7 @@ public:
 
 	component_set& components();
 	void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
-	
+
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m);
 	void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
