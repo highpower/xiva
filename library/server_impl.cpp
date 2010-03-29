@@ -63,8 +63,8 @@ server_impl::start(settings const &s) {
 
 	if (data_.matcher()->threaded()) {
 		typedef threaded_matcher_invoker invoker_type;
-        typedef invoker_type::connection_type connection_type;
-        typedef connection_manager<connection_type> manager_type;
+		typedef invoker_type::connection_type connection_type;
+		typedef connection_manager<connection_type> manager_type;
 		typedef connection_traits<connection_type, invoker_type> traits_type;
 		typedef acceptor<connection_type, traits_type> acceptor_type;
 
@@ -86,7 +86,6 @@ server_impl::start(settings const &s) {
 		boost::intrusive_ptr<invoker_type> cv(new invoker_type(data_));
 		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
 		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, data_, *ct));
-		
 		connection_manager_ = cm;
 		connection_traits_ = ct;
 	}

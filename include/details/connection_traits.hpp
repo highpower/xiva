@@ -29,61 +29,61 @@
 
 namespace xiva { namespace details {
 
-template <typename ConnectionBase, typename ConnectionValidator>
+template <typename ConnectionBase, typename MatcherInvoker>
 class connection_traits : public connection_traits_base {
 
 public:
 	typedef connection_manager<ConnectionBase> ConnectionManager;
 	typedef boost::intrusive_ptr<ConnectionManager> connection_manager_ptr_type;
-	typedef boost::intrusive_ptr<ConnectionValidator> connection_validator_ptr_type;
+	typedef boost::intrusive_ptr<MatcherInvoker> matcher_invoker_ptr_type;
 
-	connection_traits(connection_manager_ptr_type cm, connection_validator_ptr_type cv);
+	connection_traits(connection_manager_ptr_type cm, matcher_invoker_ptr_type cv);
 	virtual ~connection_traits();
 
 	ConnectionManager& manager();
-	ConnectionValidator& validator();
+	MatcherInvoker& matcher_invoker();
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	virtual void init(settings const &s);
 
 private:
 	connection_manager_ptr_type cm_;
-	connection_validator_ptr_type cv_;
+	matcher_invoker_ptr_type mi_;
 };
 
-template <typename ConnectionBase, typename ConnectionValidator> inline
-connection_traits<ConnectionBase, ConnectionValidator>::connection_traits(connection_manager_ptr_type cm, connection_validator_ptr_type cv) :
-	cm_(cm), cv_(cv)
+template <typename ConnectionBase, typename MatcherInvoker> inline
+connection_traits<ConnectionBase, MatcherInvoker>::connection_traits(connection_manager_ptr_type cm, matcher_invoker_ptr_type mi) :
+	cm_(cm), mi_(mi)
 {
 	assert(cm);
-	assert(cv);
+	assert(mi);
 }
 
-template <typename ConnectionBase, typename ConnectionValidator> inline
-connection_traits<ConnectionBase, ConnectionValidator>::~connection_traits() {
+template <typename ConnectionBase, typename MatcherInvoker> inline
+connection_traits<ConnectionBase, MatcherInvoker>::~connection_traits() {
 }
 
 
-template <typename ConnectionBase, typename ConnectionValidator> inline connection_manager<ConnectionBase>&
-connection_traits<ConnectionBase, ConnectionValidator>::manager() {
+template <typename ConnectionBase, typename MatcherInvoker> inline connection_manager<ConnectionBase>&
+connection_traits<ConnectionBase, MatcherInvoker>::manager() {
 	return *cm_;
 }
 
-template <typename ConnectionBase, typename ConnectionValidator> inline ConnectionValidator&
-connection_traits<ConnectionBase, ConnectionValidator>::validator() {
-	return *cv_;
+template <typename ConnectionBase, typename MatcherInvoker> inline MatcherInvoker&
+connection_traits<ConnectionBase, MatcherInvoker>::matcher_invoker() {
+	return *mi_;
 }
 
-template <typename ConnectionBase, typename ConnectionValidator> inline void
-connection_traits<ConnectionBase, ConnectionValidator>::attach_logger(boost::intrusive_ptr<logger> const &log) {
+template <typename ConnectionBase, typename MatcherInvoker> inline void
+connection_traits<ConnectionBase, MatcherInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	cm_->attach_logger(log);
-	cv_->attach_logger(log);
+	mi_->attach_logger(log);
 }
 
-template <typename ConnectionBase, typename ConnectionValidator> inline void
-connection_traits<ConnectionBase, ConnectionValidator>::init(settings const &s) {
+template <typename ConnectionBase, typename MatcherInvoker> inline void
+connection_traits<ConnectionBase, MatcherInvoker>::init(settings const &s) {
 	cm_->init(s);
-	cv_->init(s);
+	mi_->init(s);
 }
 
 }} // namespaces

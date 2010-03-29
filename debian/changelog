@@ -1,3 +1,9 @@
+xiva (0.7.1-1) unstable; urgency=low
+
+  * ConnectionValidator renamed to MatcherInvoker
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 29 Mar 2010 15:36:44 +0400
+
 xiva (0.7.1) unstable; urgency=low
 
   * refactoring was performed to improve convinience of the code

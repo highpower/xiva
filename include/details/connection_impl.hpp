@@ -103,7 +103,6 @@ private:
 	asio::deadline_timer timer_;
 	asio::ip::tcp::socket socket_;
 	std::list<message_ptr_type> messages_;
-	std::string format_type;
 
 	websocket_info ws_info_;
 	bool is_policy_;
@@ -195,7 +194,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 			request_impl req(begin, end);
 			ws_info_.parse(req);
 			boost::intrusive_ptr<ConnectionBase> self(this);
-			ct_.validator().invoke_matcher(self, req);
+			ct_.matcher_invoker().invoke_matcher(self, req);
 		}
 	}
 	catch (http_error const &h) {
