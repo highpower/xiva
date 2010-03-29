@@ -5,6 +5,7 @@
 #include <exception>
 #include <boost/bind.hpp>
 #include <boost/current_function.hpp>
+#include <boost/function.hpp>
 
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
@@ -34,6 +35,7 @@ threaded_matcher_invoker::~threaded_matcher_invoker() {
 		join_all();
 	}
 	catch (std::exception const &e) {
+		(void) e;
 	}
 }
 
