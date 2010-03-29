@@ -69,7 +69,7 @@ public:
 
 	char const* address() const;
 	asio::ip::tcp::socket& socket();
-	virtual void matched(std::string const &name, char const *content_type);
+	virtual void matched(char const *content_type);
 
 private:
 	typedef std::allocator<char> allocator_type;
@@ -152,16 +152,16 @@ connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<messag
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::matched(std::string const &name, char const *content_type) {
+connection_impl<ConnectionBase, ConnectionTraits>::matched(char const *content_type) {
 	timer_.cancel();
 	try {
+		std::string const &name = ConnectionBase::nameref();
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
 		}
-		ConnectionBase::name(name);
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
-		data_.log()->debug("name %s assigned to connection[%lu] from %s", ConnectionBase::nameref().c_str(), ConnectionBase::id(), address());
+		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
 		write_headers(content_type);
 	}
 	catch (http_error const &h) {

@@ -36,7 +36,7 @@ public:
 
 	virtual void finish();
 	virtual void send(boost::shared_ptr<message> const &m);
-	virtual void matched(std::string const &to, char const *content_type);
+	virtual void matched(char const *content_type);
 
 private:
 	mock_connection(mock_connection const &);

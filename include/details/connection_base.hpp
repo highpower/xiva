@@ -18,7 +18,6 @@
 #ifndef XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 
-#include <string>
 #include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
@@ -34,7 +33,7 @@ public:
 
 	virtual void finish() = 0;
 	virtual void send(boost::shared_ptr<message> const &message) = 0;
-	virtual void matched(std::string const &name, char const *content_type) = 0;
+	virtual void matched(char const *content_type) = 0;
 	globals::connection_id id() const;
 
 private:

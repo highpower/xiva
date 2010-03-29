@@ -36,7 +36,8 @@ void
 matcher_invoker::invoke_matcher(matcher_invoker::connection_ptr_type conn, request_impl &req) {
 	matcher_->check(req);
 	std::string receiver = matcher_->receiver(req);
-	conn->matched(receiver, matcher_->content_type());
+	conn->name(receiver);
+	conn->matched(matcher_->content_type());
 }
 
 }} // namespaces

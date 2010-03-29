@@ -19,7 +19,7 @@ threaded_connection::name() const {
 
 void
 threaded_connection::name(std::string const &name) {
-	if (&name != &name_) {
+	if (&name != &name_ && !name.empty()) {
 		boost::mutex::scoped_lock lock(mutex_);
 		name_.assign(name);
 	}

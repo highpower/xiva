@@ -69,7 +69,7 @@ threaded_matcher_invoker::pop() {
 	try {
 		char const *content_type = matcher_->content_type();
 		for (std::deque<connection_ptr_type>::iterator i = d.begin(), end = d.end(); i != end; ++i) {
-			(*i)->matched((*i)->nameref(), content_type); // wtf??? we have already recognized connection name 
+			(*i)->matched(content_type);
 		}
 	}
 	catch (std::exception const &e) {
