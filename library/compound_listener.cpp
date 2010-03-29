@@ -19,13 +19,13 @@ compound_listener::~compound_listener() {
 }
 
 void
-compound_listener::connection_opened(std::string const &to, globals::connection_id const &id) throw (std::exception) {
-	notify_connection_opened(to, id);
+compound_listener::connection_opened(std::string const &to) throw (std::exception) {
+	notify_connection_opened(to);
 }
 
 void
-compound_listener::connection_closed(std::string const &to, globals::connection_id const &id) throw (std::exception) {
-	notify_connection_closed(to, id);
+compound_listener::connection_closed(std::string const &to) throw (std::exception) {
+	notify_connection_closed(to);
 }
 
 void
@@ -51,10 +51,10 @@ compound_listener::log() const {
 }
 
 void
-compound_listener::notify_connection_opened(std::string const &to, globals::connection_id const &id) {
+compound_listener::notify_connection_opened(std::string const &to) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-		    boost::bind(&connection_listener::connection_opened, _1, boost::cref(to), id));
+		    boost::bind(&connection_listener::connection_opened, _1, boost::cref(to)));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
@@ -63,10 +63,10 @@ compound_listener::notify_connection_opened(std::string const &to, globals::conn
 }
 
 void
-compound_listener::notify_connection_closed(std::string const &to, globals::connection_id const &id) {
+compound_listener::notify_connection_closed(std::string const &to) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-		    boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), id));
+		    boost::bind(&connection_listener::connection_closed, _1, boost::cref(to)));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());

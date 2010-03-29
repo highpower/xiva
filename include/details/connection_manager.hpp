@@ -37,9 +37,9 @@
 #include "xiva/logger.hpp"
 #include "xiva/connection_listener.hpp"
 
-#include "details/connection_manager_base.hpp"
-#include "details/compound_listener.hpp"
 #include "details/connection.hpp"
+#include "details/compound_listener.hpp"
+#include "details/connection_manager_base.hpp"
 
 namespace mi = boost::multi_index;
 
@@ -49,7 +49,6 @@ template <typename ConnectionBase>
 struct cm_connection_id {
 	typedef globals::connection_id result_type;
 	typedef boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
-
 	result_type operator () (connection_ptr_type const &conn) const;
 };
 
@@ -229,12 +228,12 @@ connection_manager<ConnectionBase>::finished() const {
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_opened(ConnectionBase const &conn) {
-	listener_->connection_opened(conn.name(), conn.id());
+	listener_->connection_opened(conn.name());
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_closed(ConnectionBase const &conn) {
-	listener_->connection_closed(conn.name(), conn.id());
+	listener_->connection_closed(conn.name());
 }
 
 }

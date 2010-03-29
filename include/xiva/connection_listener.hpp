@@ -23,21 +23,41 @@
 
 #include "xiva/config.hpp"
 #include "xiva/shared.hpp"
-#include "xiva/globals.hpp"
 
 namespace xiva {
 
+/** This interface provides two callbacks which are called when 
+ * connection to a particular user is established or closed.
+ * You shoud implement this interface and provide an instance to 
+ * the system to know whether to send messages to the particular 
+ * user or not.
+ */
 class XIVA_API connection_listener : public shared {
 
 public:
+	/** default constructor */
 	connection_listener();
+	
+	/** default destructor */
 	virtual ~connection_listener();
 
-	virtual void connection_opened(std::string const &to, globals::connection_id const &id) throw (std::exception) = 0;
-	virtual void connection_closed(std::string const &to, globals::connection_id const &id) throw (std::exception) = 0;
+	/** this function is called when the connection to the user is 
+	 * established and the user or subsystem that initiated the request 
+	 * is matched
+	 * @param to user or subsystem name
+	 */
+	virtual void connection_opened(std::string const &to) throw (std::exception) = 0;
+	
+	/** this function is called when the connection to the user is closed
+	 * @param to user or subsystem name
+	 */
+	virtual void connection_closed(std::string const &to) throw (std::exception) = 0;
 
 private:
+	/** shoud never be implemented */
 	connection_listener(connection_listener const &);
+	
+	/** shoud never be implemented */
 	connection_listener& operator = (connection_listener const &);
 };
 

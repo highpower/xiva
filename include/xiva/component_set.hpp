@@ -27,19 +27,46 @@
 
 namespace xiva {
 
+/** 
+ * This is an interface of container that holds references to 
+ * common components such as logger. It helps to provide 
+ * components from dynamically loaded modules to the system.
+ */
 class XIVA_API component_set {
 
 public:
+	/** default constructor */
 	component_set();
+	
+	/** default destructor */
 	virtual ~component_set();
 
+	/** attaches an instance of the logger. 
+	 * @param log an instance of class that implements logger interface.
+	 */ 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
+	
+	/** sets up the receiver matcher 
+	 * @param m an instance of class that implements receiver_matcher interface.
+	 */
 	virtual void attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) = 0;
+	
+	/** adds the connection_listener to the system.
+	 * @param l an instance of class that implements connection_listener interface.
+	 */
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l) = 0;
+
+	/** starts some threads that program-specific message generator is executed by
+	 * @param nthreads thread count
+	 * @param f function that will be executed by the threads
+	 */
 	virtual void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f) = 0;
 
 private:
+	/** shuold never be implemented */
 	component_set(component_set const &);
+	
+	/** shuold never be implemented */
 	component_set& operator = (component_set const &);
 };
 

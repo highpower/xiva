@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <boost/lexical_cast.hpp>
 
+#include "xiva/error.hpp"
+
 namespace xiva { namespace tests {
 
 mock_listener::mock_listener() {
@@ -18,33 +20,23 @@ mock_listener::available(std::string const &to) const {
 }
 
 void
-mock_listener::connection_opened(std::string const &to, globals::connection_id const &id) throw (std::exception) {
-	std::map<std::string, connection_ids>::iterator i = available_.find(to);
+mock_listener::connection_opened(std::string const &to) throw (std::exception) {
+	std::map<std::string, std::size_t>::iterator i = available_.find(to);
 	if (available_.end() == i) {
-		connection_ids ids;
-		ids.insert(id);
-		ids.swap(available_[to]);
+		available_.insert(std::make_pair<std::string, std::size_t>(to, 1));
 	}
 	else {
-		connection_ids &ids = i->second;
-		ids.insert(id);
+		++(i->second);
 	}
 }
 
 void
-mock_listener::connection_closed(std::string const &to, globals::connection_id const &id) throw (std::exception) {
-	std::map<std::string, connection_ids>::iterator i = available_.find(to);
+mock_listener::connection_closed(std::string const &to) throw (std::exception) {
+	std::map<std::string, std::size_t>::iterator i = available_.find(to);
 	if (available_.end() == i) {
-		return;
+		throw error("failed to close inexistent connection to %s", to.c_str());
 	}
-	connection_ids &ids = i->second;
-	connection_ids::iterator it = ids.find(id);
-	if (ids.end() == it) {
-		std::string msg = "wrong connection id: " + boost::lexical_cast<std::string>(id) + " to: " + to;
-		throw std::logic_error(msg);
-	}
-	ids.erase(it);
-	if (ids.empty()) {
+	if (0 == --(i->second)) {
 		available_.erase(i);
 	}
 }
