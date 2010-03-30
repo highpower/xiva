@@ -4,6 +4,7 @@
 #include <string>
 #include <cassert>
 
+#include "xiva/request.hpp"
 #include "xiva/receiver_matcher.hpp"
 
 #include "details/connection.hpp"
@@ -34,8 +35,11 @@ matcher_invoker::attach_logger(boost::intrusive_ptr<logger> const &log) {
 
 void
 matcher_invoker::invoke_matcher(matcher_invoker::connection_ptr_type conn, request_impl &req) {
-	matcher_->check(req);
-	std::string receiver = matcher_->receiver(req);
+	
+	request r(req);
+	matcher_->check(r);
+	std::string receiver = matcher_->receiver(r);
+
 	conn->name(receiver);
 	conn->matched(matcher_->content_type());
 }

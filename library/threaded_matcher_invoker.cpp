@@ -8,7 +8,9 @@
 #include <boost/function.hpp>
 
 #include "xiva/logger.hpp"
+#include "xiva/request.hpp"
 #include "xiva/settings.hpp"
+
 #include "details/request_impl.hpp"
 #include "details/connection_data.hpp"
 #include "details/threaded_shared.hpp"
@@ -56,7 +58,8 @@ threaded_matcher_invoker::attach_logger(boost::intrusive_ptr<logger> const &log)
 
 void
 threaded_matcher_invoker::invoke_matcher(threaded_matcher_invoker::connection_ptr_type conn, request_impl &req) {
-	matcher_->check(req);
+	request r(req);
+	matcher_->check(r);
 	holder_ptr_type holder(new request_holder());
 	holder->req.swap(req);
 	input_queue_.push(queue_item_type(holder, conn));
@@ -82,7 +85,8 @@ threaded_matcher_invoker::thread_func() {
 	queue_item_type item;
 	while (input_queue_.pop(item)) {
 		try {
-			std::string receiver = matcher_->receiver(item.first->req);
+			request req(item.first->req);
+			std::string receiver = matcher_->receiver(req);
 			item.second->name(receiver);
 			push_matched(item.second);
 			strand_.dispatch(boost::bind(&threaded_matcher_invoker::pop, this));

@@ -33,8 +33,9 @@ class connection_listener;
 namespace details {
 
 class server_impl;
+class request_impl;
+class response_impl;
 
-}
-} // namespaces
+}} // namespaces
 
 #endif // XIVA_DETAILS_FORWARD_HPP_INCLUDED

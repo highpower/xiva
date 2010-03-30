@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-#include "xiva/request.hpp"
+#include "details/request_impl.hpp"
 #include "details/http_constants.hpp"
 
 namespace xiva { namespace details {
@@ -61,7 +61,7 @@ operator << (std::ostream &stream, websocket_info const &val) {
 }
 
 void
-websocket_info::parse(request const &req) {
+websocket_info::parse(request_impl const &req) {
 
 	if (req.header(WS_STR_CONNECTION) != WS_STR_UPGRADE || req.header(WS_STR_UPGRADE) != WS_STR_WEBSOCKET) {
 		return;

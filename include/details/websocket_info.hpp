@@ -35,7 +35,7 @@ public:
 	
 	bool empty() const;
 	bool valid() const;
-	void parse(request const &req);
+	void parse(request_impl const &req);
 	static void write_message(std::ostream &stream, std::string const &msg);
 
 private:

@@ -19,18 +19,22 @@
 #define XIVA_RESPONSE_HPP_INCLUDED
 
 #include "xiva/config.hpp"
+#include "xiva/forward.hpp"
 
 namespace xiva {
 
 class XIVA_API response {
 
 public:
-	response();
+	response(details::response_impl &impl);
 	virtual ~response();
 
 private:
 	response(response const &);
 	response& operator = (response const &);
+	
+private:
+	details::response_impl &impl_;
 };
 
 } // namespace

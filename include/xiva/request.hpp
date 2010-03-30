@@ -21,6 +21,7 @@
 #include <string>
 
 #include "xiva/config.hpp"
+#include "xiva/forward.hpp"
 #include "xiva/enumeration.hpp"
 
 namespace xiva {
@@ -28,24 +29,23 @@ namespace xiva {
 class XIVA_API request {
 
 public:
-	request();
+	request(details::request_impl const &impl);
 	virtual ~request();
 
-	virtual std::string const& url() const = 0;
+	std::string const& url() const;
 
-	virtual bool has_param(std::string const &name) const = 0;
-	virtual std::string const& param(std::string const &name) const = 0;
-	virtual enumeration<std::string>::ptr_type params(std::string const &name) const = 0;
+	bool has_param(std::string const &name) const;
+	std::string const& param(std::string const &name) const;
+	enumeration<std::string>::ptr_type params(std::string const &name) const;
 
-	virtual bool has_header(std::string const &name) const = 0;
-	virtual std::string const& header(std::string const &name) const = 0;
+	bool has_header(std::string const &name) const;
+	std::string const& header(std::string const &name) const;
 
-	virtual bool has_cookie(std::string const &name) const = 0;
-	virtual std::string const& cookie(std::string const &name) const = 0;
+	bool has_cookie(std::string const &name) const;
+	std::string const& cookie(std::string const &name) const;
 
 private:
-	request(request const &);
-	request& operator = (request const &);
+	details::request_impl const &impl_;
 };
 
 } // namespace

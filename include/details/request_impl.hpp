@@ -22,8 +22,8 @@
 #include <string>
 #include <boost/iterator/filter_iterator.hpp>
 
-#include "xiva/request.hpp"
 #include "xiva/http_error.hpp"
+#include "xiva/enumeration.hpp"
 
 #include "details/range.hpp"
 #include "details/functors.hpp"
@@ -33,24 +33,25 @@
 
 namespace xiva { namespace details {
 
-class request_impl : public request {
+class request_impl {
 
 public:
 	request_impl();
 	template <typename Iter> request_impl(Iter begin, Iter end);
 	virtual ~request_impl();
 	
-	virtual std::string const& url() const;
+	std::string const& url() const;
 
-	virtual bool has_param(std::string const &name) const;
-	virtual std::string const& param(std::string const &name) const;
-	virtual enumeration<std::string>::ptr_type params(std::string const &name) const;
+	bool has_param(std::string const &name) const;
+	std::string const& param(std::string const &name) const;
+	enumeration<std::string>::ptr_type params(std::string const &name) const;
 
-	virtual bool has_header(std::string const &name) const;
-	virtual std::string const& header(std::string const &name) const;
+	bool has_header(std::string const &name) const;
+	std::string const& header(std::string const &name) const;
 
-	virtual bool has_cookie(std::string const &name) const;
-	virtual std::string const& cookie(std::string const &name) const;
+	bool has_cookie(std::string const &name) const;
+	std::string const& cookie(std::string const &name) const;
+	
 	void swap(request_impl &req) throw ();
 
 private:
