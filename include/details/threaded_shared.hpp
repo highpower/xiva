@@ -41,11 +41,9 @@ private:
 	friend void intrusive_ptr_add_ref(threaded_shared *object);
 	friend void intrusive_ptr_release(threaded_shared *object);
 
-protected:
-	mutable boost::mutex mutex_;
-
 private:
 	int count_;
+	mutable boost::mutex mutex_;
 };
 
 inline

@@ -11,18 +11,14 @@ threaded_connection::threaded_connection() {
 threaded_connection::~threaded_connection() {
 }
 
-std::string
+std::string const&
 threaded_connection::name() const {
-	boost::mutex::scoped_lock lock(mutex_);
 	return name_;
 }
 
 void
 threaded_connection::name(std::string const &name) {
-	if (&name != &name_ && !name.empty()) {
-		boost::mutex::scoped_lock lock(mutex_);
-		name_.assign(name);
-	}
+	name_.assign(name);
 }
 
 }} // namespaces

@@ -33,8 +33,7 @@ public:
 	threaded_connection();
 	virtual ~threaded_connection();
 
-	std::string name() const;
-	std::string const& nameref() const;
+	std::string const& name() const;
 	void name(std::string const &name);
 
 private:
@@ -44,11 +43,6 @@ private:
 private:
 	std::string name_;
 };
-
-inline std::string const&
-threaded_connection::nameref() const {
-	return name_;
-}
 
 }} // namespaces
 

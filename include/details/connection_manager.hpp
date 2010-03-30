@@ -114,7 +114,7 @@ cm_connection_id<ConnectionBase>::operator () (connection_ptr_type const &conn) 
 template <typename ConnectionBase> std::string const&
 cm_connection_name<ConnectionBase>::operator () (connection_ptr_type const &conn) const {
 	assert(conn);
-	return conn->nameref();
+	return conn->name();
 }
 
 

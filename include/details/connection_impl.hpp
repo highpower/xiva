@@ -155,7 +155,7 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::matched(char const *content_type) {
 	timer_.cancel();
 	try {
-		std::string const &name = ConnectionBase::nameref();
+		std::string const &name = ConnectionBase::name();
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
 		}
