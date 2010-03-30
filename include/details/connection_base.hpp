@@ -18,6 +18,8 @@
 #ifndef XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
@@ -36,11 +38,26 @@ public:
 	virtual void matched(char const *content_type) = 0;
 	globals::connection_id id() const;
 
+	std::string const& name() const;
+	void name(std::string const &name);
+
 private:
 	connection_base(connection_base const &);
 	connection_base& operator = (connection_base const &);
+
+	std::string name_;
 };
 
+inline std::string const&
+connection_base::name() const {
+	return name_;
+}
+	
+inline void
+connection_base::name(std::string const &name) {
+	name_.assign(name);
+}
+			
 }} // namespaces
 
 #endif // XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED

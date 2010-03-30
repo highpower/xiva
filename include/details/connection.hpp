@@ -18,9 +18,6 @@
 #ifndef XIVA_DETAILS_CONNECTION_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_HPP_INCLUDED
 
-#include <string>
-#include <boost/intrusive_ptr.hpp>
-
 #include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
 #include "details/connection_base.hpp"
@@ -33,33 +30,11 @@ public:
 	connection();
 	virtual ~connection();
 
-	std::string const& name() const;
-	std::string const& nameref() const;
-	void name(std::string const &name);
-
 private:
 	connection(connection const &);
 	connection& operator = (connection const &);
-
-private:
-	std::string name_;
 };
 
-
-inline std::string const&
-connection::name() const {
-	return name_;
-}
-
-inline std::string const&
-connection::nameref() const {
-	return name_;
-}
-
-inline void
-connection::name(std::string const &name) {
-	name_.assign(name);
-}
 
 }} // namespaces
 

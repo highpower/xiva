@@ -18,9 +18,6 @@
 #ifndef XIVA_DETAILS_THREADED_CONNECTION_HPP_INCLUDED
 #define XIVA_DETAILS_THREADED_CONNECTION_HPP_INCLUDED
 
-#include <string>
-#include <boost/intrusive_ptr.hpp>
-
 #include "xiva/forward.hpp"
 #include "details/connection_base.hpp"
 #include "details/threaded_shared.hpp"
@@ -33,15 +30,9 @@ public:
 	threaded_connection();
 	virtual ~threaded_connection();
 
-	std::string const& name() const;
-	void name(std::string const &name);
-
 private:
 	threaded_connection(threaded_connection const &);
 	threaded_connection& operator = (threaded_connection const &);
-
-private:
-	std::string name_;
 };
 
 }} // namespaces
