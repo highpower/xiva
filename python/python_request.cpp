@@ -11,6 +11,9 @@ python_request::python_request(request const &req) :
 {
 }
 
+python_request::~python_request() {
+}
+
 py::str
 python_request::url() const {
 	return py::str(req_.url());

@@ -61,7 +61,7 @@ private:
 
 template <typename Result> inline Result
 python_settings::get(char const *method, Result const &defval) const {
-	if (impl_) {
+	if (!impl_) {
 		return defval;
 	}
 	py::object func = impl_.attr(method);

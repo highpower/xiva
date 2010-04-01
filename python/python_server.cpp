@@ -1,8 +1,8 @@
 #include "acsetup.hpp"
+#include "python_server.hpp"
 
 #include "server_class.hpp"
 #include "python_logger.hpp"
-#include "python_server.hpp"
 #include "python_handler.hpp"
 #include "python_listener.hpp"
 #include "python_settings.hpp"
@@ -15,6 +15,9 @@ namespace xiva { namespace python {
 python_server::python_server() :
 	impl_(new details::server_impl()) 
 {
+}
+
+python_server::~python_server() {
 }
 
 void

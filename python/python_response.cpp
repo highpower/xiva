@@ -1,8 +1,6 @@
 #include "acsetup.hpp"
 #include "python_response.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 #include "xiva/response.hpp"
 #include "response_class.hpp"
 
