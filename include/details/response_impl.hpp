@@ -18,6 +18,8 @@
 #ifndef XIVA_DETAILS_RESPONSE_IMPL_HPP_INCLUDED
 #define XIVA_DETAILS_RESPONSE_IMPL_HPP_INCLUDED
 
+#include <string>
+
 #include "xiva/shared.hpp"
 
 namespace xiva { namespace details {
@@ -27,12 +29,17 @@ class response_impl {
 public:
 	response_impl();
 	virtual ~response_impl();
-
+	
 	void swap(response_impl &impl) throw ();
+	std::string const& content_type() const;
+	void content_type(std::string const &type);
 	
 private:
 	response_impl(response_impl const &);
 	response_impl& operator = (response_impl const &);
+
+private:
+	std::string type_;
 };
 
 }} // namespace

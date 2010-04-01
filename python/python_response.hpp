@@ -29,11 +29,12 @@ namespace xiva { namespace python {
 class python_response {
 
 public:
-	python_response(response &req);
+	python_response(response &resp);
 	virtual ~python_response();
+	void content_type(py::str type);
 
 private:
-	response &req_;
+	response &resp_;
 };
 
 }} // namespaces

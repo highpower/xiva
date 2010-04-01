@@ -69,14 +69,14 @@ public:
 
 	char const* address() const;
 	asio::ip::tcp::socket& socket();
-	virtual void handled(response_impl const &impl);
+	virtual void handled(response_impl const &resp);
 
 private:
 	typedef std::allocator<char> allocator_type;
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
 
 	void read();
-	void write_headers(char const *content_type);
+	void write_headers(response_impl const &resp);
 	void write_message();
 	void write_last_message();
 	void write_policy_data();
@@ -89,7 +89,7 @@ private:
 	void handle_exception(std::exception const &exc);
 
 	void print_error(std::streambuf &buf, http_error const &error) const;
-	void print_headers(char const *content_type, std::streambuf &buf) const;
+	void print_headers(std::string const &content_type, std::streambuf &buf) const;
 
 private:
 	asio::io_service &io_;
@@ -152,7 +152,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<messag
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &impl) {
+connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &resp) {
 	timer_.cancel();
 	try {
 		std::string const &name = ConnectionBase::name();
@@ -162,8 +162,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
-		// TODO write content type from response_impl
-		write_headers("text/plain"); 
+		write_headers(resp); 
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
@@ -267,7 +266,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_headers(char const *content_type) {
+connection_impl<ConnectionBase, ConnectionTraits>::write_headers(response_impl const &resp) {
 
 	if (is_policy_ || (!ws_info_.empty() && !ws_info_.valid())) {
 		cleanup();
@@ -275,7 +274,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_headers(char const *con
 	}
 
 	try {
-		print_headers(content_type, out_);
+		print_headers(resp.content_type(), out_);
 		connection_impl_ptr_type self(this);
 		asio::async_write(socket_, out_, boost::bind(&type::handle_write_headers, self,
 			asio::placeholders::error));
@@ -443,10 +442,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_error(std::streambuf &b
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::print_headers(char const *content_type, std::streambuf &buf) const {
+connection_impl<ConnectionBase, ConnectionTraits>::print_headers(std::string const &content_type, std::streambuf &buf) const {
 
 	std::ostream stream(&buf);
-
 	if (!ws_info_.empty()) {
 		stream << ws_info_;
 	}
@@ -457,7 +455,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(char const *con
 	}
 	stream << http_date(boost::posix_time::second_clock::universal_time());
 	stream << http_header::server();
-	stream << http_header("Content-Type", content_type);
+	stream << http_header("Content-Type", content_type.c_str());
 	stream << http_constants<char>::endl;
 }
 

@@ -12,4 +12,15 @@ response::response(details::response_impl &impl) :
 response::~response() {
 }
 
+void
+response::content_type(char const *type) {
+	impl_.content_type(std::string(type));
+}
+
+void
+response::content_type(std::string const &type) {
+	impl_.content_type(type);
+}
+
+
 } // namespaces

@@ -23,7 +23,9 @@ namespace xiva {
 class logger;
 class message;
 class request;
+class response;
 class settings;
+
 class http_error;
 class component_set;
 class message_sender;

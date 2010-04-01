@@ -18,6 +18,8 @@
 #ifndef XIVA_RESPONSE_HPP_INCLUDED
 #define XIVA_RESPONSE_HPP_INCLUDED
 
+#include <string>
+
 #include "xiva/config.hpp"
 #include "xiva/forward.hpp"
 
@@ -28,6 +30,9 @@ class XIVA_API response {
 public:
 	response(details::response_impl &impl);
 	virtual ~response();
+
+	void content_type(char const *type);
+	void content_type(std::string const &type);
 
 private:
 	response(response const &);

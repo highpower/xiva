@@ -29,7 +29,7 @@
 #include "xiva/logger.hpp"
 #include "xiva/message.hpp"
 #include "xiva/message_sender.hpp"
-#include "xiva/receiver_matcher.hpp"
+#include "xiva/response_handler.hpp"
 #include "xiva/request.hpp"
 #include "xiva/response.hpp"
 #include "xiva/server.hpp"

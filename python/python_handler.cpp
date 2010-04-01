@@ -24,23 +24,29 @@ python_handler::threaded() const {
 
 bool
 python_handler::has_enough_data(request const &req) const {
-	interpreter_lock lock;
+
 	python_request request_adapter(req);
+	interpreter_lock lock;
+	
 	return py::call_method<bool>(impl_.ptr(), "has_enough_data", request_adapter);
 }
 
 std::string
 python_handler::receiver(request const &req) const {
-	interpreter_lock lock;
+
 	python_request request_adapter(req);
+	interpreter_lock lock;
+	
 	return py::call_method<std::string>(impl_.ptr(), "receiver", request_adapter);
 }
 
 void
 python_handler::handle_response(request const &req, response &resp) {
-	interpreter_lock lock;
+
 	python_request request_adapter(req);
 	python_response response_adapter(resp);
+	interpreter_lock lock;
+
 	py::call_method<std::string>(impl_.ptr(), "handle_response", request_adapter, response_adapter);
 }
 

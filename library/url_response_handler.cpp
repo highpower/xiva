@@ -4,7 +4,9 @@
 #include <iterator>
 
 #include "xiva/request.hpp"
+#include "xiva/response.hpp"
 #include "xiva/http_error.hpp"
+
 #include "details/range.hpp"
 #include "details/urlencode.hpp"
 
@@ -57,7 +59,8 @@ url_response_handler::receiver(request const &req) const {
 
 void
 url_response_handler::handle_response(request const &req, response &resp) {
-	// TODO: set content type on the response
+	(void) req;
+	resp.content_type("text/plain");
 }
 
 }} // namespaces
