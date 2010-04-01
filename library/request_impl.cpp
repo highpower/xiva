@@ -43,13 +43,12 @@ request_impl::~request_impl() {
 }
 
 void
-request_impl::swap(request_impl &req) throw () {
-	std::swap(url_, req.url_);
-	std::swap(params_, req.params_);
-	std::swap(headers_, req.headers_);
-	std::swap(cookies_, req.cookies_);
+request_impl::swap(request_impl &other) throw () {
+	std::swap(url_, other.url_);
+	std::swap(params_, other.params_);
+	std::swap(headers_, other.headers_);
+	std::swap(cookies_, other.cookies_);
 }
-
 
 std::string const&
 request_impl::url() const {

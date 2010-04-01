@@ -24,66 +24,69 @@
 #include "xiva/forward.hpp"
 #include "xiva/logger.hpp"
 
-#include "details/connection_traits_base.hpp"
 #include "details/connection_manager.hpp"
+#include "details/connection_traits_base.hpp"
 
 namespace xiva { namespace details {
 
-template <typename ConnectionBase, typename MatcherInvoker>
+template <typename ConnectionBase, typename HandlerInvoker>
 class connection_traits : public connection_traits_base {
 
 public:
-	typedef connection_manager<ConnectionBase> ConnectionManager;
-	typedef boost::intrusive_ptr<ConnectionManager> connection_manager_ptr_type;
-	typedef boost::intrusive_ptr<MatcherInvoker> matcher_invoker_ptr_type;
-
-	connection_traits(connection_manager_ptr_type cm, matcher_invoker_ptr_type cv);
+	typedef connection_manager<ConnectionBase> connection_manager_type;
+	typedef boost::intrusive_ptr<HandlerInvoker> handler_invoker_ptr_type;
+	typedef boost::intrusive_ptr<connection_manager_type> connection_manager_ptr_type;
+	
+	connection_traits(connection_manager_ptr_type cm, handler_invoker_ptr_type cv);
 	virtual ~connection_traits();
 
-	ConnectionManager& manager();
-	MatcherInvoker& matcher_invoker();
-
-	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
+	HandlerInvoker& handler_invoker();
+	connection_manager_type& manager();
+	
 	virtual void init(settings const &s);
+	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
+	
+private:
+	connection_traits(connection_traits const &);
+	connection_traits& operator = (connection_traits const &);
 
 private:
+	handler_invoker_ptr_type hi_;
 	connection_manager_ptr_type cm_;
-	matcher_invoker_ptr_type mi_;
 };
 
-template <typename ConnectionBase, typename MatcherInvoker> inline
-connection_traits<ConnectionBase, MatcherInvoker>::connection_traits(connection_manager_ptr_type cm, matcher_invoker_ptr_type mi) :
-	cm_(cm), mi_(mi)
+template <typename ConnectionBase, typename HandlerInvoker> inline
+connection_traits<ConnectionBase, HandlerInvoker>::connection_traits(typename connection_traits<ConnectionBase, HandlerInvoker>::connection_manager_ptr_type cm, connection_traits<ConnectionBase, HandlerInvoker>::handler_invoker_ptr_type hi) :
+	hi_(hi), cm_(cm)
 {
-	assert(cm);
-	assert(mi);
+	assert(hi_);
+	assert(cm_);
 }
 
-template <typename ConnectionBase, typename MatcherInvoker> inline
-connection_traits<ConnectionBase, MatcherInvoker>::~connection_traits() {
+template <typename ConnectionBase, typename HandlerInvoker> inline
+connection_traits<ConnectionBase, HandlerInvoker>::~connection_traits() {
 }
 
+template <typename ConnectionBase, typename HandlerInvoker> inline HandlerInvoker&
+connection_traits<ConnectionBase, HandlerInvoker>::handler_invoker() {
+	return *hi_;
+}
 
-template <typename ConnectionBase, typename MatcherInvoker> inline connection_manager<ConnectionBase>&
-connection_traits<ConnectionBase, MatcherInvoker>::manager() {
+template <typename ConnectionBase, typename HandlerInvoker> inline connection_manager<ConnectionBase>&
+connection_traits<ConnectionBase, HandlerInvoker>::manager() {
 	return *cm_;
 }
 
-template <typename ConnectionBase, typename MatcherInvoker> inline MatcherInvoker&
-connection_traits<ConnectionBase, MatcherInvoker>::matcher_invoker() {
-	return *mi_;
-}
-
-template <typename ConnectionBase, typename MatcherInvoker> inline void
-connection_traits<ConnectionBase, MatcherInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
-	cm_->attach_logger(log);
-	mi_->attach_logger(log);
-}
-
-template <typename ConnectionBase, typename MatcherInvoker> inline void
-connection_traits<ConnectionBase, MatcherInvoker>::init(settings const &s) {
+template <typename ConnectionBase, typename HandlerInvoker> inline void
+connection_traits<ConnectionBase, HandlerInvoker>::init(settings const &s) {
+	hi_->init(s);
 	cm_->init(s);
-	mi_->init(s);
+}
+
+template <typename ConnectionBase, typename HandlerInvoker> inline void
+connection_traits<ConnectionBase, HandlerInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
+	hi_->attach_logger(log);
+	cm_->attach_logger(log);
 }
 
 }} // namespaces

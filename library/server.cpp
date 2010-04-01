@@ -48,8 +48,8 @@ server::attach_logger(boost::intrusive_ptr<logger> const &log) {
 }
 
 void
-server::attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
-	impl_->attach_receiver_matcher(m);
+server::attach_response_handler(boost::intrusive_ptr<response_handler> const &m) {
+	impl_->attach_response_handler(m);
 }
 
 void

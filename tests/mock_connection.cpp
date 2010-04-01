@@ -34,8 +34,8 @@ mock_connection::send(boost::shared_ptr<message> const &m) {
 }
 
 void
-mock_connection::matched(char const *content_type) {
-	(void) content_type;
+mock_connection::handled(details::response_impl const &resp) {
+	(void) resp;
 }
 
 }} // namespaces

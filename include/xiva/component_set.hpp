@@ -49,7 +49,7 @@ public:
 	/** sets up the receiver matcher 
 	 * @param m an instance of class that implements receiver_matcher interface.
 	 */
-	virtual void attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) = 0;
+	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m) = 0;
 	
 	/** adds the connection_listener to the system.
 	 * @param l an instance of class that implements connection_listener interface.

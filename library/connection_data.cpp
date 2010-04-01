@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include "xiva/settings.hpp"
-#include "xiva/receiver_matcher.hpp"
+#include "xiva/response_handler.hpp"
 
 namespace xiva { namespace details {
 
@@ -54,15 +54,15 @@ connection_data::init(settings const &s) {
 	}
 }
 
-boost::intrusive_ptr<receiver_matcher> const&
-connection_data::matcher() const {
-	return matcher_;
+boost::intrusive_ptr<response_handler> const&
+connection_data::handler() const {
+	return handler_;
 }
 
 void
-connection_data::matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
-	assert(m);
-	matcher_ = m;
+connection_data::handler(boost::intrusive_ptr<response_handler> const &h) {
+	assert(h);
+	handler_ = h;
 }
 
 void

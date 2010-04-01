@@ -71,8 +71,8 @@ xml_settings::inactive_timeout() const {
 }
 
 unsigned short
-xml_settings::matcher_threads() const {
-	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/matcher-threads"));
+xml_settings::handler_threads() const {
+	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/handler-threads"));
 }
 
 unsigned short

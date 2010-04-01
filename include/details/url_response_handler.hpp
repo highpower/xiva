@@ -15,35 +15,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_PYTHON_MATCHER_HPP_INCLUDED
-#define XIVA_PYTHON_PYTHON_MATCHER_HPP_INCLUDED
+#ifndef XIVA_DETAILS_URL_RESPONSE_HANDLER_HPP_INCLUDED
+#define XIVA_DETAILS_URL_RESPONSE_HANDLER_HPP_INCLUDED
 
-#include <boost/python.hpp>
+#include "xiva/response_handler.hpp"
 
-#include "xiva/receiver_matcher.hpp"
+namespace xiva { namespace details {
 
-namespace py = boost::python;
-
-namespace xiva { namespace python {
-
-class python_matcher : public receiver_matcher {
+class url_response_handler : public response_handler {
 
 public:
-	python_matcher(py::object const &impl);
-	virtual ~python_matcher();
+	url_response_handler();
+	virtual ~url_response_handler();
+
+	std::string receiver(std::string const &url) const;
 
 	virtual bool threaded() const;
-	virtual char const* content_type() const;
+	virtual bool has_enough_data(request const &req) const;
+
 	virtual std::string receiver(request const &req) const;
+	virtual void handle_response(request const &req, response &resp);
 
 private:
-	python_matcher(python_matcher const &);
-	python_matcher& operator = (python_matcher const &);
-
-private:
-	py::object impl_;
+	url_response_handler(url_response_handler const &);
+	url_response_handler& operator = (url_response_handler const &);
 };
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_PYTHON_MATCHER_HPP_INCLUDED
+#endif // XIVA_DETAILS_URL_RESPONSE_HANDLER_HPP_INCLUDED

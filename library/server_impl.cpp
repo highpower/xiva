@@ -9,16 +9,19 @@
 #include "xiva/settings.hpp"
 
 #include "details/acceptor.hpp"
-#include "details/url_matcher.hpp"
+#include "details/connection.hpp"
+
 #include "details/stdio_logger.hpp"
 #include "details/message_queue.hpp"
 #include "details/threaded_listener.hpp"
-#include "details/connection.hpp"
-#include "details/matcher_invoker.hpp"
 #include "details/threaded_connection.hpp"
-#include "details/threaded_matcher_invoker.hpp"
-#include "details/connection_manager.hpp"
+
+#include "details/handler_invoker.hpp"
+#include "details/threaded_handler_invoker.hpp"
+
 #include "details/connection_traits.hpp"
+#include "details/connection_manager.hpp"
+#include "details/url_response_handler.hpp"
 
 namespace xiva { namespace details {
 
@@ -56,13 +59,13 @@ server_impl::start(settings const &s) {
 	data_.attach_logger(logger_);
 	data_.init(s);
 
-	boost::intrusive_ptr<receiver_matcher> matcher = data_.matcher();
-	if (!matcher) {
-		attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher>(new url_matcher()));
+	// boost::intrusive_ptr<response_handler> handler = data_.handler();
+	if (!data_.handler()) {
+		attach_response_handler(boost::intrusive_ptr<response_handler>(new url_response_handler()));
 	}
 
-	if (data_.matcher()->threaded()) {
-		typedef threaded_matcher_invoker invoker_type;
+	if (data_.handler()->threaded()) {
+		typedef threaded_handler_invoker invoker_type;
 		typedef invoker_type::connection_type connection_type;
 		typedef connection_manager<connection_type> manager_type;
 		typedef connection_traits<connection_type, invoker_type> traits_type;
@@ -76,7 +79,7 @@ server_impl::start(settings const &s) {
 		connection_traits_ = ct;
 	}
 	else {
-		typedef matcher_invoker invoker_type;
+		typedef handler_invoker invoker_type;
 		typedef invoker_type::connection_type connection_type;
 		typedef connection_manager<connection_type> manager_type;
 		typedef connection_traits<connection_type, invoker_type> traits_type;
@@ -120,16 +123,15 @@ server_impl::send(globals::connection_id const &to, boost::shared_ptr<message> c
 
 void
 server_impl::attach_logger(boost::intrusive_ptr<logger> const &log) {
-
 	assert(log);
 	logger_ = log;
 }
 
 void
-server_impl::attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m) {
-	assert(m);
-	matcher_ = m;
-	data_.matcher(m);
+server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> const &h) {
+	assert(h);
+	// handler_ = m;
+	data_.handler(h);
 }
 
 void

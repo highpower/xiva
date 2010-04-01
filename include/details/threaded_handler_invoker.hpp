@@ -15,44 +15,66 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED
-#define XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED
+#ifndef XIVA_DETAILS_THREADED_HANDLER_INVOKER_HPP_INCLUDED
+#define XIVA_DETAILS_THREADED_HANDLER_INVOKER_HPP_INCLUDED
 
 #include <string>
 #include <exception>
+
 #include <boost/intrusive_ptr.hpp>
+#include <boost/thread/thread.hpp>
 
 #include "xiva/shared.hpp"
 #include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
 
+#include "details/asio.hpp"
+#include "details/threaded_queue.hpp"
+
 namespace xiva { namespace details {
 
-class connection;
 class request_impl;
+class request_holder;
 class connection_data;
+class threaded_connection;
 
-class matcher_invoker : public shared {
+class threaded_handler_invoker : public shared, private boost::thread_group {
 
 public:
-	explicit matcher_invoker(connection_data const &data);
-	virtual ~matcher_invoker();
+	threaded_handler_invoker(asio::io_service &io, connection_data const &data);
+	virtual ~threaded_handler_invoker();
 
-	typedef connection connection_type;
+	typedef threaded_connection connection_type;
 	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
+
+	void pop();
+	void thread_func();
 
 	void init(settings const &s);
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
-	void invoke_matcher(connection_ptr_type conn, request_impl &req);
+	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &impl);
 
 private:
-	matcher_invoker(matcher_invoker const &);
-	matcher_invoker& operator = (matcher_invoker const &);
+	threaded_handler_invoker(threaded_handler_invoker const &);
+	threaded_handler_invoker& operator = (threaded_handler_invoker const &);
+	
+	typedef boost::intrusive_ptr<request_holder> holder_ptr_type;
+	typedef std::pair<holder_ptr_type, connection_ptr_type> item_type;
+	
+	void handled(item_type item);
+	void pop_handled(std::deque<item_type>  &items);
 
 private:
-	boost::intrusive_ptr<receiver_matcher> matcher_;
+	asio::io_service &io_;
+	asio::io_service::strand strand_;
+	boost::intrusive_ptr<logger> logger_;
+	boost::intrusive_ptr<response_handler> handler_;
+
+	mutable boost::mutex mutex_;
+	std::deque<item_type> handled_;
+	threaded_queue<item_type> input_queue_;
 };
 
 }} // namespaces
 
-#endif // XIVA_DETAILS_MATCHER_INVOKER_HPP_INCLUDED
+#endif // XIVA_DETAILS_THREADED_HANDLER_INVOKER_HPP_INCLUDED

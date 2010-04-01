@@ -15,38 +15,37 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_ERROR_HPP_INCLUDED
-#define XIVA_ERROR_HPP_INCLUDED
+#ifndef XIVA_PYTHON_PYTHON_HANDLER_HPP_INCLUDED
+#define XIVA_PYTHON_PYTHON_HANDLER_HPP_INCLUDED
 
-#include <exception>
+#include <boost/python.hpp>
 
-#include "xiva/config.hpp"
+#include "xiva/response_handler.hpp"
 
-namespace xiva {
+namespace py = boost::python;
 
-/** 
- * This is the xiva-specific exception.
- */
-class error : public std::exception {
+namespace xiva { namespace python {
+
+class python_handler : public response_handler {
 
 public:
-	/** */
-	error(char const *format, ...);
+	python_handler(py::object const &impl);
+	virtual ~python_handler();
 
-	/** default destructor */
-	virtual ~error() throw ();
+	virtual bool threaded() const;
+	virtual bool has_enough_data(request const &req) const;
 	
-	/** inherited from std::exception 
-	 * @return textual description of error.
-	 */
-	virtual char const* what() const throw ();
-
-	enum { message_size = 128 };
+	virtual std::string receiver(request const &req) const;
+	virtual void handle_response(request const &req, response &resp);
 
 private:
-	char buffer_[message_size];
+	python_handler(python_handler const &);
+	python_handler& operator = (python_handler const &);
+
+private:
+	py::object impl_;
 };
 
-} // namespace
+}} // namespaces
 
-#endif // XIVA_ERROR_HPP_INCLUDED
+#endif // XIVA_PYTHON_PYTHON_HANDLER_HPP_INCLUDED

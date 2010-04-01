@@ -27,7 +27,7 @@ class settings;
 class http_error;
 class component_set;
 class message_sender;
-class receiver_matcher;
+class response_handler;
 class connection_listener;
 
 namespace details {

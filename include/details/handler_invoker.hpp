@@ -15,43 +15,44 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_SERVER_HPP_INCLUDED
-#define XIVA_SERVER_HPP_INCLUDED
+#ifndef XIVA_DETAILS_HANDLER_INVOKER_HPP_INCLUDED
+#define XIVA_DETAILS_HANDLER_INVOKER_HPP_INCLUDED
 
 #include <string>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <exception>
 #include <boost/intrusive_ptr.hpp>
 
-#include "xiva/config.hpp"
+#include "xiva/shared.hpp"
+#include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
-#include "xiva/globals.hpp"
 
-namespace xiva {
+namespace xiva { namespace details {
 
-class XIVA_API server {
+class connection;
+class request_impl;
+class connection_data;
+
+class handler_invoker : public shared {
 
 public:
-	server();
-	virtual ~server();
+	explicit handler_invoker(connection_data const &data);
+	virtual ~handler_invoker();
 
-	void stop();
-	void start(settings const &s);
+	typedef connection connection_type;
+	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
 
-	void send(std::string const &to, boost::shared_ptr<message> const &m);
-	void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
-
-	component_set& components();
-	void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
-
+	void init(settings const &s);
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
-	void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
-	void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
+	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &resp);
 
 private:
-	boost::shared_ptr<details::server_impl> impl_;
+	handler_invoker(handler_invoker const &);
+	handler_invoker& operator = (handler_invoker const &);
+
+private:
+	boost::intrusive_ptr<response_handler> handler_;
 };
 
-} // namespace
+}} // namespaces
 
-#endif // XIVA_SERVER_HPP_INCLUDED
+#endif // XIVA_DETAILS_HANDLER_INVOKER_HPP_INCLUDED

@@ -15,30 +15,36 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_URL_MATCHER_HPP_INCLUDED
-#define XIVA_DETAILS_URL_MATCHER_HPP_INCLUDED
+#ifndef XIVA_RESPONSE_HANDLER_HPP_INCLUDED
+#define XIVA_RESPONSE_HANDLER_HPP_INCLUDED
 
-#include "xiva/receiver_matcher.hpp"
+#include <string>
 
-namespace xiva { namespace details {
+#include "xiva/config.hpp"
+#include "xiva/shared.hpp"
 
-class url_matcher : public receiver_matcher {
+namespace xiva {
+
+class request;
+class response;
+
+class XIVA_API response_handler : public shared {
 
 public:
-	url_matcher();
-	virtual ~url_matcher();
+	response_handler();
+	virtual ~response_handler();
 
-	virtual bool threaded() const;
-	virtual char const* content_type() const;
-	virtual std::string receiver(request const &req) const;
-
-	std::string receiver(std::string const &url) const;
+	virtual bool threaded() const = 0;
+	virtual bool has_enough_data(request const &req) const = 0;
+	
+	virtual std::string receiver(request const &req) const = 0;
+	virtual void handle_response(request const &req, response &resp) = 0;
 
 private:
-	url_matcher(url_matcher const &);
-	url_matcher& operator = (url_matcher const &);
+	response_handler(response_handler const &);
+	response_handler& operator = (response_handler const &);
 };
 
-}} // namespaces
+} // namespace
 
-#endif // XIVA_DETAILS_URL_MATCHER_HPP_INCLUDED
+#endif // XIVA_RESPONSE_HANDLER_HPP_INCLUDED

@@ -27,6 +27,8 @@ class response_impl {
 public:
 	response_impl();
 	virtual ~response_impl();
+
+	void swap(response_impl &impl) throw ();
 	
 private:
 	response_impl(response_impl const &);

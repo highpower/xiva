@@ -15,38 +15,27 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_ERROR_HPP_INCLUDED
-#define XIVA_ERROR_HPP_INCLUDED
+#ifndef XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED
+#define XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED
 
-#include <exception>
+#include <boost/python.hpp>
 
-#include "xiva/config.hpp"
+#include "xiva/forward.hpp"
 
-namespace xiva {
+namespace py = boost::python;
 
-/** 
- * This is the xiva-specific exception.
- */
-class error : public std::exception {
+namespace xiva { namespace python {
+
+class python_response {
 
 public:
-	/** */
-	error(char const *format, ...);
-
-	/** default destructor */
-	virtual ~error() throw ();
-	
-	/** inherited from std::exception 
-	 * @return textual description of error.
-	 */
-	virtual char const* what() const throw ();
-
-	enum { message_size = 128 };
+	python_response(response &req);
+	virtual ~python_response();
 
 private:
-	char buffer_[message_size];
+	response &req_;
 };
 
-} // namespace
+}} // namespaces
 
-#endif // XIVA_ERROR_HPP_INCLUDED
+#endif // XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED

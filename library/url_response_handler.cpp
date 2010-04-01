@@ -1,5 +1,5 @@
 #include "acsetup.hpp"
-#include "details/url_matcher.hpp"
+#include "details/url_response_handler.hpp"
 
 #include <iterator>
 
@@ -10,30 +10,15 @@
 
 namespace xiva { namespace details {
 
-url_matcher::url_matcher()
+url_response_handler::url_response_handler()
 {
 }
 
-url_matcher::~url_matcher() {
-}
-
-bool
-url_matcher::threaded() const {
-	return false;
-}
-
-char const*
-url_matcher::content_type() const {
-	return "text/plain";
+url_response_handler::~url_response_handler() {
 }
 
 std::string
-url_matcher::receiver(request const &req) const {
-	return receiver(req.url());
-}
-
-std::string
-url_matcher::receiver(std::string const &url) const {
+url_response_handler::receiver(std::string const &url) const {
 
 	std::string::const_iterator s = url.begin();
 	std::string::size_type spos = url.rfind('/');
@@ -53,6 +38,26 @@ url_matcher::receiver(std::string const &url) const {
 		throw http_error(http_error::not_found);
 	}
 	return res;
+}
+
+bool
+url_response_handler::threaded() const {
+	return false;
+}
+
+bool
+url_response_handler::has_enough_data(request const &req) const {
+	return "/" != req.url();
+}
+
+std::string
+url_response_handler::receiver(request const &req) const {
+	return receiver(req.url());
+}
+
+void
+url_response_handler::handle_response(request const &req, response &resp) {
+	// TODO: set content type on the response
 }
 
 }} // namespaces

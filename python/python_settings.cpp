@@ -43,8 +43,8 @@ python_settings::inactive_timeout() const {
 }
 
 unsigned short
-python_settings::matcher_threads() const {
-	return get<unsigned short>("matcher_threads", 5);
+python_settings::handler_threads() const {
+	return get<unsigned short>("handler_threads", 5);
 }
 
 unsigned short

@@ -15,36 +15,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_RECEIVER_MATCHER_HPP_INCLUDED
-#define XIVA_RECEIVER_MATCHER_HPP_INCLUDED
+#ifndef XIVA_PYTHON_RESPONSE_CLASS_HPP_INCLUDED
+#define XIVA_PYTHON_RESPONSE_CLASS_HPP_INCLUDED
 
-#include <string>
+namespace xiva { namespace python {
 
-#include "xiva/config.hpp"
-#include "xiva/shared.hpp"
+void
+register_response_class() throw ();
 
-namespace xiva {
+}} // namespaces
 
-class request;
-class response;
-
-class XIVA_API receiver_matcher : public shared {
-
-public:
-	receiver_matcher();
-	virtual ~receiver_matcher();
-
-	virtual bool threaded() const = 0;
-	virtual char const* content_type() const = 0;
-
-	virtual void check(request const &req) const;
-	virtual std::string receiver(request const &req) const = 0;
-
-private:
-	receiver_matcher(receiver_matcher const &);
-	receiver_matcher& operator = (receiver_matcher const &);
-};
-
-} // namespace
-
-#endif // XIVA_RECEIVER_MATCHER_HPP_INCLUDED
+#endif // XIVA_PYTHON_RESPONSE_CLASS_HPP_INCLUDED

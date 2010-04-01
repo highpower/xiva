@@ -26,7 +26,8 @@
 
 namespace xiva {
 
-/** This interface provides two callbacks which are called when 
+/** 
+ * This interface provides two callbacks which are called when 
  * connection to a particular user is established or closed.
  * You shoud implement this interface and provide an instance to 
  * the system to know whether to send messages to the particular 

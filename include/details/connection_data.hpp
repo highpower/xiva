@@ -40,8 +40,8 @@ public:
 	unsigned int write_timeout() const;
 	unsigned int inactive_timeout() const;
 
-	boost::intrusive_ptr<receiver_matcher> const& matcher() const;
-	void matcher(boost::intrusive_ptr<receiver_matcher> const &m);
+	boost::intrusive_ptr<response_handler> const& handler() const;
+	void handler(boost::intrusive_ptr<response_handler> const &h);
 
 	boost::intrusive_ptr<logger> const& log() const;
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
@@ -54,7 +54,7 @@ public:
 private:
 	std::string policy_data_;
 	boost::intrusive_ptr<logger> logger_;
-	boost::intrusive_ptr<receiver_matcher> matcher_;
+	boost::intrusive_ptr<response_handler> handler_;
 	unsigned int read_timeout_, write_timeout_, inactive_timeout_;
 };
 

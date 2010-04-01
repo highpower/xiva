@@ -3,7 +3,7 @@
 #include "server_class.hpp"
 #include "python_logger.hpp"
 #include "python_server.hpp"
-#include "python_matcher.hpp"
+#include "python_handler.hpp"
 #include "python_listener.hpp"
 #include "python_settings.hpp"
 #include "interpreter_lock.hpp"
@@ -41,8 +41,8 @@ python_server::attach_logger(py::object const &impl) {
 
 void
 python_server::attach_receiver_matcher(py::object const &impl) {
-	boost::intrusive_ptr<receiver_matcher> m(new python_matcher(impl));
-	impl_->attach_receiver_matcher(m);
+	boost::intrusive_ptr<response_handler> m(new python_handler(impl));
+	impl_->attach_response_handler(m);
 }
 
 void

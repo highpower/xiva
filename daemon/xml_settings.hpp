@@ -42,7 +42,7 @@ public:
 	virtual unsigned int write_timeout() const;
 	virtual unsigned int inactive_timeout() const;
 
-	virtual unsigned short matcher_threads() const;
+	virtual unsigned short handler_threads() const;
 	virtual unsigned short listener_threads() const;
 
 	virtual std::string policy_file_name() const;

@@ -52,7 +52,7 @@ public:
 	bool has_cookie(std::string const &name) const;
 	std::string const& cookie(std::string const &name) const;
 	
-	void swap(request_impl &req) throw ();
+	void swap(request_impl &other) throw ();
 
 private:
 	request_impl(request_impl const &);

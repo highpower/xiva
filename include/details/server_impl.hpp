@@ -32,16 +32,16 @@
 #include "xiva/globals.hpp"
 
 #include "details/asio.hpp"
-#include "details/connection_data.hpp"
-#include "details/compound_listener.hpp"
-#include "details/connection_traits_base.hpp"
 #include "details/acceptor_base.hpp"
+#include "details/connection_data.hpp"
+#include "details/connection_traits_base.hpp"
 #include "details/connection_manager_base.hpp"
 
 namespace xiva { namespace details {
 
 class acceptor_base;
 class message_queue;
+class compound_listener;
 class connection_manager_base;
 
 class server_impl : public component_set, private boost::thread_group {
@@ -59,7 +59,7 @@ public:
 	void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
-	virtual void attach_receiver_matcher(boost::intrusive_ptr<receiver_matcher> const &m);
+	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
 	virtual void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
 
@@ -82,9 +82,9 @@ private:
 	std::vector<thread_param_type> providers_;
 
 	boost::intrusive_ptr<logger> logger_;
-	boost::intrusive_ptr<compound_listener> listener_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
-	boost::intrusive_ptr<receiver_matcher> matcher_;
+	boost::intrusive_ptr<response_handler> handler_;
+	boost::intrusive_ptr<compound_listener> listener_;
 	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<connection_traits_base> connection_traits_;

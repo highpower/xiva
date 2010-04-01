@@ -1,4 +1,3 @@
-// xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 // Copyright (C) 2009 Yandex <highpower@yandex.ru>
 
 // This program is free software; you can redistribute it and/or
@@ -39,6 +38,7 @@
 #include "details/http.hpp"
 #include "details/http_constants.hpp"
 #include "details/request_impl.hpp"
+#include "details/response_impl.hpp"
 #include "details/request_checker.hpp"
 #include "details/websocket_info.hpp"
 
@@ -69,7 +69,7 @@ public:
 
 	char const* address() const;
 	asio::ip::tcp::socket& socket();
-	virtual void matched(char const *content_type);
+	virtual void handled(response_impl const &impl);
 
 private:
 	typedef std::allocator<char> allocator_type;
@@ -152,7 +152,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<messag
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::matched(char const *content_type) {
+connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &impl) {
 	timer_.cancel();
 	try {
 		std::string const &name = ConnectionBase::name();
@@ -162,7 +162,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::matched(char const *content_t
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
-		write_headers(content_type);
+		// TODO write content type from response_impl
+		write_headers("text/plain"); 
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
@@ -193,8 +194,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		else {
 			request_impl req(begin, end);
 			ws_info_.parse(req);
+			
+			response_impl resp;
 			boost::intrusive_ptr<ConnectionBase> self(this);
-			ct_.matcher_invoker().invoke_matcher(self, req);
+			ct_.handler_invoker().invoke_handler(self, req, resp);
 		}
 	}
 	catch (http_error const &h) {
