@@ -46,10 +46,16 @@ public:
 	 */ 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
 	
-	/** sets up the receiver matcher 
-	 * @param m an instance of class that implements receiver_matcher interface.
+	/** sets up the response handler 
+	 * @param m an instance of class that implements response handler interface.
 	 */
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m) = 0;
+
+	/** sets up a formatter for out
+	 * @param fmt_id an id of formatter which must be set up in response.
+	 * @param fmt an instance of class that implements formatter interface.
+	 */
+	virtual void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt) = 0;
 	
 	/** adds the connection_listener to the system.
 	 * @param l an instance of class that implements connection_listener interface.

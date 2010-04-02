@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "xiva/settings.hpp"
+#include "xiva/formatter.hpp"
 #include "xiva/response_handler.hpp"
 
 namespace xiva { namespace details {
@@ -69,6 +70,20 @@ void
 connection_data::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	assert(log);
 	logger_ = log;
+}
+
+formatter const*
+connection_data::find_formatter(std::string const &fmt_id) const {
+	formatters_type::const_iterator i = formatters_.find(fmt_id);
+	if (formatters_.end() != i) {
+		return i->second.get();
+	}
+	return NULL;
+}
+
+void
+connection_data::attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt_ptr) {
+	formatters_.insert(std::make_pair(fmt_id, fmt_ptr));
 }
 
 }} // namespaces

@@ -53,6 +53,11 @@ server::attach_response_handler(boost::intrusive_ptr<response_handler> const &m)
 }
 
 void
+server::attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt) {
+	impl_->attach_formatter(fmt_id, fmt);
+}
+
+void
 server::add_connection_listener(boost::intrusive_ptr<connection_listener> const &l) {
 	impl_->add_connection_listener(l);
 }

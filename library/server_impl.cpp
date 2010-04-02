@@ -135,6 +135,12 @@ server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> cons
 }
 
 void
+server_impl::attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt) {
+	assert(fmt);
+	data_.attach_formatter(fmt_id, fmt);
+}
+
+void
 server_impl::add_connection_listener(boost::intrusive_ptr<connection_listener> const &l) {
 	assert(l);
 	listener_->add_connection_listener(l);

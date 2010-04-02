@@ -19,6 +19,7 @@
 #define XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 
 #include <iterator>
+#include <map>
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
@@ -51,7 +52,16 @@ public:
 
 	std::string const& policy_data() const;
 
+	formatter const* find_formatter(std::string const &fmt_id) const;
+	void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt_ptr);
+
 private:
+	connection_data(connection_data const &);
+	connection_data & operator = (connection_data const &);
+
+	typedef std::map< std::string, boost::intrusive_ptr<formatter> > formatters_type;
+
+	formatters_type formatters_;
 	std::string policy_data_;
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;

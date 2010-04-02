@@ -29,18 +29,59 @@ class response_impl {
 public:
 	response_impl();
 	virtual ~response_impl();
-	
+
 	void swap(response_impl &impl) throw ();
+
 	std::string const& content_type() const;
 	void content_type(std::string const &type);
-	
+
+	std::string const& formatter_id() const;
+	void formatter_id(std::string const &fmt_id);
+
+	bool single_message() const;
+	void single_message(bool value);
+
 private:
 	response_impl(response_impl const &);
 	response_impl& operator = (response_impl const &);
 
 private:
 	std::string type_;
+	std::string formatter_id_;
+	bool single_message_;
 };
+
+inline std::string const&
+response_impl::content_type() const {
+	return type_;
+}
+
+inline void
+response_impl::content_type(std::string const &type) {
+	// TODO check for correctness of type
+	type_.assign(type);
+}
+
+inline std::string const&
+response_impl::formatter_id() const {
+	return formatter_id_;
+}
+
+inline void
+response_impl::formatter_id(std::string const &fmt_id) {
+	formatter_id_.assign(fmt_id);
+}
+
+inline bool
+response_impl::single_message() const {
+	return single_message_;
+}
+
+inline void
+response_impl::single_message(bool value) {
+	single_message_ = value;
+}
+
 
 }} // namespace
 

@@ -22,5 +22,14 @@ response::content_type(std::string const &type) {
 	impl_.content_type(type);
 }
 
+void
+response::formatter_id(std::string const &fmt_id) {
+	impl_.formatter_id(fmt_id);
+}
+
+void
+response::single_message(bool value) {
+	impl_.single_message(value);
+}
 
 } // namespaces

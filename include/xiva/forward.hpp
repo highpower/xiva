@@ -25,6 +25,7 @@ class message;
 class request;
 class response;
 class settings;
+class formatter;
 
 class http_error;
 class component_set;

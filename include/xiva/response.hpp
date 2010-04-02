@@ -34,6 +34,9 @@ public:
 	void content_type(char const *type);
 	void content_type(std::string const &type);
 
+	void formatter_id(std::string const &fmt_id);
+	void single_message(bool value);
+
 private:
 	response(response const &);
 	response& operator = (response const &);

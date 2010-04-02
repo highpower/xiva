@@ -31,6 +31,7 @@
 #include "xiva/forward.hpp"
 #include "xiva/message.hpp"
 #include "xiva/http_error.hpp"
+#include "xiva/formatter.hpp"
 
 #include "details/asio.hpp"
 #include "details/connection_base.hpp"
@@ -90,6 +91,8 @@ private:
 
 	void print_error(std::streambuf &buf, http_error const &error) const;
 	void print_headers(std::string const &content_type, std::streambuf &buf) const;
+	void print_message_content(std::string const &content, std::streambuf &buf) const;
+	bool print_last_message(std::streambuf &buf) const;
 
 private:
 	asio::io_service &io_;
@@ -105,12 +108,13 @@ private:
 	std::list<message_ptr_type> messages_;
 
 	websocket_info ws_info_;
-	bool is_policy_;
+	formatter const *fmt_ptr_;
+	bool is_policy_, single_message_;
 };
 
 template <typename ConnectionBase, typename ConnectionTraits>
 connection_impl<ConnectionBase, ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), writing_message_(false), timer_(io_), socket_(io_), is_policy_(false)
+	io_(io), data_(data), ct_(ct), writing_message_(false), timer_(io_), socket_(io_), fmt_ptr_(NULL), is_policy_(false), single_message_(false)
 {
 }
 
@@ -162,6 +166,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
+		single_message_ = resp.single_message();
+		fmt_ptr_ = data_.find_formatter(resp.formatter_id());
 		write_headers(resp); 
 	}
 	catch (http_error const &h) {
@@ -226,7 +232,12 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_message(syst::er
 		return;
 	}
 	messages_.pop_front();
-	write_message();
+	if (single_message_) {
+		write_last_message();
+	}
+	else {
+		write_message();
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
@@ -293,24 +304,23 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 		return;
 	}
 	timer_.cancel();
-	boost::shared_ptr<message> const &message = messages_.front();
-	if (!message) {
+	boost::shared_ptr<message> const &msg = messages_.front();
+	if (!msg) {
 		write_last_message();
 		return;
 	}
 
-	connection_impl_ptr_type self(this);
 	try {
-		std::ostream stream(&out_);
-		std::string const &content = message->content();
-		if (!ws_info_.empty()) {
-			ws_info_.write_message(stream, content);
+		std::string const &content = msg->content();
+		if (NULL != fmt_ptr_) {
+			print_message_content(fmt_ptr_->wrap_message(content), out_);
 		}
 		else {
-			stream << std::hex << content.size() << http_constants<char>::endl;
-			stream << content << http_constants<char>::endl;
+			print_message_content(content, out_);
 		}
+
 		writing_message_ = true;
+		connection_impl_ptr_type self(this);
 		asio::async_write(socket_, out_, boost::bind(&type::handle_write_message,
 			self, asio::placeholders::error));
 		setup_timeout(data_.write_timeout());
@@ -323,19 +333,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_last_message() {
 
-	if (is_policy_ || !ws_info_.empty()) {
+	if (is_policy_) {
 		cleanup();
 		return;
 	}
 
 	try {
-		std::ostream stream(&out_);
-		stream << 0 << http_constants<char>::endl;
-		writing_message_ = true;
-		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
-			self, asio::placeholders::error));
-		setup_timeout(data_.write_timeout());
+		if (print_last_message(out_)) {
+			writing_message_ = true;
+			connection_impl_ptr_type self(this);
+			asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+				self, asio::placeholders::error));
+			setup_timeout(data_.write_timeout());
+		}
+		else {
+			cleanup();
+		}
 	}
 	catch (std::exception const &e) {
 		handle_exception(e);
@@ -457,6 +470,57 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(std::string con
 	stream << http_header::server();
 	stream << http_header("Content-Type", content_type.c_str());
 	stream << http_constants<char>::endl;
+
+	if (NULL != fmt_ptr_) {
+		std::string const &head_msg = fmt_ptr_->head();
+		if (!head_msg.empty()) {
+			if (!ws_info_.empty()) {
+				ws_info_.write_message(stream, head_msg);
+			}
+			else {
+				stream << head_msg;
+			}
+		}
+	}
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> void
+connection_impl<ConnectionBase, ConnectionTraits>::print_message_content(std::string const &content, std::streambuf &buf) const {
+
+	std::ostream stream(&buf);
+
+	if (!ws_info_.empty()) {
+		ws_info_.write_message(stream, content);
+	}
+	else {
+		stream << std::hex << content.size() << http_constants<char>::endl;
+		stream << content << http_constants<char>::endl;
+	}
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> bool
+connection_impl<ConnectionBase, ConnectionTraits>::print_last_message(std::streambuf &buf) const {
+
+	std::ostream stream(&buf);
+
+	bool need_write = false;
+	if (NULL != fmt_ptr_) {
+		std::string const &tail_msg = fmt_ptr_->tail();
+		if (!tail_msg.empty()) {
+			if (!ws_info_.empty()) {
+				ws_info_.write_message(stream, tail_msg);
+			}
+			else {
+				stream << tail_msg;
+			}
+			need_write = true;
+		}
+	}
+	if (ws_info_.empty()) {
+		stream << 0 << http_constants<char>::endl;
+		need_write = true;
+	}
+	return need_write;
 }
 
 }} // namespaces
