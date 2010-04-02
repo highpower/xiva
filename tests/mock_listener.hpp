@@ -19,6 +19,7 @@
 #define XIVA_TESTS_MOCK_LISTENER_HPP_INCLUDED
 
 #include <map>
+#include <set>
 #include <string>
 #include <cstddef>
 
@@ -34,15 +35,16 @@ public:
 	virtual ~mock_listener();
 
 	bool available(std::string const &user) const;
-	virtual void connection_opened(std::string const &to) throw (std::exception);
-	virtual void connection_closed(std::string const &to) throw (std::exception);
+	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
 
 private:
 	mock_listener(mock_listener const &);
 	mock_listener& operator = (mock_listener const &);
 
 private:
-	std::map<std::string, std::size_t> available_;
+	typedef std::set<globals::connection_id> connection_ids;
+	std::map<std::string, connection_ids> available_;
 };
 
 }} // namespaces

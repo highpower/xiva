@@ -36,7 +36,7 @@ public:
 
 	virtual bool active() const = 0;
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m) = 0;
-	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m) = 0;
+	virtual void send(globals::connection_id to, boost::shared_ptr<message> const &m) = 0;
 
 private:
 	message_sender(message_sender const &);

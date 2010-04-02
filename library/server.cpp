@@ -28,7 +28,7 @@ server::send(std::string const &to, boost::shared_ptr<message> const &m) {
 }
 
 void
-server::send(globals::connection_id const &to, boost::shared_ptr<message> const &m) {
+server::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	impl_->send(to, m);
 }
 

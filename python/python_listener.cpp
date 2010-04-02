@@ -13,15 +13,15 @@ python_listener::~python_listener() {
 }
 
 void
-python_listener::connection_opened(std::string const &to) throw (std::exception) {
+python_listener::connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) {
 	interpreter_lock lock;
-	py::call_method<void>(impl_.ptr(), "connection_opened", to);
+	py::call_method<void>(impl_.ptr(), "connection_opened", to, id);
 }
 
 void
-python_listener::connection_closed(std::string const &to) throw (std::exception) {
+python_listener::connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) {
 	interpreter_lock lock;
-	py::call_method<void>(impl_.ptr(), "connection_closed", to);
+	py::call_method<void>(impl_.ptr(), "connection_closed", to, id);
 }
 
 }} // namespaces

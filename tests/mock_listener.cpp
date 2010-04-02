@@ -20,23 +20,34 @@ mock_listener::available(std::string const &to) const {
 }
 
 void
-mock_listener::connection_opened(std::string const &to) throw (std::exception) {
-	std::map<std::string, std::size_t>::iterator i = available_.find(to);
+mock_listener::connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) {
+	std::map<std::string, connection_ids>::iterator i = available_.find(to);
 	if (available_.end() == i) {
-		available_.insert(std::make_pair<std::string, std::size_t>(to, 1));
+		connection_ids ids;
+		ids.insert(id);
+		ids.swap(available_[to]);
 	}
 	else {
-		++(i->second);
+		connection_ids &ids = i->second;
+		ids.insert(id);
 	}
 }
 
 void
-mock_listener::connection_closed(std::string const &to) throw (std::exception) {
-	std::map<std::string, std::size_t>::iterator i = available_.find(to);
+mock_listener::connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) {
+	std::map<std::string, connection_ids>::iterator i = available_.find(to);
 	if (available_.end() == i) {
-		throw error("failed to close inexistent connection to %s", to.c_str());
+		throw error("empty container, failed to close inexistent connection to %s, id %s",
+			to.c_str(), boost::lexical_cast<std::string>(id).c_str());
 	}
-	if (0 == --(i->second)) {
+	connection_ids &ids = i->second;
+	connection_ids::iterator it = ids.find(id);
+	if (ids.end() == it) {
+		throw error("non-empty container, failed to close inexistent connection to %s, id %s",
+			to.c_str(), boost::lexical_cast<std::string>(id).c_str());
+	}
+	ids.erase(it);
+	if (ids.empty()) {
 		available_.erase(i);
 	}
 }

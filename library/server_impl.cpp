@@ -115,7 +115,7 @@ server_impl::send(std::string const &to, boost::shared_ptr<message> const &m) {
 }
 
 void
-server_impl::send(globals::connection_id const &to, boost::shared_ptr<message> const &m) {
+server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	if (message_queue_) {
 		message_queue_->send(to, m);
 	}

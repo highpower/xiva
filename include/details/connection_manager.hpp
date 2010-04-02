@@ -228,12 +228,12 @@ connection_manager<ConnectionBase>::finished() const {
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_opened(ConnectionBase const &conn) {
-	listener_->connection_opened(conn.name());
+	listener_->connection_opened(conn.name(), conn.id());
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::fire_connection_closed(ConnectionBase const &conn) {
-	listener_->connection_closed(conn.name());
+	listener_->connection_closed(conn.name(), conn.id());
 }
 
 }

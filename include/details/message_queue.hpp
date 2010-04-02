@@ -49,7 +49,7 @@ public:
 
 	virtual bool active() const;
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
-	virtual void send(globals::connection_id const &id, boost::shared_ptr<message> const &m);
+	virtual void send(globals::connection_id id, boost::shared_ptr<message> const &m);
 
 private:
 	message_queue(message_queue const &);
@@ -60,7 +60,7 @@ private:
 	typedef std::pair<globals::connection_id, message_ptr_type> queue_item_id_type;
 
 	void push_message(std::string const &to, boost::shared_ptr<message> const &m);
-	void push_message(globals::connection_id const &to, boost::shared_ptr<message> const &m);
+	void push_message(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 private:
 	asio::io_service &io_;

@@ -56,7 +56,7 @@ public:
 	void start(settings const &s);
 
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
-	void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
+	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);

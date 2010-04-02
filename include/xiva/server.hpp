@@ -39,7 +39,7 @@ public:
 	void start(settings const &s);
 
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
-	void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
+	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 	component_set& components();
 	void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);

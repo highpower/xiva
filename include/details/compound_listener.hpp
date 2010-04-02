@@ -36,8 +36,8 @@ public:
 
 	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
 
-	virtual void connection_opened(std::string const &to) throw (std::exception);
-	virtual void connection_closed(std::string const &to) throw (std::exception);
+	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
 
 	virtual void init(settings const &s);
 	virtual void add_connection_listener(listener_ptr_type const &l);
@@ -46,8 +46,8 @@ public:
 
 protected:
 	boost::intrusive_ptr<logger> const& log() const;
-	void notify_connection_opened(std::string const &to);
-	void notify_connection_closed(std::string const &to);
+	void notify_connection_opened(std::string const &to, globals::connection_id id);
+	void notify_connection_closed(std::string const &to, globals::connection_id id);
 
 private:
 	compound_listener(compound_listener const &);

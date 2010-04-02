@@ -37,13 +37,15 @@ public:
 	void thread_func();
 	virtual void init(settings const &s);
 
-	virtual void connection_opened(std::string const &to) throw (std::exception);
-	virtual void connection_closed(std::string const &to) throw (std::exception);
+	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
 
 private:
 	threaded_listener(threaded_listener const &);
 	threaded_listener& operator = (threaded_listener const &);
-	typedef std::pair<std::string, bool> queue_item_type;
+
+	typedef std::pair<std::string, globals::connection_id> data_type;
+	typedef std::pair<data_type, bool> queue_item_type;
 
 private:
 	threaded_queue<queue_item_type> items_;

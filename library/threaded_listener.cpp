@@ -18,6 +18,7 @@ threaded_listener::~threaded_listener() {
 		join_all();
 	}
 	catch (std::exception const &e) {
+		(void) e;
 	}
 }
 
@@ -25,11 +26,12 @@ void
 threaded_listener::thread_func() {
 	queue_item_type item;
 	while (items_.pop(item)) {
+		data_type const &dt = item.first;
 		if (item.second) {
-			notify_connection_opened(item.first);
+			notify_connection_opened(dt.first, dt.second);
 		}
 		else {
-			notify_connection_closed(item.first);
+			notify_connection_closed(dt.first, dt.second);
 		}
 	}
 }
@@ -44,13 +46,13 @@ threaded_listener::init(settings const &s) {
 }
 
 void
-threaded_listener::connection_opened(std::string const &to) throw (std::exception) {
-	items_.push(queue_item_type(to, true));
+threaded_listener::connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) {
+	items_.push(queue_item_type(data_type(to, id), true));
 }
 
 void
-threaded_listener::connection_closed(std::string const &to) throw (std::exception) {
-	items_.push(queue_item_type(to, false));
+threaded_listener::connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) {
+	items_.push(queue_item_type(data_type(to, id), false));
 }
 
 }} // namespaces

@@ -22,6 +22,7 @@
 #include <exception>
 
 #include "xiva/config.hpp"
+#include "xiva/globals.hpp"
 #include "xiva/shared.hpp"
 
 namespace xiva {
@@ -39,26 +40,28 @@ public:
 	/** default constructor */
 	connection_listener();
 	
-	/** default destructor */
+	/** destructor */
 	virtual ~connection_listener();
 
 	/** this function is called when the connection to the user is 
 	 * established and the user or subsystem that initiated the request 
 	 * is matched
 	 * @param to user or subsystem name
+	 * @param id the identifier of connection
 	 */
-	virtual void connection_opened(std::string const &to) throw (std::exception) = 0;
+	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) = 0;
 	
 	/** this function is called when the connection to the user is closed
 	 * @param to user or subsystem name
+	 * @param id the identifier of connection
 	 */
-	virtual void connection_closed(std::string const &to) throw (std::exception) = 0;
+	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) = 0;
 
 private:
-	/** shoud never be implemented */
+	/** should never be implemented */
 	connection_listener(connection_listener const &);
 	
-	/** shoud never be implemented */
+	/** should never be implemented */
 	connection_listener& operator = (connection_listener const &);
 };
 

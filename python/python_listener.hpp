@@ -32,8 +32,8 @@ public:
 	python_listener(py::object const &impl);
 	virtual ~python_listener();
 
-	virtual void connection_opened(std::string const &to) throw (std::exception);
-	virtual void connection_closed(std::string const &to) throw (std::exception);
+	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
 
 private:
 	python_listener(python_listener const &);

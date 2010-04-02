@@ -78,7 +78,7 @@ message_queue::send(std::string const &to, boost::shared_ptr<message> const &m) 
 }
 
 void
-message_queue::send(globals::connection_id const &to, boost::shared_ptr<message> const &m) {
+message_queue::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	push_message(to, m);
 	strand_.dispatch(boost::bind(&message_queue::pop_by_id, this));
 }
@@ -96,7 +96,7 @@ message_queue::push_message(std::string const &to, boost::shared_ptr<message> co
 }
 
 void
-message_queue::push_message(globals::connection_id const &to, boost::shared_ptr<message> const &m) {
+message_queue::push_message(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	boost::mutex::scoped_lock sl(mutex_);
 	messages_by_id_.push_back(std::make_pair(to, m));
 }
