@@ -9,6 +9,7 @@
 
 #include "xiva/logger.hpp"
 #include "xiva/request.hpp"
+#include "xiva/response.hpp"
 #include "xiva/settings.hpp"
 #include "xiva/response_handler.hpp"
 
@@ -77,6 +78,8 @@ threaded_handler_invoker::thread_func() {
 			request request_adapter(item.first->request());
 			std::string receiver = handler_->receiver(request_adapter);
 			item.second->name(receiver);
+			response response_adapter(item.first->response());
+			handler_->handle_response(request_adapter, response_adapter);
 			handled(item);
 			strand_.dispatch(boost::bind(&threaded_handler_invoker::pop, this));
 		}
@@ -114,7 +117,7 @@ threaded_handler_invoker::invoke_handler(threaded_handler_invoker::connection_pt
 }
 
 void
-threaded_handler_invoker::handled(threaded_handler_invoker::item_type item) {
+threaded_handler_invoker::handled(threaded_handler_invoker::item_type const &item) {
 	boost::mutex::scoped_lock sl(mutex_);
 	handled_.push_back(item);
 }

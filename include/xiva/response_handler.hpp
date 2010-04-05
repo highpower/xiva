@@ -38,7 +38,7 @@ public:
 	virtual bool has_enough_data(request const &req) const = 0;
 	
 	virtual std::string receiver(request const &req) const = 0;
-	virtual void handle_response(request const &req, response &resp) = 0;
+	virtual void handle_response(request const &req, response &resp) const = 0;
 
 private:
 	response_handler(response_handler const &);

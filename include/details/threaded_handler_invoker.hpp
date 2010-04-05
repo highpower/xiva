@@ -61,8 +61,8 @@ private:
 	typedef boost::intrusive_ptr<request_holder> holder_ptr_type;
 	typedef std::pair<holder_ptr_type, connection_ptr_type> item_type;
 	
-	void handled(item_type item);
-	void pop_handled(std::deque<item_type>  &items);
+	void handled(item_type const &item);
+	void pop_handled(std::deque<item_type> &items);
 
 private:
 	asio::io_service &io_;
