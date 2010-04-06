@@ -36,7 +36,7 @@ public:
 	virtual bool has_enough_data(request const &req) const;
 	
 	virtual std::string receiver(request const &req) const;
-	virtual void handle_response(request const &req, response &resp) const;
+	virtual void handle_response(request const &req, response &resp);
 
 private:
 	python_handler(python_handler const &);

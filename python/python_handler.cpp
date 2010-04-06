@@ -41,7 +41,7 @@ python_handler::receiver(request const &req) const {
 }
 
 void
-python_handler::handle_response(request const &req, response &resp) const {
+python_handler::handle_response(request const &req, response &resp) {
 
 	python_request request_adapter(req);
 	python_response response_adapter(resp);

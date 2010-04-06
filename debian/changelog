@@ -1,3 +1,9 @@
+xiva (0.9.4-0) unstable; urgency=low
+
+  * make highpower happy ;)
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 06 Apr 2010 13:52:26 +0400
+
 xiva (0.9.3-0) unstable; urgency=low
 
   * handle_response is the const method

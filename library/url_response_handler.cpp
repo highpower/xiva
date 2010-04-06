@@ -58,7 +58,7 @@ url_response_handler::receiver(request const &req) const {
 }
 
 void
-url_response_handler::handle_response(request const &req, response &resp) const {
+url_response_handler::handle_response(request const &req, response &resp) {
 	(void) req;
 	resp.content_type("text/plain");
 }
