@@ -1,3 +1,9 @@
+xiva (0.9.5-0) unstable; urgency=low
+
+  * support static content in response
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 07 Apr 2010 12:02:39 +0400
+
 xiva (0.9.4-0) unstable; urgency=low
 
   * make highpower happy ;)

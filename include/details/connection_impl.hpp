@@ -77,6 +77,7 @@ private:
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
 
 	void read();
+	void write_content(response_impl const &resp, std::string const &content);
 	void write_headers(response_impl const &resp);
 	void write_message();
 	void write_last_message();
@@ -159,6 +160,11 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &resp) {
 	timer_.cancel();
 	try {
+		std::string const *content = resp.content_ptr();
+		if (NULL != content) {
+			write_content(resp, *content);
+			return;
+		}
 		std::string const &name = ConnectionBase::name();
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
@@ -270,6 +276,36 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 		asio::async_read_until(socket_, in_, request_checker(), 
 			boost::bind(&type::handle_read, self, asio::placeholders::error));
 		setup_timeout(data_.read_timeout());
+	}
+	catch (std::exception const &e) {
+		handle_exception(e);
+	}
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> void
+connection_impl<ConnectionBase, ConnectionTraits>::write_content(response_impl const &resp, std::string const &content) {
+
+	if (is_policy_ || !ws_info_.empty()) {
+		cleanup();
+		return;
+	}
+
+	try {
+		std::ostream stream(&out_);
+		stream << http_status(200);
+		stream << http_header::connection_close();
+		stream << http_date(boost::posix_time::second_clock::universal_time());
+		stream << http_header::server();
+		stream << http_header("Content-Type", resp.content_type().c_str());
+		stream << "Content-Length: " << content.size() << http_constants<char>::endl;
+		stream << http_constants<char>::endl;
+		stream << content;
+
+		writing_message_ = true;
+		connection_impl_ptr_type self(this);
+		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+			self, asio::placeholders::error));
+		setup_timeout(data_.write_timeout()); // may be content_write_timeout ?
 	}
 	catch (std::exception const &e) {
 		handle_exception(e);

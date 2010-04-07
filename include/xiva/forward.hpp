@@ -20,12 +20,13 @@
 
 namespace xiva {
 
+class formatter;
 class logger;
 class message;
 class request;
 class response;
+class server;
 class settings;
-class formatter;
 
 class http_error;
 class component_set;

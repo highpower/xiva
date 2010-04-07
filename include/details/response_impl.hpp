@@ -41,6 +41,10 @@ public:
 	bool single_message() const;
 	void single_message(bool value);
 
+	std::string const* content_ptr() const;
+	void content(std::string const &body);
+	void content(std::string const *body);
+
 private:
 	response_impl(response_impl const &);
 	response_impl& operator = (response_impl const &);
@@ -48,6 +52,8 @@ private:
 private:
 	std::string type_;
 	std::string formatter_id_;
+	std::string content_;
+	std::string const *content_ptr_;
 	bool single_message_;
 };
 
@@ -80,6 +86,22 @@ response_impl::single_message() const {
 inline void
 response_impl::single_message(bool value) {
 	single_message_ = value;
+}
+
+inline std::string const*
+response_impl::content_ptr() const {
+	return content_ptr_;
+}
+
+inline void
+response_impl::content(std::string const &body) {
+	content_.assign(body);
+	content_ptr_ = &content_;
+}
+
+inline void
+response_impl::content(std::string const *body) {
+	content_ptr_ = body;
 }
 
 

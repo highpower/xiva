@@ -32,4 +32,14 @@ response::single_message(bool value) {
 	impl_.single_message(value);
 }
 
+void
+response::content(std::string const &body) {
+	impl_.content(body);
+}
+
+void
+response::content(std::string const *body) {
+	impl_.content(body);
+}
+
 } // namespaces

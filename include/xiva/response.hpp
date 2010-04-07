@@ -37,6 +37,9 @@ public:
 	void formatter_id(std::string const &fmt_id);
 	void single_message(bool value);
 
+	void content(std::string const &body);
+	void content(std::string const *body);
+
 private:
 	response(response const &);
 	response& operator = (response const &);
