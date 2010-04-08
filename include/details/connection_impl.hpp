@@ -169,12 +169,14 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
 		}
-		boost::intrusive_ptr<ConnectionBase> self(this);
-		ct_.manager().insert_connection(self);
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
 		single_message_ = resp.single_message();
 		fmt_ptr_ = data_.find_formatter(resp.formatter_id());
-		write_headers(resp); 
+		writing_message_ = true;
+		write_headers(resp);
+		boost::intrusive_ptr<ConnectionBase> self(this);
+		ct_.manager().insert_connection(self);
+		writing_message_ = false;
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
