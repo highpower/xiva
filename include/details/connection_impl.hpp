@@ -77,7 +77,7 @@ private:
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
 
 	void read();
-	void write_content(response_impl const &resp, std::string const &content);
+	void write_static_content(response_impl const &resp, std::string const &content);
 	void write_headers(response_impl const &resp);
 	void write_message();
 	void write_last_message();
@@ -92,8 +92,10 @@ private:
 
 	void print_error(std::streambuf &buf, http_error const &error) const;
 	void print_headers(std::string const &content_type, std::streambuf &buf) const;
+	void print_static_content(std::string const &content_type, std::string const &content, std::streambuf &buf) const;
 	void print_message_content(std::string const &content, std::streambuf &buf) const;
 	bool print_last_message(std::streambuf &buf) const;
+	void print_static_content(response_impl const &resp, std::string const &content, std::streambuf &buf);
 
 private:
 	asio::io_service &io_;
@@ -101,7 +103,6 @@ private:
 	ConnectionTraits &ct_;
 
 	std::string addr_;
-	bool writing_message_;
 	streambuf_type in_, out_;
 
 	asio::deadline_timer timer_;
@@ -110,12 +111,16 @@ private:
 
 	websocket_info ws_info_;
 	formatter const *fmt_ptr_;
-	bool is_policy_, single_message_;
+	bool writing_message_;
+	bool connected_;
+	bool is_policy_;
+	bool single_message_;
 };
 
 template <typename ConnectionBase, typename ConnectionTraits>
 connection_impl<ConnectionBase, ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), writing_message_(false), timer_(io_), socket_(io_), fmt_ptr_(NULL), is_policy_(false), single_message_(false)
+	io_(io), data_(data), ct_(ct), timer_(io_), socket_(io_), fmt_ptr_(NULL),
+	writing_message_(false), connected_(false), is_policy_(false), single_message_(false)
 {
 }
 
@@ -151,7 +156,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::finish() {
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<message> const &m) {
 	messages_.push_back(m);
-	if (!writing_message_) {
+	if (!writing_message_ && connected_) {
 		write_message();
 	}
 }
@@ -162,7 +167,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 	try {
 		std::string const *content = resp.content_ptr();
 		if (NULL != content) {
-			write_content(resp, *content);
+			write_static_content(resp, *content);
 			return;
 		}
 		std::string const &name = ConnectionBase::name();
@@ -172,11 +177,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
 		single_message_ = resp.single_message();
 		fmt_ptr_ = data_.find_formatter(resp.formatter_id());
-		writing_message_ = true;
 		write_headers(resp);
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
-		writing_message_ = false;
+		connected_ = socket_.is_open(); // not connected after cleanup();
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
@@ -285,7 +289,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_content(response_impl const &resp, std::string const &content) {
+connection_impl<ConnectionBase, ConnectionTraits>::write_static_content(response_impl const &resp, std::string const &content) {
 
 	if (is_policy_ || !ws_info_.empty()) {
 		cleanup();
@@ -293,15 +297,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_content(response_impl c
 	}
 
 	try {
-		std::ostream stream(&out_);
-		stream << http_status(200);
-		stream << http_header::connection_close();
-		stream << http_date(boost::posix_time::second_clock::universal_time());
-		stream << http_header::server();
-		stream << http_header("Content-Type", resp.content_type().c_str());
-		stream << "Content-Length: " << content.size() << http_constants<char>::endl;
-		stream << http_constants<char>::endl;
-		stream << content;
+		print_static_content(resp.content_type(), content, out_);
 
 		writing_message_ = true;
 		connection_impl_ptr_type self(this);
@@ -322,16 +318,11 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_headers(response_impl c
 		return;
 	}
 
-	try {
-		print_headers(resp.content_type(), out_);
-		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_write_headers, self,
-			asio::placeholders::error));
-		setup_timeout(data_.write_timeout());
-	}
-	catch (std::exception const &e) {
-		handle_exception(e);
-	}
+	print_headers(resp.content_type(), out_);
+	connection_impl_ptr_type self(this);
+	asio::async_write(socket_, out_, boost::bind(&type::handle_write_headers, self,
+		asio::placeholders::error));
+	setup_timeout(data_.write_timeout());
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
@@ -520,6 +511,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(std::string con
 			}
 		}
 	}
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> void
+connection_impl<ConnectionBase, ConnectionTraits>::print_static_content(
+	std::string const &content_type, std::string const &content, std::streambuf &buf) const {
+
+	std::ostream stream(&buf);
+
+	stream << http_status(200);
+	stream << http_header::connection_close();
+	stream << http_date(boost::posix_time::second_clock::universal_time());
+	stream << http_header::server();
+	stream << http_header("Content-Type", content_type.c_str());
+	stream << "Content-Length: " << content.size() << http_constants<char>::endl;
+	stream << http_constants<char>::endl;
+	stream << content;
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
