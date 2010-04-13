@@ -34,7 +34,8 @@ mock_connection::send(boost::shared_ptr<message> const &m) {
 }
 
 void
-mock_connection::handled(details::response_impl const &resp) {
+mock_connection::handled(details::request_impl const &req, details::response_impl const &resp) {
+	(void) req;
 	(void) resp;
 }
 

@@ -36,7 +36,7 @@ public:
 
 	virtual void finish();
 	virtual void send(boost::shared_ptr<message> const &m);
-	virtual void handled(details::response_impl const &resp);
+	virtual void handled(details::request_impl const &req, details::response_impl const &resp);
 
 private:
 	mock_connection(mock_connection const &);

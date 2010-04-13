@@ -72,18 +72,21 @@ connection_data::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	logger_ = log;
 }
 
-formatter const*
-connection_data::find_formatter(std::string const &fmt_id) const {
+std::auto_ptr<formatter>
+connection_data::find_formatter(std::string const &fmt_id, request const &req) const {
 	formatters_type::const_iterator i = formatters_.find(fmt_id);
 	if (formatters_.end() != i) {
-		return i->second.get();
+		formatter_creator const *creator = i->second.get();
+		if (NULL != creator) {
+			return creator->create(req);
+		}
 	}
-	return NULL;
+	return std::auto_ptr<formatter>();
 }
 
 void
-connection_data::attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt_ptr) {
-	formatters_.insert(std::make_pair(fmt_id, fmt_ptr));
+connection_data::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
+	formatters_.insert(std::make_pair(fmt_id, creator));
 }
 
 }} // namespaces

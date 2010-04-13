@@ -46,7 +46,7 @@ handler_invoker::invoke_handler(handler_invoker::connection_ptr_type conn, reque
 	
 	response response_adapter(resp);
 	handler_->handle_response(request_adapter, response_adapter);
-	conn->handled(resp);
+	conn->handled(req, resp);
 }
 
 }} // namespaces

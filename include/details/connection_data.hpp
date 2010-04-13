@@ -20,6 +20,7 @@
 
 #include <iterator>
 #include <map>
+#include <memory>
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
@@ -52,14 +53,14 @@ public:
 
 	std::string const& policy_data() const;
 
-	formatter const* find_formatter(std::string const &fmt_id) const;
-	void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt_ptr);
+	std::auto_ptr<formatter> find_formatter(std::string const &fmt_id, request const &req) const;
+	void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &fmt_ptr);
 
 private:
 	connection_data(connection_data const &);
 	connection_data & operator = (connection_data const &);
 
-	typedef std::map< std::string, boost::intrusive_ptr<formatter> > formatters_type;
+	typedef std::map< std::string, boost::intrusive_ptr<formatter_creator> > formatters_type;
 
 	formatters_type formatters_;
 	std::string policy_data_;

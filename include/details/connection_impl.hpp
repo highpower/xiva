@@ -32,6 +32,7 @@
 #include "xiva/message.hpp"
 #include "xiva/http_error.hpp"
 #include "xiva/formatter.hpp"
+#include "xiva/request.hpp"
 
 #include "details/asio.hpp"
 #include "details/connection_base.hpp"
@@ -70,7 +71,7 @@ public:
 
 	char const* address() const;
 	asio::ip::tcp::socket& socket();
-	virtual void handled(response_impl const &resp);
+	virtual void handled(request_impl const &req, response_impl const &resp);
 
 private:
 	typedef std::allocator<char> allocator_type;
@@ -110,7 +111,7 @@ private:
 	std::list<message_ptr_type> messages_;
 
 	websocket_info ws_info_;
-	formatter const *fmt_ptr_;
+	std::auto_ptr<formatter> fmt_ptr_; // for single copy only
 	bool writing_message_;
 	bool connected_;
 	bool is_policy_;
@@ -119,7 +120,7 @@ private:
 
 template <typename ConnectionBase, typename ConnectionTraits>
 connection_impl<ConnectionBase, ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), timer_(io_), socket_(io_), fmt_ptr_(NULL),
+	io_(io), data_(data), ct_(ct), timer_(io_), socket_(io_),
 	writing_message_(false), connected_(false), is_policy_(false), single_message_(false)
 {
 }
@@ -162,7 +163,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<messag
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &resp) {
+connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &req, response_impl const &resp) {
 	timer_.cancel();
 	try {
 		std::string const *content = resp.content_ptr();
@@ -176,7 +177,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(response_impl const &
 		}
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
 		single_message_ = resp.single_message();
-		fmt_ptr_ = data_.find_formatter(resp.formatter_id());
+		request request_adapter(req);
+		fmt_ptr_ = data_.find_formatter(resp.formatter_id(), request_adapter);
 		write_headers(resp);
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
@@ -341,7 +343,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 
 	try {
 		std::string const &content = msg->content();
-		if (NULL != fmt_ptr_) {
+		if (NULL != fmt_ptr_.get()) {
 			print_message_content(fmt_ptr_->wrap_message(content), out_);
 		}
 		else {
@@ -500,7 +502,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_headers(std::string con
 	stream << http_header("Content-Type", content_type.c_str());
 	stream << http_constants<char>::endl;
 
-	if (NULL != fmt_ptr_) {
+	if (NULL != fmt_ptr_.get()) {
 		std::string const &head_msg = fmt_ptr_->head();
 		if (!head_msg.empty()) {
 			if (!ws_info_.empty()) {
@@ -549,7 +551,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_last_message(std::strea
 	std::ostream stream(&buf);
 
 	bool need_write = false;
-	if (NULL != fmt_ptr_) {
+	if (NULL != fmt_ptr_.get()) {
 		std::string const &tail_msg = fmt_ptr_->tail();
 		if (!tail_msg.empty()) {
 			if (!ws_info_.empty()) {

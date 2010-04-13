@@ -37,7 +37,7 @@ public:
 
 	virtual void finish() = 0;
 	virtual void send(boost::shared_ptr<message> const &message) = 0;
-	virtual void handled(response_impl const &resp) = 0;
+	virtual void handled(request_impl const &req, response_impl const &resp) = 0;
 	globals::connection_id id() const;
 
 	std::string const& name() const;

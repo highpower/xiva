@@ -53,9 +53,9 @@ public:
 
 	/** sets up a formatter for out
 	 * @param fmt_id an id of formatter which must be set up in response.
-	 * @param fmt an instance of class that implements formatter interface.
+	 * @param creator an instance of class that implements request-cpecific formatter interface.
 	 */
-	virtual void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt) = 0;
+	virtual void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) = 0;
 	
 	/** adds the connection_listener to the system.
 	 * @param l an instance of class that implements connection_listener interface.

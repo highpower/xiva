@@ -19,18 +19,21 @@
 #define XIVA_FORMATTER_HPP_INCLUDED
 
 #include <string>
+#include <memory>
 
 #include "xiva/config.hpp"
 #include "xiva/shared.hpp"
+#include "xiva/forward.hpp"
 
 namespace xiva {
 
-class XIVA_API formatter : public shared {
+
+class XIVA_API formatter {
 
 public:
 	formatter();
 	virtual ~formatter();
-	
+
 	virtual std::string const& head() const = 0;
 	virtual std::string wrap_message(std::string const &content) const = 0;
 	virtual std::string const& tail() const = 0;
@@ -38,6 +41,20 @@ public:
 private:
 	formatter(formatter const &);
 	formatter& operator = (formatter const &);
+};
+
+
+class XIVA_API formatter_creator : public shared {
+
+public:
+	formatter_creator();
+	virtual ~formatter_creator();
+
+	virtual std::auto_ptr<formatter> create(request const &req) const = 0;
+
+private:
+	formatter_creator(formatter_creator const &);
+	formatter_creator& operator = (formatter_creator const &);
 };
 
 } // namespace

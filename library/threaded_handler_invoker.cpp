@@ -61,8 +61,9 @@ threaded_handler_invoker::pop() {
 	pop_handled(handled);
 	try {
 		for (std::deque<item_type>::iterator i = handled.begin(), end = handled.end(); i != end; ++i) {
-			response_impl &resp = i->first->response();
-			i->second->handled(resp);
+			request_impl const &req = i->first->request();
+			response_impl const &resp = i->first->response();
+			i->second->handled(req, resp);
 		}
 	}
 	catch (std::exception const &e) {

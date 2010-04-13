@@ -24,6 +24,7 @@
 #include "xiva/enumeration.hpp"
 #include "xiva/error.hpp"
 #include "xiva/forward.hpp"
+#include "xiva/formatter.hpp"
 #include "xiva/globals.hpp"
 #include "xiva/http_error.hpp"
 #include "xiva/logger.hpp"

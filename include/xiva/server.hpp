@@ -46,7 +46,7 @@ public:
 
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
-	void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt);
+	void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator);
 	void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
 
 private:

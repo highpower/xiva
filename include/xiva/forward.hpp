@@ -21,6 +21,7 @@
 namespace xiva {
 
 class formatter;
+class formatter_creator;
 class logger;
 class message;
 class request;

@@ -60,7 +60,7 @@ public:
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
-	virtual void attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt);
+	virtual void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator);
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
 	virtual void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
 

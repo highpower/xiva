@@ -135,9 +135,9 @@ server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> cons
 }
 
 void
-server_impl::attach_formatter(std::string const &fmt_id, boost::intrusive_ptr<formatter> const &fmt) {
-	assert(fmt);
-	data_.attach_formatter(fmt_id, fmt);
+server_impl::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
+	assert(creator);
+	data_.attach_formatter_creator(fmt_id, creator);
 }
 
 void
