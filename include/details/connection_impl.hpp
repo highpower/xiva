@@ -94,7 +94,8 @@ private:
 	void print_error(std::streambuf &buf, http_error const &error) const;
 	void print_headers(std::string const &content_type, std::streambuf &buf) const;
 	void print_static_content(std::string const &content_type, std::string const &content, std::streambuf &buf) const;
-	void print_message_content(std::string const &content, std::streambuf &buf) const;
+	bool print_message(message const &msg, std::streambuf &buf) const;
+	bool print_message_content(std::string const &content, std::streambuf &buf) const;
 	bool print_last_message(std::streambuf &buf) const;
 	void print_static_content(response_impl const &resp, std::string const &content, std::streambuf &buf);
 
@@ -330,34 +331,32 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_headers(response_impl c
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 
-	if (messages_.empty()) {
-		setup_inactive_timeout();
-		return;
-	}
-	timer_.cancel();
-	boost::shared_ptr<message> const &msg = messages_.front();
-	if (!msg) {
-		write_last_message();
-		return;
-	}
-
-	try {
-		std::string const &content = msg->content();
-		if (NULL != fmt_ptr_.get()) {
-			print_message_content(fmt_ptr_->wrap_message(content), out_);
+	for (;;) {
+		if (messages_.empty()) {
+			setup_inactive_timeout();
+			return;
 		}
-		else {
-			print_message_content(content, out_);
+		timer_.cancel();
+		boost::shared_ptr<message> const &msg = messages_.front();
+		if (!msg) {
+			write_last_message();
+			return;
 		}
 
-		writing_message_ = true;
-		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_write_message,
-			self, asio::placeholders::error));
-		setup_timeout(data_.write_timeout());
-	}
-	catch (std::exception const &e) {
-		handle_exception(e);
+		try {
+			if (print_message(*msg, out_)) {
+				writing_message_ = true;
+				connection_impl_ptr_type self(this);
+				asio::async_write(socket_, out_, boost::bind(&type::handle_write_message,
+					self, asio::placeholders::error));
+				setup_timeout(data_.write_timeout());
+				break;
+			}
+		}
+		catch (std::exception const &e) {
+			handle_exception(e);
+			break;
+		}
 	}
 }
 
@@ -531,8 +530,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_static_content(
 	stream << content;
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
+template <typename ConnectionBase, typename ConnectionTraits> bool
+connection_impl<ConnectionBase, ConnectionTraits>::print_message(message const &msg, std::streambuf &buf) const {
+
+	std::string const &content = msg.content();
+	if (NULL != fmt_ptr_.get()) {
+		return print_message_content(fmt_ptr_->wrap_message(content), buf);
+	}
+	return print_message_content(content, buf);
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> bool
 connection_impl<ConnectionBase, ConnectionTraits>::print_message_content(std::string const &content, std::streambuf &buf) const {
+
+	if (content.empty()) {
+		return false;
+	}
 
 	std::ostream stream(&buf);
 
@@ -543,6 +556,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::print_message_content(std::st
 		stream << std::hex << content.size() << http_constants<char>::endl;
 		stream << content << http_constants<char>::endl;
 	}
+	return true;
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> bool
