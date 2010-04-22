@@ -1,7 +1,7 @@
 Source: xiva
 Priority: optional
 Maintainer: Oleg Obolenskiy <highpower@yandex-team.ru>
-Build-Depends: debhelper (>= 4.0.0), automake1.9, libtool, autotools-dev, libboost-dev, libboost-thread-dev, libboost-regex-dev, libboost-date-time-dev, libasio-dev
+Build-Depends: debhelper (>= 4.0.0), automake1.9, libtool, autotools-dev, libboost-dev, libboost-thread-dev, libboost-regex-dev, libboost-date-time-dev, libasio-dev, python-dev
 Standards-Version: 3.6.1
 Section: libs
 
@@ -47,3 +47,10 @@ Depends: ${shlibs:Depends}, libxiva(=${Source-Version})
 Description: xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
  This package contains utility which reads content from unix socket.
 
+Package: xiva-python
+Section: libs
+Conflicts: python-xiva
+Replaces: python-xiva
+Architecture: any
+Depends: libxiva (= ${Source-Version})
+Description: Python binding for C++ libxiva library

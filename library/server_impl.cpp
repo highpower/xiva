@@ -36,6 +36,7 @@ server_impl::~server_impl() {
 
 void
 server_impl::stop() {
+	data_.stop();
 	if (acceptor_) {
 		acceptor_->stop();
 	}
@@ -51,7 +52,7 @@ server_impl::stop() {
 }
 
 void
-server_impl::start(settings const &s) {
+server_impl::init(settings const &s) {
 
 	if (!logger_) {
 		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
@@ -104,7 +105,23 @@ server_impl::start(settings const &s) {
 	for (std::vector<thread_param_type>::const_iterator i = providers_.begin(), end = providers_.end(); i != end; ++i) {
 		start_provider_thread(*i);
 	}
-	io_.run();
+}
+
+void
+server_impl::start() {
+	try {
+		io_.run();
+	}
+	catch (std::exception const &e) {
+		if (logger_ && !data_.stopping()) {
+			logger_->error("server_impl::start failed, catch exception: %s", e.what());
+		}
+	}
+	catch (...) {
+		if (logger_ && !data_.stopping()) {
+			logger_->error("server_impl::start failed, catch unknown exception");
+		}
+	}
 }
 
 void

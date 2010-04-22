@@ -38,21 +38,27 @@ threaded_listener::thread_func() {
 
 void
 threaded_listener::init(settings const &s) {
-	boost::function<void()> f = boost::bind(&threaded_listener::thread_func, this);
-	unsigned short threads = s.listener_threads();
-	for (unsigned short i = 0; i < threads; ++i) {
-		create_thread(f);
+	if (!empty()) {
+		boost::function<void()> f = boost::bind(&threaded_listener::thread_func, this);
+		unsigned short threads = s.listener_threads();
+		for (unsigned short i = 0; i < threads; ++i) {
+			create_thread(f);
+		}
 	}
 }
 
 void
 threaded_listener::connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) {
-	items_.push(queue_item_type(data_type(to, id), true));
+	if (!empty()) {
+		items_.push(queue_item_type(data_type(to, id), true));
+	}
 }
 
 void
 threaded_listener::connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) {
-	items_.push(queue_item_type(data_type(to, id), false));
+	if (!empty()) {
+		items_.push(queue_item_type(data_type(to, id), false));
+	}
 }
 
 }} // namespaces

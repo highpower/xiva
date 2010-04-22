@@ -29,6 +29,7 @@ template <typename Item>
 class python_enumeration : public enumeration<Item> {
 
 public:
+	python_enumeration();
 	python_enumeration(py::tuple const &tuple);
 	virtual ~python_enumeration();
 
@@ -45,8 +46,15 @@ private:
 };
 
 template <typename Item> inline
+python_enumeration<Item>::python_enumeration() :
+		number_(0)
+{
+}
+
+template <typename Item> inline
 python_enumeration<Item>::python_enumeration(py::tuple const &tuple) :
-		tuple_(tuple) {
+		tuple_(tuple), number_(0)
+{
 }
 
 template <typename Item> inline
@@ -55,12 +63,13 @@ python_enumeration<Item>::~python_enumeration() {
 
 template <typename Item> inline Item
 python_enumeration<Item>::next() const {
-
+	// not implemented yet
+	return Item();
 }
 
 template <typename Item> inline bool
 python_enumeration<Item>::empty() const {
-	return number_ == py::len(tuple_);
+	return number_ == static_cast<std::size_t>(py::len(tuple_));
 }
 
 }} // namespaces

@@ -1,8 +1,29 @@
 #include "acsetup.hpp"
 #include "python_settings.hpp"
 #include "python_enumeration.hpp"
+#include "interpreter_lock.hpp"
 
 namespace xiva { namespace python {
+
+template <typename Result> inline Result
+python_settings::get(char const *method, Result const &defval) const {
+	if (!impl_) {
+		return defval;
+	}
+	try {
+		interpreter_lock lock;
+		py::object func = impl_.attr(method);
+		if (func) {
+			return py::call<Result>(func.ptr());
+		}
+	}
+	catch (...) {
+		// suppress any exception
+	}
+	return defval;
+}
+
+
 
 python_settings::python_settings(py::object const &impl) :
 	impl_(impl)
@@ -59,15 +80,31 @@ python_settings::policy_file_name() const {
 
 std::string
 python_settings::value(char const *name) const {
-	return impl_ ? py::call_method<std::string>(impl_.ptr(), "value", name) : std::string();
+	if (impl_) {
+		try {
+			interpreter_lock lock;
+			return py::call_method<std::string>(impl_.ptr(), "value", name);
+		}
+		catch (...) {
+			// suppress any exception
+		}
+	}
+	return std::string();
 }
 
 enumeration<std::string>::ptr_type
 python_settings::value_list(char const *prefix) const {
 	if (impl_) {
-		py::tuple tuple = py::call_method<py::tuple>(impl_.ptr(), "value_list", prefix);
-		return enumeration<std::string>::ptr_type(new python_enumeration<std::string>(tuple));
+		try {
+			interpreter_lock lock;
+			py::tuple tuple = py::call_method<py::tuple>(impl_.ptr(), "value_list", prefix);
+			return enumeration<std::string>::ptr_type(new python_enumeration<std::string>(tuple));
+		}
+		catch (...) {
+			// suppress any exception
+		}
 	}
+	return enumeration<std::string>::ptr_type(new python_enumeration<std::string>());
 }
 
 }} // namespaces

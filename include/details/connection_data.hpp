@@ -56,6 +56,9 @@ public:
 	std::auto_ptr<formatter> find_formatter(std::string const &fmt_id, request const &req) const;
 	void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &fmt_ptr);
 
+	bool stopping() const;
+	void stop();
+
 private:
 	connection_data(connection_data const &);
 	connection_data & operator = (connection_data const &);
@@ -67,6 +70,7 @@ private:
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;
 	unsigned int read_timeout_, write_timeout_, inactive_timeout_;
+	bool stopping_;
 };
 
 template <typename Iter> bool

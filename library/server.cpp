@@ -19,7 +19,8 @@ server::stop() {
 
 void
 server::start(settings const &s) {
-	impl_->start(s);
+	impl_->init(s);
+	impl_->start();
 }
 
 void

@@ -45,6 +45,7 @@ public:
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 
 protected:
+	bool empty() const;
 	boost::intrusive_ptr<logger> const& log() const;
 	void notify_connection_opened(std::string const &to, globals::connection_id id);
 	void notify_connection_closed(std::string const &to, globals::connection_id id);

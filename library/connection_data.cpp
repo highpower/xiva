@@ -11,7 +11,7 @@
 namespace xiva { namespace details {
 
 connection_data::connection_data() :
-	read_timeout_(0), write_timeout_(0), inactive_timeout_(0)
+	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), stopping_(false)
 {
 }
 
@@ -87,6 +87,16 @@ connection_data::find_formatter(std::string const &fmt_id, request const &req) c
 void
 connection_data::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
 	formatters_.insert(std::make_pair(fmt_id, creator));
+}
+
+bool
+connection_data::stopping() const {
+	return stopping_;
+}
+
+void
+connection_data::stop() {
+	stopping_ = true;
 }
 
 }} // namespaces

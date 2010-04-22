@@ -31,7 +31,10 @@ class python_response {
 public:
 	python_response(response &resp);
 	virtual ~python_response();
+
 	void content_type(py::str type);
+	void single_message(bool value);
+	void content(py::str body);
 
 private:
 	response &resp_;

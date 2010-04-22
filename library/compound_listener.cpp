@@ -45,6 +45,11 @@ compound_listener::add_connection_listener(listener_ptr_type const &l) {
 	listeners_.push_back(l);
 }
 
+bool
+compound_listener::empty() const {
+	return listeners_.empty();
+}
+
 boost::intrusive_ptr<logger> const&
 compound_listener::log() const {
 	return logger_;

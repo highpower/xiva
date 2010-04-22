@@ -53,7 +53,8 @@ public:
 	typedef boost::function<globals::provider_type> provider_closure_type;
 
 	void stop();
-	void start(settings const &s);
+	void init(settings const &s);
+	void start();
 
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);

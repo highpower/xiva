@@ -1,6 +1,6 @@
 Summary:	Xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 Name:		xiva
-Version:	0.10.2
+Version:	0.10.3
 Release:	0%{?dist}
 
 License:	Yandex License
@@ -44,6 +44,15 @@ Requires:       %{name} = %{version}-%{release}
 
 %description    utils
 Utilities for %{name}
+
+
+%package        python
+Summary:        Python binding for %{name}
+Group:          System Environment/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description    syslog
+Python binding for %{name}
 
 
 %package        syslog

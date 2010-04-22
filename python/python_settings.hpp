@@ -59,15 +59,6 @@ private:
 	py::object impl_;
 };
 
-template <typename Result> inline Result
-python_settings::get(char const *method, Result const &defval) const {
-	if (!impl_) {
-		return defval;
-	}
-	py::object func = impl_.attr(method);
-	return (func) ? py::call<Result>(func.ptr()) : defval;
-}
-
 }} // namespaces
 
 #endif // XIVA_PYTHON_PYTHON_SETTINGS_HPP_INCLUDED

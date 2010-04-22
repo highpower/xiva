@@ -35,11 +35,14 @@ public:
 	virtual ~python_server();
 
 	void stop();
-	void start(py::object const &impl);
+	void init(py::object const &impl);
+	void start();
+
+	void send(std::string const &to, std::string const &msg);
 
 	void load(std::string const &name);
 	void attach_logger(py::object const &impl);
-	void attach_receiver_matcher(py::object const &impl);
+	void attach_response_handler(py::object const &impl);
 	void add_connection_listener(py::object const &impl);
 
 private:
