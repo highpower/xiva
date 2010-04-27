@@ -352,6 +352,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 				setup_timeout(data_.write_timeout());
 				break;
 			}
+			// message was empty or cancelled by formatter
+			messages_.pop_front();
 		}
 		catch (std::exception const &e) {
 			handle_exception(e);

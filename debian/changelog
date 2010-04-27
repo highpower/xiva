@@ -1,3 +1,9 @@
+xiva (0.10.3-2) unstable; urgency=low
+
+  *  fixed bug by laplace@
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 27 Apr 2010 18:17:25 +0400
+
 xiva (0.10.3-1) unstable; urgency=low
 
   * fixed python binding 
