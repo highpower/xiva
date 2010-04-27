@@ -47,7 +47,7 @@ python_handler::handle_response(request const &req, response &resp) {
 	python_response response_adapter(resp);
 	interpreter_lock lock;
 
-	py::call_method<std::string>(impl_.ptr(), "handle_response", request_adapter, response_adapter);
+	py::call_method<void>(impl_.ptr(), "handle_response", request_adapter, response_adapter);
 }
 
 }} // namespaces

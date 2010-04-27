@@ -115,6 +115,9 @@ acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first(connection_ptr_t
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::error_code const &code) {
+	if (data_.stopping()) {
+		return;
+	}
 	if (code) {
 		logger_->error("network error occured while accepting connection: %s",
 		               code.message().c_str());

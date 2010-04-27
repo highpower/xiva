@@ -18,8 +18,6 @@
 #ifndef XIVA_PYTHON_INTERPRETER_LOCK_HPP_INCLUDED
 #define XIVA_PYTHON_INTERPRETER_LOCK_HPP_INCLUDED
 
-#include <boost/function.hpp>
-
 namespace xiva { namespace python {
 
 class interpreter_init {
@@ -27,8 +25,6 @@ class interpreter_init {
 public:
 	interpreter_init();
 	virtual ~interpreter_init();
-
-	static void async_exec(boost::function<void()> f);
 
 private:
 	interpreter_init(interpreter_init const &);
@@ -40,6 +36,17 @@ private:
 
 static interpreter_init init_;
 
+class interpreter_thread_lock {
+
+public:
+	interpreter_thread_lock();
+	virtual ~interpreter_thread_lock();
+
+private:
+	interpreter_thread_lock(interpreter_thread_lock const &);
+	interpreter_thread_lock& operator = (interpreter_thread_lock const &);
+};
+
 class interpreter_lock {
 
 public:
@@ -49,6 +56,8 @@ public:
 private:
 	interpreter_lock(interpreter_lock const &);
 	interpreter_lock& operator = (interpreter_lock const &);
+
+	bool threaded_;
 };
 
 class interpreter_unlock {

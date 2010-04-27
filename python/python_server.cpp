@@ -1,8 +1,6 @@
 #include "acsetup.hpp"
 #include "python_server.hpp"
 
-#include <boost/bind.hpp>
-
 #include "server_class.hpp"
 #include "python_logger.hpp"
 #include "python_handler.hpp"
@@ -38,20 +36,20 @@ python_server::init(py::object const &impl) {
 
 void
 python_server::start() {
-	//interpreter_unlock unlock;
-	//impl_->start();
-	boost::function<void()> func = boost::bind(&details::server_impl::start, impl_.get());
-	interpreter_init::async_exec(func);
+	interpreter_thread_lock thread_lock;
+	impl_->start();
 }
 
 void
 python_server::send(std::string const &to, std::string const &msg) {
+	interpreter_unlock unlock;
 	boost::shared_ptr<message> m(new message(msg));
 	impl_->send(to, m);
 }
 
 void
 python_server::load(std::string const &name) {
+	(void) name;
 }
 
 void
@@ -76,7 +74,7 @@ void
 register_server_class() throw () {
 	py::class_<python_server, py::bases<>, boost::shared_ptr<python_server>, boost::noncopyable> reg("server", py::init<>());
 	reg.def("stop", &python_server::stop);
-	reg.def("load", &python_server::load);
+	//reg.def("load", &python_server::load);
 	reg.def("init", &python_server::init);
 	reg.def("send", &python_server::send);
 	reg.def("start", &python_server::start);
