@@ -47,7 +47,7 @@ threaded_handler_invoker::threaded_handler_invoker(asio::io_service &io, connect
 
 threaded_handler_invoker::~threaded_handler_invoker() {
 	try {
-		input_queue_.finish();
+		finish();
 		join_all();
 	}
 	catch (std::exception const &e) {
@@ -88,6 +88,11 @@ threaded_handler_invoker::thread_func() {
 			logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
 		}
 	}
+}
+
+void
+threaded_handler_invoker::finish() {
+	input_queue_.finish();
 }
 
 void

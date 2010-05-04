@@ -36,13 +36,15 @@ public:
 	void push(Item const &item);
 	void finish();
 
+	bool finished() const;
+
 private:
 	threaded_queue(threaded_queue const &);
 	threaded_queue& operator = (threaded_queue const &);
 
 private:
 	bool finished_;
-	boost::mutex mutex_;
+	mutable boost::mutex mutex_;
 	boost::condition condition_;
 	std::queue<Item> items_;
 };
@@ -84,6 +86,12 @@ threaded_queue<Item>::finish() {
 	boost::mutex::scoped_lock lock(mutex_);
 	finished_ = true;
 	condition_.notify_all();
+}
+
+template <typename Item> inline bool
+threaded_queue<Item>::finished() const {
+	boost::mutex::scoped_lock lock(mutex_);
+	return finished_;
 }
 
 }} // namespaces

@@ -41,6 +41,7 @@ public:
 	typedef connection connection_type;
 	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
 
+	void finish();
 	void init(settings const &s);
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &resp);

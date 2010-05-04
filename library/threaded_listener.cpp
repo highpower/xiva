@@ -14,7 +14,7 @@ threaded_listener::threaded_listener()
 
 threaded_listener::~threaded_listener() {
 	try {
-		items_.finish();
+		finish();
 		join_all();
 	}
 	catch (std::exception const &e) {
@@ -45,6 +45,11 @@ threaded_listener::init(settings const &s) {
 			create_thread(f);
 		}
 	}
+}
+
+void
+threaded_listener::finish() {
+	items_.finish();
 }
 
 void

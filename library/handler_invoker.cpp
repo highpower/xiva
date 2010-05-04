@@ -30,6 +30,10 @@ handler_invoker::init(settings const &s) {
 }
 
 void
+handler_invoker::finish() {
+}
+
+void
 handler_invoker::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	(void) log;
 }

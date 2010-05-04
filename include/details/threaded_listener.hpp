@@ -37,6 +37,8 @@ public:
 	void thread_func();
 	virtual void init(settings const &s);
 
+	void finish();
+
 	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
 

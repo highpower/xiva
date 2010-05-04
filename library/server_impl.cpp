@@ -28,7 +28,7 @@ namespace xiva { namespace details {
 server_impl::server_impl() :
 	io_(), strand_(io_), data_()
 {
-	listener_ = boost::intrusive_ptr<compound_listener>(new threaded_listener());
+	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener());
 }
 
 server_impl::~server_impl() {
@@ -40,6 +40,7 @@ server_impl::stop() {
 	if (acceptor_) {
 		acceptor_->stop();
 	}
+	listener_->finish();
 	if (message_queue_) {
 		message_queue_->finish();
 	}
@@ -173,8 +174,8 @@ server_impl::stop_service() {
 	if (acceptor_) {
 		acceptor_->stop();
 	}
-	if (connection_manager_) {
-		connection_manager_->finish();
+	if (connection_traits_) {
+		connection_traits_->finish();
 	}
 }
 

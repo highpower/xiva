@@ -41,7 +41,7 @@ namespace xiva { namespace details {
 
 class acceptor_base;
 class message_queue;
-class compound_listener;
+class threaded_listener;
 class connection_manager_base;
 
 class server_impl : public component_set, private boost::thread_group {
@@ -86,7 +86,7 @@ private:
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<response_handler> handler_;
-	boost::intrusive_ptr<compound_listener> listener_;
+	boost::intrusive_ptr<threaded_listener> listener_;
 	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<connection_traits_base> connection_traits_;
