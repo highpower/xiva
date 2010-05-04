@@ -1,3 +1,13 @@
+xiva (0.10.4-1) unstable; urgency=low
+
+  * fixed crash on handshake
+  * add finish() methods in threaded objects
+  * threaded logger in python binding
+  * ignore SIGPIPE in python binding
+  * fixed python interpreter locking
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 04 May 2010 17:52:07 +0400
+
 xiva (0.10.3-2) unstable; urgency=low
 
   *  fixed bug by laplace@
