@@ -183,7 +183,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &r
 		write_headers(resp);
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
-		connected_ = socket_.is_open(); // not connected after cleanup();
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
@@ -235,7 +234,13 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_headers(syst::er
 		handle_error(code);
 		return;
 	}
-	write_message();
+	if (socket_.is_open()) {
+		connected_ = true;
+		write_message();
+	}
+	else {
+		// unreachable code, not connected after cleanup();
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
@@ -246,7 +251,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_message(syst::er
 		handle_error(code);
 		return;
 	}
-	messages_.pop_front();
 	if (single_message_) {
 		write_last_message();
 	}
@@ -344,7 +348,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 		}
 
 		try {
-			if (print_message(*msg, out_)) {
+			bool printed = print_message(*msg, out_);
+			messages_.pop_front();
+
+			if (printed) {
 				writing_message_ = true;
 				connection_impl_ptr_type self(this);
 				asio::async_write(socket_, out_, boost::bind(&type::handle_write_message,
@@ -352,8 +359,6 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 				setup_timeout(data_.write_timeout());
 				break;
 			}
-			// message was empty or cancelled by formatter
-			messages_.pop_front();
 		}
 		catch (std::exception const &e) {
 			handle_exception(e);
@@ -436,6 +441,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error c
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::cleanup() {
 	timer_.cancel();
+	connected_ = false;
 	if (!ConnectionBase::name().empty()) {
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().remove_connection(self);
