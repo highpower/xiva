@@ -20,6 +20,7 @@
 
 #include <boost/python.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "details/dynamic_loader.hpp"
@@ -27,6 +28,8 @@
 namespace py = boost::python;
 
 namespace xiva { namespace python {
+
+class python_logger;
 
 class python_server {
 
@@ -52,6 +55,7 @@ private:
 private:
 	details::dynamic_loader loader_;
 	boost::shared_ptr<details::server_impl> impl_;
+	boost::intrusive_ptr<python_logger> logger_;
 };
 
 }} // namespaces

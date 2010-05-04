@@ -19,19 +19,28 @@
 #define XIVA_PYTHON_PYTHON_LOGGER_HPP_INCLUDED
 
 #include <cstdarg>
+#include <utility>
+
 #include <boost/python.hpp>
+#include <boost/thread/thread.hpp>
 
 #include "xiva/logger.hpp"
+
+#include "details/threaded_queue.hpp"
 
 namespace py = boost::python;
 
 namespace xiva { namespace python {
 
-class python_logger : public logger {
+class python_logger : public logger, private boost::thread_group {
 
 public:
-	python_logger(py::object const &impl);
+	explicit python_logger(py::object const &impl);
 	virtual ~python_logger();
+
+	void start();
+	void thread_func();
+	void finish();
 
 	virtual void info(char const *format, ...);
 	virtual void debug(char const *format, ...);
@@ -40,10 +49,14 @@ public:
 private:
 	python_logger(python_logger const &);
 	python_logger& operator = (python_logger const &);
-	void invoke(char const *method, char const *format, va_list args);
+
+	void invoke(char level, char const *format, va_list args);
 
 private:
 	py::object impl_;
+
+	typedef std::pair<char, std::string> queue_item_type;
+	details::threaded_queue<queue_item_type> items_;
 };
 
 }} // namespaces

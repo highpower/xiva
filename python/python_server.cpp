@@ -8,6 +8,8 @@
 #include "python_settings.hpp"
 #include "interpreter_lock.hpp"
 
+#include <signal.h>
+
 #include "xiva/message.hpp"
 
 #include "details/server_impl.hpp"
@@ -17,6 +19,7 @@ namespace xiva { namespace python {
 python_server::python_server() :
 	impl_(new details::server_impl()) 
 {
+	signal(SIGPIPE, SIG_IGN);
 }
 
 python_server::~python_server() {
@@ -24,6 +27,9 @@ python_server::~python_server() {
 
 void
 python_server::stop() {
+	if (logger_) {
+		logger_->finish();
+	}
 	impl_->stop();
 }
 
@@ -42,7 +48,6 @@ python_server::start() {
 
 void
 python_server::send(std::string const &to, std::string const &msg) {
-	interpreter_unlock unlock;
 	boost::shared_ptr<message> m(new message(msg));
 	impl_->send(to, m);
 }
@@ -54,8 +59,10 @@ python_server::load(std::string const &name) {
 
 void
 python_server::attach_logger(py::object const &impl) {
-	boost::intrusive_ptr<logger> l(new python_logger(impl));
+	boost::intrusive_ptr<python_logger> l(new python_logger(impl));
+	l->start();
 	impl_->attach_logger(l);
+	logger_ = l;
 }
 
 void
