@@ -1,66 +1,76 @@
 #include "acsetup.hpp"
 #include "interpreter_lock.hpp"
 
-#include <Python.h>
-
 #include <cassert>
 
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+
+#include <Python.h>
 
 namespace xiva { namespace python {
 
-int
-interpreter_init::count_ = 0;
+class interpreter_lock_impl {
 
+public:
+	interpreter_lock_impl();
+	virtual ~interpreter_lock_impl();
 
-static PyThreadState *save_state_ = NULL;
-static PyThreadState *main_thread_state_ = NULL;
+	void lock_thread();
+	void unlock_thread();
+
+	bool lock();
+	void unlock(bool threaded);
+
+private:
+	interpreter_lock_impl(interpreter_lock_impl const &);
+	interpreter_lock_impl& operator = (interpreter_lock_impl const &);
+
+	boost::mutex mutex_;
+	boost::condition condition_;
+	PyThreadState *main_thread_state_;
+	PyThreadState *thread_state_;
+	int thread_lock_count_;
+};
+
+int interpreter_init::count_ = 0;
+
+//std::auto_ptr does not work because it zeroize ptr after interpreter_init()
+static interpreter_lock_impl *interpreter_impl_ = NULL;
+
 
 interpreter_init::interpreter_init() {
 	if (0 == count_++) {
-		PyEval_InitThreads();
-		main_thread_state_ = PyThreadState_Get();
+		assert(NULL == interpreter_impl_);
+		interpreter_impl_ = new interpreter_lock_impl();
 	}
 }
 
 interpreter_init::~interpreter_init() {
-	--count_;
+	if (!--count_) {
+		delete interpreter_impl_;
+	}
 }
 
-
 interpreter_thread_lock::interpreter_thread_lock() {
-	assert(NULL == save_state_);
-	save_state_ = PyThreadState_Swap(NULL);
-	PyEval_ReleaseLock();
+	assert(NULL != interpreter_impl_);
+	interpreter_impl_->lock_thread();
 }
 
 interpreter_thread_lock::~interpreter_thread_lock() {
-	PyEval_AcquireLock();
-	if (save_state_) {
-		PyThreadState *save_state = save_state_;
-    		save_state_ = NULL;
-		PyThreadState_Swap(save_state);
-	}
-	else {
-		PyThreadState_Swap(main_thread_state_);
-	}
+	assert(NULL != interpreter_impl_);
+	interpreter_impl_->unlock_thread();
 }
 
 
 interpreter_lock::interpreter_lock() : threaded_(false) {
-	PyEval_AcquireLock();
-	if (NULL != save_state_) {
-		threaded_ = true;
-		PyThreadState *save_state = save_state_;
-		save_state_ = NULL;
-		PyThreadState_Swap(save_state);
-	}
+	assert(NULL != interpreter_impl_);
+	threaded_ = interpreter_impl_->lock();
 }
 
 interpreter_lock::~interpreter_lock() {
-	if (threaded_) {
-		save_state_ = PyThreadState_Swap(NULL);
-	}
-	PyEval_ReleaseLock();
+	assert(NULL != interpreter_impl_);
+	interpreter_impl_->unlock(threaded_);
 }
 
 interpreter_unlock::interpreter_unlock() {
@@ -69,6 +79,72 @@ interpreter_unlock::interpreter_unlock() {
 
 interpreter_unlock::~interpreter_unlock() {
 	PyEval_AcquireLock();
+}
+
+
+interpreter_lock_impl::interpreter_lock_impl() : main_thread_state_(NULL), thread_state_(NULL), thread_lock_count_(-1) {
+	PyEval_InitThreads();
+	main_thread_state_ = PyThreadState_Get();
+	assert(NULL != main_thread_state_);
+}
+
+interpreter_lock_impl::~interpreter_lock_impl() {
+}
+
+void
+interpreter_lock_impl::lock_thread() {
+	boost::mutex::scoped_lock lock(mutex_);
+	assert(NULL == thread_state_);
+	thread_state_ = PyThreadState_Swap(NULL);
+	assert(NULL != thread_state_);
+	assert(thread_lock_count_ < 0);
+	thread_lock_count_ = 0;
+	PyEval_ReleaseLock();
+}
+
+void
+interpreter_lock_impl::unlock_thread() {
+	boost::mutex::scoped_lock lock(mutex_);
+	while (thread_lock_count_ > 0) {
+		condition_.wait(lock);
+	}
+	assert(NULL != thread_state_);
+	PyEval_AcquireLock();
+	PyThreadState_Swap(thread_state_);
+	thread_lock_count_ = -1;
+	thread_state_ = NULL;
+	condition_.notify_all();
+}
+
+bool
+interpreter_lock_impl::lock() {
+	boost::mutex::scoped_lock lock(mutex_);
+	while (NULL != thread_state_) {
+		if (!thread_lock_count_) {
+			break;
+		}
+		condition_.wait(lock);
+	}
+	PyEval_AcquireLock();
+	if (NULL == thread_state_) {
+		return false;
+	}
+	thread_lock_count_++;
+	PyThreadState_Swap(thread_state_);
+	return true;
+}
+
+void
+interpreter_lock_impl::unlock(bool threaded) {
+	if (threaded) {
+		boost::mutex::scoped_lock lock(mutex_);
+		assert(NULL != thread_state_);
+		/* thread_state_ = */ PyThreadState_Swap(NULL);
+		if (!--thread_lock_count_) {
+			condition_.notify_all();
+		}
+	}
+	PyEval_ReleaseLock();
 }
 
 }} // namespaces
