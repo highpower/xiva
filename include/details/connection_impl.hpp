@@ -481,7 +481,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_error(syst::error_code
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::handle_exception(std::exception const &exc) {
-	data_.log()->error("exception caught with connection[%lu] from %s: %s", ConnectionBase::id(), address(), exc.what());
+	if (!address().empty()) {	
+		data_.log()->error("exception caught with connection[%lu] from %s: %s", ConnectionBase::id(), address(), exc.what());
+	}
 	cleanup();
 }
 
