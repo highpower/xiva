@@ -68,7 +68,8 @@ template <typename Result, typename Range> inline Result
 urldecode(Range const &range) {
 
 	BOOST_STATIC_ASSERT(sizeof(typename Range::value_type) == 1);
-	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Result::value_type>::value));
+	BOOST_STATIC_ASSERT(sizeof(typename Result::value_type) == 1);
+	//BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Result::value_type>::value));
 
 	Result result;
 	result.reserve(range.size());
