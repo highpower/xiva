@@ -28,7 +28,7 @@ template <typename Char>
 struct http_constants;
 
 template <>
-struct http_constants<char> {
+struct http_constants<const char> {
 
 	static char const* const endl;
 	static std::string const empty_string;
@@ -43,6 +43,24 @@ struct http_constants<char> {
 	static range<char const*> const reversed_headers_end;
 	static range<char const*> const reversed_nonstd_headers_end;
 };
+
+template <>
+struct http_constants<char> {
+
+        static char const* const endl;
+        static std::string const empty_string;
+
+        static range<char const*> const get;
+        static range<char const*> const range_name;
+        static range<char const*> const cookie;
+        static range<char const*> const param_delimiter;
+        static range<char const*> const protocol_version;
+        static range<char const*> const policy_file_request;
+
+        static range<char const*> const reversed_headers_end;
+        static range<char const*> const reversed_nonstd_headers_end;
+};
+
 
 }} // namespaces
 

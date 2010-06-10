@@ -61,6 +61,45 @@ char_traits<char>::to_lower(char value) {
 	return tolower(value);
 }
 
+
+template <>
+struct char_traits<const char> {
+
+        static bool is_space(const char value);
+        static bool is_alpha(const char value);
+        static bool is_alpha_numeric(const char value);
+
+        static const char to_upper(const char value);
+        static const char to_lower(const char value);
+};
+
+inline bool
+char_traits<const char>::is_space(const char value) {
+        return isspace(value);
+}
+
+inline bool
+char_traits<const char>::is_alpha(const char value) {
+        return isalpha(value);
+}
+
+inline bool
+char_traits<const char>::is_alpha_numeric(const char value) {
+        return isalnum(value);
+}
+
+inline const char
+char_traits<const char>::to_upper(const char value) {
+        return toupper(value);
+}
+
+inline const char
+char_traits<const char>::to_lower(const char value) {
+        return tolower(value);
+}
+
+
+
 }} // namespaces
 
 #endif // XIVA_DETAILS_CHAR_TRAITS_HPP_INCLUDED

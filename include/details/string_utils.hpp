@@ -110,7 +110,8 @@ split_once(Range const &r, typename Range::value_type const *chars, Range &first
 template <typename Range, typename Delim> inline bool
 split_first_of_once(Range const &r, Delim const &delim, Range &first, Range &second, typename Delim::value_type const *sfinae = 0) {
 	(void) sfinae;
-	BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Delim::value_type>::value));
+	//BOOST_STATIC_ASSERT((boost::is_same<typename Range::value_type, typename Delim::value_type>::value));
+	BOOST_STATIC_ASSERT((sizeof(typename Range::value_type) ==  sizeof(typename Delim::value_type)));
 	return do_split(r, std::find_first_of(r.begin(), r.end(), delim.begin(), delim.end()), 1, first, second);
 }
 
