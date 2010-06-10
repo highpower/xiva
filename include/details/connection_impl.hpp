@@ -144,10 +144,15 @@ connection_impl<ConnectionBase, ConnectionTraits>::socket() {
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::start() {
-	asio::ip::tcp::endpoint endpoint = socket_.remote_endpoint();
-	asio::ip::address addr = endpoint.address();
-	addr_ = addr.to_string();
-	read();
+	try {
+    		asio::ip::tcp::endpoint endpoint = socket_.remote_endpoint();
+		asio::ip::address addr = endpoint.address();
+		addr_ = addr.to_string();
+		read();
+	} 
+	catch (std::exception const &e) {
+		handle_exception(e);
+	}
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
