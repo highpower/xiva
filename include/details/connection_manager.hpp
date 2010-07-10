@@ -23,7 +23,6 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include <boost/current_function.hpp>
 
 #define BOOST_MULTI_INDEX_DISABLE_SERIALIZATION
 
@@ -173,7 +172,7 @@ connection_manager<ConnectionBase>::send(std::string const &to, boost::shared_pt
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
 	for ( ; p.first != p.second; ++p.first) {
 		connection_ptr_type conn = *p.first;
-		logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
+		logger_->debug("sending message to connection[%lu] by name", conn->id());
 		conn->send(m);
 	}
 }
@@ -188,7 +187,7 @@ connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
 	for ( ; p.first != p.second; ++p.first) {
 		connection_ptr_type conn = *p.first;
-		logger_->debug("%s, sending message to connection[%lu]", BOOST_CURRENT_FUNCTION, conn->id());
+		logger_->debug("sending message to connection[%lu] by id", conn->id());
 		conn->send(m);
 	}
 }

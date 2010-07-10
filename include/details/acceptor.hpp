@@ -20,7 +20,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include <boost/current_function.hpp>
 
 #include "xiva/error.hpp"
 #include "xiva/logger.hpp"
@@ -87,7 +86,7 @@ acceptor<ConnectionBase, ConnectionTraits>::accept() {
 		                       self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
-		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		logger_->error("exception caught while accepting connection: %s", e.what());
 	}
 }
 
@@ -100,7 +99,7 @@ acceptor<ConnectionBase, ConnectionTraits>::accept_again() {
 		                       self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
-		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		logger_->error("exception caught while accepting connection again: %s", e.what());
 	}
 }
 
