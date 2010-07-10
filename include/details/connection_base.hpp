@@ -18,12 +18,15 @@
 #ifndef XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED
 
+#include <iosfwd>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
+
+#include "details/websocket_info.hpp"
 
 namespace xiva { namespace details {
 
@@ -43,10 +46,22 @@ public:
 	std::string const& name() const;
 	void name(std::string const &name);
 
+protected:
+	void init(request_impl const &req);
+
+	static bool print_policy_data(std::string const &data, std::streambuf &buf);
+
+	bool print_error(std::streambuf &buf, http_error const &error) const;
+	bool print_headers(std::string const &content_type, std::streambuf &buf) const;
+	bool print_static_content(std::string const &content_type, std::string const &content, std::streambuf &buf) const;
+	bool print_message_content(std::string const &content, std::streambuf &buf) const;
+	bool print_last_message(std::streambuf &buf) const;
+
 private:
 	connection_base(connection_base const &);
 	connection_base& operator = (connection_base const &);
 
+	websocket_info ws_info_;
 	std::string name_;
 };
 

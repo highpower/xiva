@@ -42,6 +42,8 @@ public:
 	virtual unsigned int write_timeout() const;
 	virtual unsigned int inactive_timeout() const;
 
+	virtual unsigned int ping_interval() const;
+
 	virtual unsigned short handler_threads() const;
 	virtual unsigned short listener_threads() const;
 

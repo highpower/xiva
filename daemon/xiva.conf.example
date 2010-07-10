@@ -11,6 +11,7 @@
   <read-timeout>3000</read-timeout>
   <write-timeout>3000</write-timeout>
   <inactive-timeout>60000</inactive-timeout>
+  <ping-interval>10000</ping-interval>
   <modules>
     <module id="logger">${path}/xiva-syslog.so</module>
     <module id="stdin-reader">${path}/xiva-stdin-reader.so</module>

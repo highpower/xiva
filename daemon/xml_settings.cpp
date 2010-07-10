@@ -70,6 +70,11 @@ xml_settings::inactive_timeout() const {
 	return as<unsigned int>("/" XIVA_PACKAGE_NAME "/inactive-timeout");
 }
 
+unsigned int
+xml_settings::ping_interval() const {
+	return as<unsigned int>("/" XIVA_PACKAGE_NAME "/ping-interval");
+}
+
 unsigned short
 xml_settings::handler_threads() const {
 	return as<unsigned short>(value("/" XIVA_PACKAGE_NAME "/handler-threads"));

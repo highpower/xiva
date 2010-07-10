@@ -1,3 +1,10 @@
+xiva (0.11.1-1) unstable; urgency=low
+
+  * remove head and tail from formatters
+  * support pinged connections
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 08 Jul 2010 17:25:00 +0400
+
 xiva (0.10.4-1) unstable; urgency=low
 
   * fixed crash on handshake

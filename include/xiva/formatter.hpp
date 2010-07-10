@@ -34,9 +34,8 @@ public:
 	formatter();
 	virtual ~formatter();
 
-	virtual std::string const& head() const = 0;
 	virtual std::string wrap_message(std::string const &content) const = 0;
-	virtual std::string const& tail() const = 0;
+	virtual std::string ping_message() const = 0;
 
 private:
 	formatter(formatter const &);

@@ -11,7 +11,7 @@
 namespace xiva { namespace details {
 
 connection_data::connection_data() :
-	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), stopping_(false)
+	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), ping_interval_(0), stopping_(false)
 {
 }
 
@@ -23,6 +23,7 @@ connection_data::init(settings const &s) {
 	read_timeout_ = s.read_timeout();
 	write_timeout_ = s.write_timeout();
 	inactive_timeout_ = s.inactive_timeout();
+	ping_interval_ = s.ping_interval();
 
 	std::string policy_file_name;
 	try {

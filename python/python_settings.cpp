@@ -63,6 +63,11 @@ python_settings::inactive_timeout() const {
 	return get<unsigned int>("inactive_timeout", 60000);
 }
 
+unsigned int
+python_settings::ping_interval() const {
+	return get<unsigned int>("ping_interval", 10000);
+}
+
 unsigned short
 python_settings::handler_threads() const {
 	return get<unsigned short>("handler_threads", 5);

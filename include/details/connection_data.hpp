@@ -41,6 +41,7 @@ public:
 	unsigned int read_timeout() const;
 	unsigned int write_timeout() const;
 	unsigned int inactive_timeout() const;
+	unsigned int ping_interval() const;
 
 	boost::intrusive_ptr<response_handler> const& handler() const;
 	void handler(boost::intrusive_ptr<response_handler> const &h);
@@ -70,6 +71,7 @@ private:
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;
 	unsigned int read_timeout_, write_timeout_, inactive_timeout_;
+	unsigned int ping_interval_;
 	bool stopping_;
 };
 
@@ -97,6 +99,11 @@ connection_data::write_timeout() const {
 inline unsigned int
 connection_data::inactive_timeout() const {
 	return inactive_timeout_;
+}
+
+inline unsigned int
+connection_data::ping_interval() const {
+	return ping_interval_;
 }
 
 inline std::string const&
