@@ -38,7 +38,7 @@ public:
 	/** default constructor */
 	component_set();
 	
-	/** default destructor */
+	/** destructor */
 	virtual ~component_set();
 
 	/** attaches an instance of the logger. 

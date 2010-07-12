@@ -36,7 +36,7 @@ public:
 	/** default constructor */
 	enumeration();
 	
-	/** default destructor */
+	/** destructor */
 	virtual ~enumeration();
 
 	typedef Item value_type;

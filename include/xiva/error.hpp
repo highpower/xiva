@@ -33,7 +33,7 @@ public:
 	/** */
 	error(char const *format, ...);
 
-	/** default destructor */
+	/** destructor */
 	virtual ~error() throw ();
 	
 	/** inherited from std::exception 
