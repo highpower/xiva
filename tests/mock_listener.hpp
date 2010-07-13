@@ -37,6 +37,7 @@ public:
 	bool available(std::string const &user) const;
 	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void disconnected(std::string const &to) throw (std::exception);
 
 private:
 	mock_listener(mock_listener const &);

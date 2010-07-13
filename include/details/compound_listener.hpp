@@ -38,6 +38,7 @@ public:
 
 	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
+	virtual void disconnected(std::string const &to) throw (std::exception);
 
 	virtual void init(settings const &s);
 	virtual void add_connection_listener(listener_ptr_type const &l);
@@ -49,6 +50,7 @@ protected:
 	boost::intrusive_ptr<logger> const& log() const;
 	void notify_connection_opened(std::string const &to, globals::connection_id id);
 	void notify_connection_closed(std::string const &to, globals::connection_id id);
+	void notify_disconnected(std::string const &to);
 
 private:
 	compound_listener(compound_listener const &);

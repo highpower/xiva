@@ -27,6 +27,10 @@ accept_error(error const &exc) {
 	return exc.what() == std::string("same connection");
 }
 
+bool disconnected_error(error const &exc) {
+	return exc.what() == std::string("disconnected");
+}
+
 void
 fill_connections(connection_manager_type &m, std::vector<connection_ptr_type> &v, std::size_t count, std::string const &to) {
 	for (std::size_t i = 0; i < count; ++i) {
@@ -39,6 +43,7 @@ fill_connections(connection_manager_type &m, std::vector<connection_ptr_type> &v
 BOOST_AUTO_TEST_CASE(test_add) {
 
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
+	listener->add_connection_listener(boost::intrusive_ptr<connection_listener>(new mock_listener()));
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
 
@@ -50,6 +55,7 @@ BOOST_AUTO_TEST_CASE(test_add) {
 BOOST_AUTO_TEST_CASE(test_deletion) {
 
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
+	listener->add_connection_listener(boost::intrusive_ptr<connection_listener>(new mock_listener()));
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
 	std::vector<connection_ptr_type> connections;
@@ -66,6 +72,7 @@ BOOST_AUTO_TEST_CASE(test_deletion) {
 BOOST_AUTO_TEST_CASE(test_messaging) {
 
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
+	listener->add_connection_listener(boost::intrusive_ptr<connection_listener>(new mock_listener()));
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
 	std::vector<connection_ptr_type> connections;
@@ -91,9 +98,27 @@ BOOST_AUTO_TEST_CASE(test_messaging) {
 	}
 }
 
+BOOST_AUTO_TEST_CASE(test_disconnected) {
+
+	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
+	listener->add_connection_listener(boost::intrusive_ptr<connection_listener>(new mock_listener()));
+	connection_manager_type manager(listener);
+	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
+	std::vector<connection_ptr_type> connections;
+
+	// empty manager
+	BOOST_CHECK_EXCEPTION(manager.send("compwolf", boost::shared_ptr<message>()), error, disconnected_error);
+
+	// filled manager
+	fill_connections(manager, connections, 10, "swan");
+	fill_connections(manager, connections, 10, "bobuk");
+	BOOST_CHECK_EXCEPTION(manager.send("highpower", boost::shared_ptr<message>()), error, disconnected_error);
+}
+
 BOOST_AUTO_TEST_CASE(test_finishing) {
 
 	boost::intrusive_ptr<compound_listener> listener(new compound_listener());
+	listener->add_connection_listener(boost::intrusive_ptr<connection_listener>(new mock_listener()));
 	connection_manager_type manager(listener);
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
 	std::vector<connection_ptr_type> connections;

@@ -24,4 +24,10 @@ python_listener::connection_closed(std::string const &to, globals::connection_id
 	py::call_method<void>(impl_.ptr(), "connection_closed", to, id);
 }
 
+void
+python_listener::disconnected(std::string const &to) throw (std::exception) {
+	interpreter_lock lock;
+	py::call_method<void>(impl_.ptr(), "disconnected", to);
+}
+
 }} // namespaces

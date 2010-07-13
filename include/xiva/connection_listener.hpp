@@ -57,6 +57,11 @@ public:
 	 */
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) = 0;
 
+	/** this function is called when the message can not be delivered for non-existed connections
+	 * @param to user or subsystem name
+	 */
+	virtual void disconnected(std::string const &to) throw (std::exception) = 0;
+
 private:
 	/** should never be implemented */
 	connection_listener(connection_listener const &);

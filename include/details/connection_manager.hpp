@@ -170,10 +170,15 @@ connection_manager<ConnectionBase>::send(std::string const &to, boost::shared_pt
 	typedef typename connection_set_type::template nth_index<1>::type index_type;
 	index_type &index = connections_.template get<1>();
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
+	bool sended = false;
 	for ( ; p.first != p.second; ++p.first) {
 		connection_ptr_type conn = *p.first;
 		logger_->debug("sending message to connection[%lu] by name", conn->id());
 		conn->send(m);
+		sended = true;
+	}
+	if (!sended) {
+		listener_->disconnected(to);
 	}
 }
 

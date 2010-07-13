@@ -52,4 +52,10 @@ mock_listener::connection_closed(std::string const &to, globals::connection_id i
 	}
 }
 
+void
+mock_listener::disconnected(std::string const &to) throw (std::exception) {
+	(void) to;
+	throw error("disconnected");
+}
+
 }} // namespaces

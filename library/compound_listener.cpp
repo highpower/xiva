@@ -29,6 +29,11 @@ compound_listener::connection_closed(std::string const &to, globals::connection_
 }
 
 void
+compound_listener::disconnected(std::string const &to) throw (std::exception) {
+	notify_disconnected(to);
+}
+
+void
 compound_listener::init(settings const &s) {
 	(void) s;
 }
@@ -72,6 +77,18 @@ compound_listener::notify_connection_closed(std::string const &to, globals::conn
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
 		    boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), id));
+	}
+	catch (std::exception const &e) {
+		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		throw;
+	}
+}
+
+void
+compound_listener::notify_disconnected(std::string const &to) {
+	try {
+		std::for_each(listeners_.begin(), listeners_.end(), 
+		    boost::bind(&connection_listener::disconnected, _1, boost::cref(to)));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());

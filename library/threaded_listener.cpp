@@ -30,8 +30,11 @@ threaded_listener::thread_func() {
 		if (item.second) {
 			notify_connection_opened(dt.first, dt.second);
 		}
-		else {
+		else if (dt.second) {
 			notify_connection_closed(dt.first, dt.second);
+		}
+		else {
+			notify_disconnected(dt.first);
 		}
 	}
 }
@@ -63,6 +66,13 @@ void
 threaded_listener::connection_closed(std::string const &to, globals::connection_id id) throw (std::exception) {
 	if (!empty()) {
 		items_.push(queue_item_type(data_type(to, id), false));
+	}
+}
+
+void
+threaded_listener::disconnected(std::string const &to) throw (std::exception) {
+	if (!empty()) {
+		items_.push(queue_item_type(data_type(to, 0), false));
 	}
 }
 

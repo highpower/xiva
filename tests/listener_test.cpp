@@ -31,12 +31,12 @@ BOOST_AUTO_TEST_CASE(test_listener) {
 	}
 	compound.connection_opened("swan", 1);
 	compound.connection_opened("highpower", 2);
-	compound.connection_opened("ponomarev", 3);
+	compound.connection_opened("compwolf", 3);
 
 	for (std::vector<listener_ptr_type>::const_iterator i = listeners.begin(), end = listeners.end(); i != end; ++i) {
 		BOOST_CHECK_EQUAL(true, (*i)->available("swan"));
 		BOOST_CHECK_EQUAL(true, (*i)->available("highpower"));
-		BOOST_CHECK_EQUAL(true, (*i)->available("ponomarev"));
+		BOOST_CHECK_EQUAL(true, (*i)->available("compwolf"));
 		BOOST_CHECK_EQUAL(false, (*i)->available("bobuk"));
 	}
 	compound.connection_closed("highpower", 2);
