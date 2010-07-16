@@ -31,7 +31,7 @@ connection_base::init(request_impl const &req) {
 bool
 connection_base::print_policy_data(std::string const &data, std::streambuf &buf) {
 
-	if (!data.empty()) {
+	if (data.empty()) {
 		return false;
 	}
 
