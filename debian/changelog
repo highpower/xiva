@@ -1,3 +1,9 @@
+xiva (1.1.1-1) unstable; urgency=low
+
+  * support channels
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 16 Jul 2010 18:14:48 +0400
+
 xiva (0.12.1-1) unstable; urgency=low
 
   * added disconnected() callback into connection listener

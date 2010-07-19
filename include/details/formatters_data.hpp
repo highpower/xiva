@@ -15,38 +15,30 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_TESTS_MOCK_CONNECTION_HPP_INCLUDED
-#define XIVA_TESTS_MOCK_CONNECTION_HPP_INCLUDED
+#ifndef XIVA_DETAILS_FORMATTERS_DATA_HPP_INCLUDED
+#define XIVA_DETAILS_FORMATTERS_DATA_HPP_INCLUDED
 
-#include <string>
-#include <cstddef>
+#include "xiva/forward.hpp"
 
-#include "details/connection.hpp"
+namespace xiva { namespace details {
 
-namespace xiva { namespace tests {
-
-class mock_connection : public details::connection {
+class formatters_data {
 
 public:
-	mock_connection(std::string const &to);
-	virtual ~mock_connection();
+	formatters_data();
+	virtual ~formatters_data();
 
-	bool finished() const;
-	std::size_t message_count() const;
+	virtual bool allow_message(message const& msg) const = 0;
 
-	virtual void finish();
-	virtual bool send(boost::shared_ptr<message> const &m);
-	virtual void handled(details::request_impl const &req, details::response_impl const &resp);
+	virtual formatter const* default_formatter() const = 0;
+	virtual formatter const* find_formatter(message const& msg) const = 0;
 
 private:
-	mock_connection(mock_connection const &);
-	mock_connection& operator = (mock_connection const &);
-
-private:
-	bool finished_;
-	std::size_t message_count_;
+	formatters_data(formatters_data const &);
+	formatters_data& operator = (formatters_data const &);
 };
+
 
 }} // namespaces
 
-#endif // XIVA_TESTS_MOCK_CONNECTION_HPP_INCLUDED
+#endif // XIVA_DETAILS_FORMATTERS_DATA_HPP_INCLUDED

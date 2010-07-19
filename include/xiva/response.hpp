@@ -35,6 +35,9 @@ public:
 	void content_type(std::string const &type);
 
 	void formatter_id(std::string const &fmt_id);
+
+	void formatter_by_channel(std::string const &channel_id, std::string const &fmt_id);
+
 	void single_message(bool value);
 
 	void content(std::string const &body);

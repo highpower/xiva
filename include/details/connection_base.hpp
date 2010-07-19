@@ -20,6 +20,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <memory>
 
 #include <boost/shared_ptr.hpp>
 
@@ -30,7 +31,7 @@
 
 namespace xiva { namespace details {
 
-class response_impl;
+class formatters_data;
 
 class connection_base {
 
@@ -39,7 +40,7 @@ public:
 	virtual ~connection_base();
 
 	virtual void finish() = 0;
-	virtual void send(boost::shared_ptr<message> const &message) = 0;
+	virtual bool send(boost::shared_ptr<message> const &message) = 0;
 	virtual void handled(request_impl const &req, response_impl const &resp) = 0;
 	globals::connection_id id() const;
 
@@ -48,6 +49,11 @@ public:
 
 protected:
 	void init(request_impl const &req);
+	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
+
+	bool allow_message(message const &msg) const;
+	formatter const* default_formatter() const;
+	formatter const* find_formatter(message const &msg) const;
 
 	static bool print_policy_data(std::string const &data, std::streambuf &buf);
 
@@ -61,6 +67,7 @@ private:
 	connection_base(connection_base const &);
 	connection_base& operator = (connection_base const &);
 
+	std::auto_ptr<formatters_data> fmt_data_;
 	websocket_info ws_info_;
 	std::string name_;
 };

@@ -20,7 +20,7 @@
 #include <list>
 #include <iosfwd>
 #include <string>
-#include <exception>
+#include <cassert>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -32,10 +32,8 @@
 #include "xiva/message.hpp"
 #include "xiva/http_error.hpp"
 #include "xiva/formatter.hpp"
-#include "xiva/request.hpp"
 
 #include "details/asio.hpp"
-#include "details/connection_base.hpp"
 #include "details/connection_data.hpp"
 #include "details/request_impl.hpp"
 #include "details/response_impl.hpp"
@@ -57,7 +55,7 @@ public:
 
 	virtual void start();
 	virtual void finish();
-	virtual void send(message_ptr_type const &message);
+	virtual bool send(message_ptr_type const &message);
 
 	void handle_read(syst::error_code const &code);
 	void handle_write_headers(syst::error_code const &code);
@@ -83,7 +81,7 @@ private:
 	void write_ping_message();
 	void write_last_message();
 	void write_policy_data();
-	void write_http_error(http_error const &http);
+	void write_http_error(http_error const &http, char const *error_msg = NULL);
 
 	void cleanup();
 	void setup_timeout(unsigned int timeout);
@@ -105,7 +103,6 @@ private:
 	asio::ip::tcp::socket socket_;
 	std::list<message_ptr_type> messages_;
 
-	std::auto_ptr<formatter> fmt_ptr_; // for single copy only
 	bool writing_message_;
 	bool connected_;
 	bool is_policy_;
@@ -158,12 +155,17 @@ connection_impl<ConnectionBase, ConnectionTraits>::finish() {
 	send(boost::shared_ptr<message>());
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
+template <typename ConnectionBase, typename ConnectionTraits> bool
 connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<message> const &m) {
+
+	if (NULL != m.get() && !ConnectionBase::allow_message(*m)) {
+		return false;
+	}
 	messages_.push_back(m);
 	if (!writing_message_ && connected_) {
 		write_message();
 	}
+	return true;
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
@@ -181,9 +183,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &r
 		}
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
 		single_message_ = resp.single_message();
-		request request_adapter(req);
-		fmt_ptr_ = data_.find_formatter(resp.formatter_id(), request_adapter);
-		disable_ping_ = single_message_ || (NULL == fmt_ptr_.get()) || data_.ping_interval() < MINIMAL_PING_INTERVAL;
+		ConnectionBase::init_formatters(data_.fmt_factory(), req, resp);
+		disable_ping_ =	single_message_ || data_.ping_interval() < MINIMAL_PING_INTERVAL ||
+				NULL == ConnectionBase::default_formatter();
 		write_headers(resp);
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().insert_connection(self);
@@ -204,6 +206,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		handle_error(code);
 		return;
 	}
+
+	bool parsing_request = false;
 	try {
 		typedef streambuf_type::const_buffers_type buffers_type;
 		typedef asio::buffers_iterator<buffers_type> iterator_type;
@@ -216,8 +220,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 			write_policy_data();
 		}
 		else {
+			parsing_request = true;
 			request_impl req(begin, end);
 			ConnectionBase::init(req);
+			parsing_request = false;
 			
 			response_impl resp;
 			boost::intrusive_ptr<ConnectionBase> self(this);
@@ -228,7 +234,13 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		write_http_error(h);
 	}
 	catch (std::exception const &e) {
-		handle_exception(e);
+		if (parsing_request) {
+			http_error err(http_error::bad_request);
+			write_http_error(err, e.what());
+		}
+		else {
+			handle_exception(e);
+		}
 	}
 }
 
@@ -377,8 +389,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 
 			std::string const &content = msg->content();
 			bool printed = false;
-			if (NULL != fmt_ptr_.get()) {
-				printed = ConnectionBase::print_message_content(fmt_ptr_->wrap_message(content), out_);
+			formatter const *fmt_ptr = ConnectionBase::find_formatter(*msg);
+			if (NULL != fmt_ptr) {
+				printed = ConnectionBase::print_message_content(fmt_ptr->wrap_message(content), out_);
 			}
 			else {
 				printed = ConnectionBase::print_message_content(content, out_);
@@ -406,7 +419,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_ping_message() {
 
 	try {
 		assert(!disable_ping_);
-		if (ConnectionBase::print_message_content(fmt_ptr_->ping_message(), out_)) {
+		formatter const *fmt_ptr = ConnectionBase::default_formatter();
+		assert(fmt_ptr);
+		if (ConnectionBase::print_message_content(fmt_ptr->ping_message(), out_)) {
 			writing_message_ = true;
 			connection_impl_ptr_type self(this);
 			asio::async_write(socket_, out_, boost::bind(&type::handle_write_ping_message,
@@ -467,9 +482,10 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_policy_data() {
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error const &http) {
+connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error const &http, char const *error_msg) {
 
-	data_.log()->error("http error occured with connection[%lu] from %s: %s", ConnectionBase::id(), address(), http.what());
+	data_.log()->error("http error %u occured with connection[%lu] from %s: %s",
+		(unsigned int)http.code(), ConnectionBase::id(), address(), error_msg ? error_msg : http.what());
 	try {
 		if (is_policy_ || !ConnectionBase::print_error(out_, http)) {
 			cleanup();

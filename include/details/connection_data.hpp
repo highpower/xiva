@@ -49,13 +49,13 @@ public:
 	boost::intrusive_ptr<logger> const& log() const;
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
 
+	formatters_factory const& fmt_factory() const;
+	formatters_factory& fmt_factory();
+
 	template <typename Iter>
 	static bool is_policy(Iter begin, Iter end);
 
 	std::string const& policy_data() const;
-
-	std::auto_ptr<formatter> find_formatter(std::string const &fmt_id, request const &req) const;
-	void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &fmt_ptr);
 
 	bool stopping() const;
 	void stop();
@@ -64,9 +64,7 @@ private:
 	connection_data(connection_data const &);
 	connection_data & operator = (connection_data const &);
 
-	typedef std::map< std::string, boost::intrusive_ptr<formatter_creator> > formatters_type;
-
-	formatters_type formatters_;
+	std::auto_ptr<formatters_factory> formatters_factory_;
 	std::string policy_data_;
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;

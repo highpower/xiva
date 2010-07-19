@@ -27,10 +27,11 @@ mock_connection::finish() {
 	finished_ = true;
 }
 
-void
+bool
 mock_connection::send(boost::shared_ptr<message> const &m) {
 	(void) m;
 	++message_count_;
+	return true;
 }
 
 void

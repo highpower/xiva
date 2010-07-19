@@ -28,6 +28,11 @@ response::formatter_id(std::string const &fmt_id) {
 }
 
 void
+response::formatter_by_channel(std::string const &channel_id, std::string const &fmt_id) {
+	impl_.formatter_by_channel(channel_id, fmt_id);
+}
+
+void
 response::single_message(bool value) {
 	impl_.single_message(value);
 }

@@ -17,6 +17,14 @@ response_impl::swap(response_impl &other) throw () {
 	std::swap(content_, other.content_);
 	std::swap(content_ptr_, other.content_ptr_);
 	std::swap(single_message_, other.single_message_);
+	std::swap(channels_data_, other.channels_data_);
+}
+
+void
+response_impl::formatter_by_channel(std::string const &channel_id, std::string const &fmt_id) {
+	if (!channel_id.empty()) {
+		channels_data_[channel_id] = fmt_id;
+	}
 }
 
 

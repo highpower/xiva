@@ -4,7 +4,10 @@
 #include <boost/static_assert.hpp>
 
 #include "xiva/http_error.hpp"
+#include "xiva/message.hpp"
 
+#include "details/formatters_data.hpp"
+#include "details/formatters_factory.hpp"
 #include "details/http_constants.hpp"
 #include "details/http.hpp"
 
@@ -26,6 +29,35 @@ connection_base::id() const {
 void
 connection_base::init(request_impl const &req) {
 	ws_info_.parse(req);
+}
+
+void
+connection_base::init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp) {
+	fmt_data_ = f.create_formatters_data(req, resp);
+}
+
+bool
+connection_base::allow_message(message const &msg) const {
+	if (NULL == fmt_data_.get()) {
+		return true;
+	}
+	return fmt_data_->allow_message(msg);
+}
+
+formatter const*
+connection_base::default_formatter() const {
+	if (NULL == fmt_data_.get()) {
+		return NULL;
+	}
+	return fmt_data_->default_formatter();
+}
+
+formatter const*
+connection_base::find_formatter(message const &msg) const {
+	if (NULL == fmt_data_.get()) {
+		return NULL;
+	}
+	return fmt_data_->find_formatter(msg);
 }
 
 bool

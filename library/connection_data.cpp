@@ -8,11 +8,14 @@
 #include "xiva/formatter.hpp"
 #include "xiva/response_handler.hpp"
 
+#include "details/formatters_factory.hpp"
+
 namespace xiva { namespace details {
 
 connection_data::connection_data() :
 	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), ping_interval_(0), stopping_(false)
 {
+	formatters_factory_.reset(new formatters_factory());
 }
 
 connection_data::~connection_data() {
@@ -73,21 +76,14 @@ connection_data::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	logger_ = log;
 }
 
-std::auto_ptr<formatter>
-connection_data::find_formatter(std::string const &fmt_id, request const &req) const {
-	formatters_type::const_iterator i = formatters_.find(fmt_id);
-	if (formatters_.end() != i) {
-		formatter_creator const *creator = i->second.get();
-		if (NULL != creator) {
-			return creator->create(req);
-		}
-	}
-	return std::auto_ptr<formatter>();
+formatters_factory const&
+connection_data::fmt_factory() const {
+	return *formatters_factory_;
 }
 
-void
-connection_data::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
-	formatters_.insert(std::make_pair(fmt_id, creator));
+formatters_factory&
+connection_data::fmt_factory() {
+	return *formatters_factory_;
 }
 
 bool

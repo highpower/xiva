@@ -10,11 +10,12 @@
 
 #include "details/acceptor.hpp"
 #include "details/connection.hpp"
+#include "details/threaded_connection.hpp"
 
 #include "details/stdio_logger.hpp"
 #include "details/message_queue.hpp"
 #include "details/threaded_listener.hpp"
-#include "details/threaded_connection.hpp"
+#include "details/formatters_factory.hpp"
 
 #include "details/handler_invoker.hpp"
 #include "details/threaded_handler_invoker.hpp"
@@ -155,7 +156,7 @@ server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> cons
 void
 server_impl::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
 	assert(creator);
-	data_.attach_formatter_creator(fmt_id, creator);
+	data_.fmt_factory().attach_creator(fmt_id, creator);
 }
 
 void

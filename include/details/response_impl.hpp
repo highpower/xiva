@@ -19,6 +19,7 @@
 #define XIVA_DETAILS_RESPONSE_IMPL_HPP_INCLUDED
 
 #include <string>
+#include <map>
 
 #include "xiva/shared.hpp"
 
@@ -35,8 +36,11 @@ public:
 	std::string const& content_type() const;
 	void content_type(std::string const &type);
 
-	std::string const& formatter_id() const;
+	std::string const& default_formatter_id() const;
 	void formatter_id(std::string const &fmt_id);
+
+	std::map<std::string, std::string> const& channels_data() const;
+	void formatter_by_channel(std::string const &channel_id, std::string const &fmt_id);
 
 	bool single_message() const;
 	void single_message(bool value);
@@ -52,6 +56,7 @@ private:
 private:
 	std::string type_;
 	std::string formatter_id_;
+	std::map<std::string, std::string> channels_data_;
 	std::string content_;
 	std::string const *content_ptr_;
 	bool single_message_;
@@ -69,13 +74,18 @@ response_impl::content_type(std::string const &type) {
 }
 
 inline std::string const&
-response_impl::formatter_id() const {
+response_impl::default_formatter_id() const {
 	return formatter_id_;
 }
 
 inline void
 response_impl::formatter_id(std::string const &fmt_id) {
 	formatter_id_.assign(fmt_id);
+}
+
+inline std::map<std::string, std::string> const&
+response_impl::channels_data() const {
+	return channels_data_;
 }
 
 inline bool

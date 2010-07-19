@@ -37,6 +37,7 @@ class connection_listener;
 
 namespace details {
 
+class formatters_factory;
 class server_impl;
 class request_impl;
 class response_impl;

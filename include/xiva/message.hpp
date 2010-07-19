@@ -19,6 +19,7 @@
 #define XIVA_MESSAGE_HPP_INCLUDED
 
 #include <string>
+#include <set>
 
 #include "xiva/config.hpp"
 
@@ -34,12 +35,16 @@ public:
 	std::string const& content() const;
 	void content(std::string const &value);
 
+	std::set<std::string> const& channels() const;
+	void swap_channels(std::set<std::string> &ch);
+
 private:
 	message(message const &);
 	message& operator = (message const &);
 
 private:
 	std::string content_;
+	std::set<std::string> channels_;
 };
 
 template <typename Iter> inline
