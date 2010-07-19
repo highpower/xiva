@@ -41,7 +41,7 @@ public:
 
 	void attach_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &fmt_ptr);
 
-        std::auto_ptr<formatters_data> create_formatters_data(request_impl const &req, response_impl const &resp) const;
+	std::auto_ptr<formatters_data> create_formatters_data(request_impl const &req, response_impl const &resp) const;
 
 private:
 	formatters_factory(formatters_factory const &);
