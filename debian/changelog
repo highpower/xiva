@@ -1,3 +1,9 @@
+xiva (1.1.2-1) unstable; urgency=low
+
+  * safe mode for sending message
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 21 Jul 2010 12:00:57 +0400
+
 xiva (1.1.1-1) unstable; urgency=low
 
   * support channels

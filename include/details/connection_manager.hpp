@@ -19,8 +19,10 @@
 #define XIVA_DETAILS_CONNECTION_MANAGER_HPP_INCLUDED
 
 #include <cassert>
+#include <iterator>
 #include <utility>
 #include <string>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 
@@ -174,8 +176,13 @@ connection_manager<ConnectionBase>::send(std::string const &to, boost::shared_pt
 		listener_->disconnected(to);
 		return;
 	}
+	std::vector<connection_ptr_type> conns;
+	conns.reserve(std::distance(p.first, p.second));
 	for ( ; p.first != p.second; ++p.first) {
-		connection_ptr_type conn = *p.first;
+		conns.push_back(*p.first);
+	}
+	for (typename std::vector<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
+		connection_ptr_type &conn = *it;
 		if (conn->send(m)) {
 			logger_->debug("sending message to connection[%lu] by name %s", conn->id(), to.c_str());
 		}
@@ -190,8 +197,16 @@ connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost
 	typedef typename connection_set_type::template nth_index<0>::type index_type;
 	index_type &index = connections_.template get<0>();
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
+	if (p.first == p.second) {
+		return;
+	}
+	std::vector<connection_ptr_type> conns;
+	conns.reserve(std::distance(p.first, p.second));
 	for ( ; p.first != p.second; ++p.first) {
-		connection_ptr_type conn = *p.first;
+		conns.push_back(*p.first);
+	}
+	for (typename std::vector<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
+		connection_ptr_type &conn = *it;
 		if (conn->send(m)) {
 			logger_->debug("sending message to connection[%lu] by id", conn->id());
 		}
