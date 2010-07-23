@@ -1,3 +1,9 @@
+xiva (1.1.3-1) unstable; urgency=low
+
+  * support formatters in xiva-python
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 23 Jul 2010 16:51:58 +0400
+
 xiva (1.1.2-1) unstable; urgency=low
 
   * safe mode for sending message

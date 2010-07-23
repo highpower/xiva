@@ -42,10 +42,12 @@ public:
 	void start();
 
 	void send(std::string const &to, std::string const &msg);
+	void send_to_channels(std::string const &to, std::string const &msg, std::string const &channels);
 
 	void load(std::string const &name);
 	void attach_logger(py::object const &impl);
 	void attach_response_handler(py::object const &impl);
+	void attach_formatter_creator(std::string const &fmt_id, py::object const &impl);
 	void add_connection_listener(py::object const &impl);
 
 private:

@@ -15,34 +15,33 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED
-#define XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED
+#ifndef XIVA_PYTHON_PYTHON_FORMATTER_CREATOR_HPP_INCLUDED
+#define XIVA_PYTHON_PYTHON_FORMATTER_CREATOR_HPP_INCLUDED
 
 #include <boost/python.hpp>
 
 #include "xiva/forward.hpp"
+#include "xiva/formatter.hpp"
 
 namespace py = boost::python;
 
 namespace xiva { namespace python {
 
-class python_response {
+class python_formatter_creator : public xiva::formatter_creator {
 
 public:
-	python_response(response &resp);
-	virtual ~python_response();
+	python_formatter_creator(py::object const &impl);
+	virtual ~python_formatter_creator();
 
-	void content_type(std::string const &type);
-	void single_message(bool value);
-	void content(std::string const &body);
-
-	void formatter_id(std::string const &fmt_id);
-	void formatter_by_channel(std::string const &channel_id, std::string const &fmt_id);
+	virtual std::auto_ptr<formatter> create(request const &req) const;
 
 private:
-	response &resp_;
+	python_formatter_creator(python_formatter_creator const &);
+	python_formatter_creator& operator = (python_formatter_creator const &);
+
+	py::object impl_;
 };
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_PYTHON_RESPONSE_HPP_INCLUDED
+#endif // XIVA_PYTHON_PYTHON_FORMATTER_CREATOR_HPP_INCLUDED
