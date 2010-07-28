@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_bad_method, Range, request_test_types) {
 
 	std::stringstream stream;
 	stream << "post /test?id=1;reason=test http/1.1\r\n";
-	stream << "r\n";
+	stream << "\r\n";
 	std::string content = stream.str();
 
 	Range range(content.begin(), content.end());
