@@ -32,7 +32,7 @@ public:
 	python_request(request const &req);
 	virtual ~python_request();
 
-	py::str url() const;
+	py::str uri() const;
 
 	py::str param(std::string const &name) const;
 	bool has_param(std::string const &name) const;

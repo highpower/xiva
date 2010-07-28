@@ -32,7 +32,7 @@ public:
 	request(details::request_impl const &impl);
 	virtual ~request();
 
-	std::string const& url() const;
+	std::string const& uri() const;
 
 	bool has_param(std::string const &name) const;
 	std::string const& param(std::string const &name) const;

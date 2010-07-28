@@ -15,8 +15,8 @@ python_request::~python_request() {
 }
 
 py::str
-python_request::url() const {
-	return py::str(req_.url());
+python_request::uri() const {
+	return py::str(req_.uri());
 }
 
 py::str
@@ -63,7 +63,7 @@ void
 register_request_class() throw () {
 
 	py::class_<python_request> reg("request", py::no_init);
-	reg.def("url", &python_request::url);
+	reg.def("uri", &python_request::uri);
 
 	reg.def("param", &python_request::param);
 	reg.def("params", &python_request::params);

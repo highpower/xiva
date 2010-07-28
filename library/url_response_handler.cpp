@@ -49,12 +49,12 @@ url_response_handler::threaded() const {
 
 bool
 url_response_handler::has_enough_data(request const &req) const {
-	return "/" != req.url();
+	return "/" != req.uri();
 }
 
 std::string
 url_response_handler::receiver(request const &req) const {
-	return receiver(req.url());
+	return receiver(req.uri());
 }
 
 void

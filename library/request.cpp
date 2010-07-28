@@ -13,8 +13,8 @@ request::~request() {
 }
 
 std::string const&
-request::url() const {
-	return impl_.url();
+request::uri() const {
+	return impl_.uri();
 }
 
 bool

@@ -40,7 +40,7 @@ public:
 	template <typename Iter> request_impl(Iter begin, Iter end);
 	virtual ~request_impl();
 	
-	std::string const& url() const;
+	std::string const& uri() const;
 
 	bool has_param(std::string const &name) const;
 	std::string const& param(std::string const &name) const;
@@ -59,7 +59,7 @@ private:
 	request_impl& operator = (request_impl const &);
 
 	template <typename Iter> void init(Iter begin, Iter end);
-	template <typename Iter> void parse_url(range<Iter> const &url);
+	template <typename Iter> void parse_uri(range<Iter> const &uri);
 	template <typename Iter> void parse_cookies(range<Iter> const &cookies);
 	template <typename Iter> void parse_query_string(range<Iter> const &query);
 	template <typename Iter> void parse_request_line(range<Iter> const &line, bool multiline);
@@ -68,8 +68,8 @@ private:
 	template <typename Iter> void parse_request_line_impl(range<Iter> const &line);
 	template <typename Iter> void parse_headers_line_impl(range<Iter> const &line);
 
-	template <typename Iter, typename Map> void parse_to(range<Iter> const &r, Map &map);
-	template <typename Iter> bool is_required_protocol_version(range<Iter> const &r) const;
+	template <typename Iter, typename Map> static void parse_to(range<Iter> const &r, Map &map);
+	template <typename Iter> static bool is_required_protocol_version(range<Iter> const &r);
 
 	typedef std::pair<std::string const, std::string> param_type;
 	typedef std::allocator<param_type> allocator_type;
@@ -79,7 +79,7 @@ private:
 	typedef std::multimap<std::string, std::string, std::less<std::string>, allocator_type> param_map_type;
 
 private:
-	std::string url_;
+	std::string uri_;
 	param_map_type params_;
 	header_map_type headers_;
 	cookie_map_type cookies_;
@@ -98,6 +98,11 @@ request_impl::request_impl(Iter begin, Iter end) :
 	init(begin, end);
 }
 
+inline std::string const&
+request_impl::uri() const {
+        return uri_;
+}
+
 template <typename Iter> inline void
 request_impl::init(Iter begin, Iter end) {
 
@@ -114,9 +119,9 @@ request_impl::init(Iter begin, Iter end) {
 }
 
 template <typename Iter> inline void
-request_impl::parse_url(range<Iter> const &url) {
-	Iter begin = url.begin(), end = url.end();
-	url_.assign(begin, end);
+request_impl::parse_uri(range<Iter> const &uri) {
+	Iter begin = uri.begin(), end = uri.end();
+	uri_.assign(begin, end);
 	Iter i = std::find(begin, end, '?');
 	if (end != i) {
 		parse_query_string(make_range(++i, end));
@@ -176,15 +181,15 @@ request_impl::parse_request_line_impl(range<Iter> const &line) {
 	typedef typename std::iterator_traits<Iter>::value_type char_type;
 
 	is_space<char_type> space_check;
-	range<Iter> r = line, method, url, protocol;
+	range<Iter> r = line, method, uri, protocol;
 
 	split_if_once(r, space_check, method, r);
 	if (!is_ci_equal(http_constants<char_type>::get, method)) {
 		throw http_error(http_error::method_not_allowed);
 	}
 
-	split_if_once(r, space_check, url, r);
-	parse_url(url);
+	split_if_once(r, space_check, uri, r);
+	parse_uri(uri);
 
 	split_if_once(r, space_check, protocol, r);
 	if (!is_required_protocol_version(trim(protocol))) {
@@ -221,7 +226,7 @@ request_impl::parse_to(range<Iter> const &r, Map &map) {
 }
 
 template <typename Iter> inline bool
-request_impl::is_required_protocol_version(range<Iter> const &r) const {
+request_impl::is_required_protocol_version(range<Iter> const &r) {
 	typedef typename std::iterator_traits<Iter>::value_type char_type;
 	return is_ci_equal(http_constants<char_type>::protocol_version, r);
 }

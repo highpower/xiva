@@ -9,6 +9,9 @@
 namespace xiva { namespace details {
 
 static std::string const
+WS_STR_HANDSHAKE = "HTTP/1.1 101 Web Socket Protocol Handshake";
+
+static std::string const
 WS_STR_CONNECTION = "Connection";
 
 static std::string const
@@ -29,6 +32,9 @@ WS_STR_PROTOCOL = "WebSocket-Protocol";
 static std::string const
 WS_STR_LOCATION = "WebSocket-Location";
 
+static std::string const
+WS_STR_SCHEME_DELIMITER = "ws://";
+
 
 websocket_info::websocket_info() : 
 empty_(true)
@@ -42,7 +48,7 @@ operator << (std::ostream &stream, websocket_info const &val) {
 		throw std::logic_error("can not print websocket headers");
 	}
 
-	stream << "HTTP/1.1 101 Web Socket Protocol Handshake" << http_constants<char>::endl;
+	stream << WS_STR_HANDSHAKE << http_constants<char>::endl;
 	stream << WS_STR_UPGRADE << ": " << WS_STR_WEBSOCKET << http_constants<char>::endl;
 	stream << WS_STR_CONNECTION << ": " << WS_STR_UPGRADE << http_constants<char>::endl;
 
@@ -72,7 +78,9 @@ websocket_info::parse(request_impl const &req) {
 	if (host.empty()) {
 		throw std::runtime_error("can not find Host in websocket request");
 	}
-	location_.assign("ws://").append(host).append(req.url());
+	std::string const &uri = req.uri();
+	location_.reserve(WS_STR_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
+	location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
 
 	origin_ = req.header(WS_STR_ORIGIN);
 	protocol_ = req.header(WS_STR_PROTOCOL);
