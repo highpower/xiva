@@ -12,9 +12,18 @@ python_settings::get(char const *method, Result const &defval) const {
 	}
 	try {
 		interpreter_lock lock;
-		py::object func = impl_.attr(method);
-		if (func) {
-			return py::call<Result>(func.ptr());
+		try {
+			py::object func = impl_.attr(method);
+			if (func) {
+				return py::call<Result>(func.ptr());
+			}
+		}
+		catch (...) {
+			// suppress any exception
+		}
+		py::object res = py::call_method<py::object>(impl_.ptr(), "value", method);
+		if (Py_None != res.ptr()) {
+			return py::extract<Result>(res);
 		}
 	}
 	catch (...) {
@@ -88,7 +97,10 @@ python_settings::value(char const *name) const {
 	if (impl_) {
 		try {
 			interpreter_lock lock;
-			return py::call_method<std::string>(impl_.ptr(), "value", name);
+			py::object res = py::call_method<py::object>(impl_.ptr(), "value", name);
+			if (Py_None != res.ptr()) {
+				return py::extract<Result>(res);
+			}
 		}
 		catch (...) {
 			// suppress any exception

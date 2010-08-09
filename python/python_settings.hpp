@@ -55,6 +55,7 @@ public:
 private:
 	python_settings(python_settings const &);
 	python_settings& operator = (python_settings const &);
+
 	template <typename Result> Result get(char const *method, Result const &defval) const;
 
 private:
