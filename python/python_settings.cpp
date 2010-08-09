@@ -99,7 +99,7 @@ python_settings::value(char const *name) const {
 			interpreter_lock lock;
 			py::object res = py::call_method<py::object>(impl_.ptr(), "value", name);
 			if (Py_None != res.ptr()) {
-				return py::extract<Result>(res);
+				return py::extract<std::string>(res);
 			}
 		}
 		catch (...) {
