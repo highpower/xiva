@@ -32,7 +32,7 @@ message_queue::pop_by_name() {
 		for (std::deque<queue_item_name_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
 			std::string const &to = i->first;
 			manager_->send(to, i->second);
-			logger_->debug("message sent to %s", to.c_str());
+			//logger_->debug("message sent to %s", to.c_str());
 		}
 	}
 	catch (std::exception const &e) {
@@ -51,7 +51,7 @@ message_queue::pop_by_id() {
 		for (std::deque<queue_item_id_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
 			globals::connection_id const &to = i->first;
 			manager_->send(to, i->second);
-			logger_->debug("message sent to %s", boost::lexical_cast<std::string>(to).c_str());
+			//logger_->debug("message sent to %s", boost::lexical_cast<std::string>(to).c_str());
 		}
 	}
 	catch (std::exception const &e) {

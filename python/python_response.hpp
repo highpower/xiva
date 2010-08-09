@@ -37,7 +37,9 @@ public:
 	void content(std::string const &body);
 
 	void formatter_id(std::string const &fmt_id);
-	void formatter_by_channel(std::string const &channel_id, std::string const &fmt_id);
+	void formatter_by_channel(
+		std::string const &channel_name, std::string const &channel_key, std::string const &channel_data,
+	        std::string const &fmt_id);
 
 private:
 	response &resp_;

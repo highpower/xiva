@@ -10,6 +10,7 @@
 #include "mock_connection.hpp"
 
 #include "xiva/error.hpp"
+#include "xiva/message.hpp"
 #include "details/compound_listener.hpp"
 #include "details/connection_manager.hpp"
 
@@ -81,12 +82,13 @@ BOOST_AUTO_TEST_CASE(test_messaging) {
 	fill_connections(manager, connections, 10, "bobuk");
 	fill_connections(manager, connections, 5, "highpower");
 
-	manager.send("highpower", boost::shared_ptr<message>());
+	boost::shared_ptr<message> test_msg(new message("test"));
+	manager.send("highpower", test_msg);
 	for (std::size_t i = 0 ; i < 1000; ++i) {
-		manager.send("swan", boost::shared_ptr<message>());
+		manager.send("swan", test_msg);
 	}
 	for (std::size_t i = 0 ; i < 100500; ++i) {
-		manager.send("bobuk", boost::shared_ptr<message>());
+		manager.send("bobuk", test_msg);
 	}
 	for (std::vector<connection_ptr_type>::const_iterator i = connections.begin(), end = connections.end(); i != end; ++i) {
 		if ((*i)->name() == "swan") {
@@ -106,13 +108,15 @@ BOOST_AUTO_TEST_CASE(test_disconnected) {
 	manager.attach_logger(boost::intrusive_ptr<logger>(new mock_logger()));
 	std::vector<connection_ptr_type> connections;
 
+	boost::shared_ptr<message> test_msg(new message("test"));
+
 	// empty manager
-	BOOST_CHECK_EXCEPTION(manager.send("compwolf", boost::shared_ptr<message>()), error, disconnected_error);
+	BOOST_CHECK_EXCEPTION(manager.send("compwolf", test_msg), error, disconnected_error);
 
 	// filled manager
 	fill_connections(manager, connections, 10, "swan");
 	fill_connections(manager, connections, 10, "bobuk");
-	BOOST_CHECK_EXCEPTION(manager.send("highpower", boost::shared_ptr<message>()), error, disconnected_error);
+	BOOST_CHECK_EXCEPTION(manager.send("highpower", test_msg), error, disconnected_error);
 }
 
 BOOST_AUTO_TEST_CASE(test_finishing) {

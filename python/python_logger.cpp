@@ -22,8 +22,7 @@ python_logger::~python_logger() {
 		finish();
 		join_all();
 	}
-	catch (std::exception const &e) {
-		(void) e;
+	catch (std::exception const &) {
 	}
 }
 
@@ -39,24 +38,30 @@ python_logger::finish() {
 
 void
 python_logger::thread_func() {
-	queue_item_type item;
-	while (items_.pop(item)) {
-		char level = item.first;
-		char const *method = DEBUG;
-		if (level == *INFO) {
-			method = INFO;
-		}
-		else if (level == *ERROR) {
-			method = ERROR;
-		}
-		/* else if (level == *DEBUG) {
-			method = DEBUG;
-		} else {
-			wtf? ;)
-		} */
 
-		interpreter_lock lock;
-		py::call_method<void>(impl_.ptr(), method, item.second.c_str());
+	try {
+		queue_item_type item;
+		while (items_.pop(item)) {
+			char level = item.first;
+			char const *method = DEBUG;
+			if (level == *INFO) {
+				method = INFO;
+			}
+			else if (level == *ERROR) {
+				method = ERROR;
+			}
+			/* else if (level == *DEBUG) {
+				method = DEBUG;
+			} else {
+				wtf? ;)
+			} */
+
+			interpreter_lock lock;
+			py::call_method<void>(impl_.ptr(), method, item.second.c_str());
+		}
+	}
+	catch (...) {
+		finish(); // suppress all exceptions and stop logger
 	}
 }
 

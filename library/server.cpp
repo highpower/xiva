@@ -63,4 +63,9 @@ server::add_connection_listener(boost::intrusive_ptr<connection_listener> const 
 	impl_->add_connection_listener(l);
 }
 
+void
+server::attach_message_filter(boost::intrusive_ptr<message_filter> const &filter) {
+	impl_->attach_message_filter(filter);
+}
+
 } // namespace

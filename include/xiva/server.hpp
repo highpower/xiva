@@ -48,6 +48,7 @@ public:
 	void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
 	void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator);
 	void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
+	void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
 
 private:
 	boost::shared_ptr<details::server_impl> impl_;

@@ -22,6 +22,7 @@
 
 #include "xiva/forward.hpp"
 #include "xiva/formatter.hpp"
+#include "xiva/formatter_creator.hpp"
 
 namespace py = boost::python;
 

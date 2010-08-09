@@ -1,13 +1,13 @@
 lib_LTLIBRARIES = libxiva.la
 
 libxiva_la_LDFLAGS = @BOOST_THREAD_LDFLAGS@ @BOOST_SYSTEM_LDFLAGS@
-libxiva_la_SOURCES = acceptor_base.cpp component_set.cpp \
-	compound_listener.cpp connection_base.cpp connection.cpp \
+libxiva_la_SOURCES = acceptor_base.cpp channels_stat_impl.cpp channels_stat.cpp \
+	component_set.cpp compound_listener.cpp connection.cpp connection_base.cpp \
 	connection_data.cpp connection_listener.cpp connection_manager_base.cpp \
-	connection_traits_base.cpp error.cpp formatter.cpp \
+	connection_traits_base.cpp error.cpp formatter.cpp formatter_creator.cpp \
 	formatters_data.cpp formatters_data_channels.cpp formatters_data_simple.cpp \
-	formatters_factory.cpp handler_invoker.cpp \
-	http_constants.cpp http.cpp http_error.cpp logger.cpp message.cpp \
+	formatters_factory.cpp handler_invoker.cpp http_constants.cpp \
+	http.cpp http_error.cpp logger.cpp message.cpp message_filter.cpp \
 	message_queue.cpp message_sender.cpp request.cpp request_impl.cpp \
 	response.cpp response_handler.cpp response_impl.cpp server.cpp \
 	server_impl.cpp settings.cpp stdio_logger.cpp system_error.cpp \

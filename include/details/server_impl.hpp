@@ -32,16 +32,14 @@
 #include "xiva/globals.hpp"
 
 #include "details/asio.hpp"
-#include "details/acceptor_base.hpp"
-#include "details/connection_data.hpp"
-#include "details/connection_traits_base.hpp"
-#include "details/connection_manager_base.hpp"
 
 namespace xiva { namespace details {
 
 class acceptor_base;
+class connection_data;
 class message_queue;
 class threaded_listener;
+class connection_traits_base;
 class connection_manager_base;
 
 class server_impl : public component_set, private boost::thread_group {
@@ -54,12 +52,14 @@ public:
 
 	void stop();
 	void init(settings const &s);
+	boost::shared_ptr<channels_stat> const& init_channels_stat();
 	void start();
 
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
+	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
 	virtual void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator);
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
@@ -79,17 +79,18 @@ private:
 	asio::io_service io_;
 	asio::io_service::strand strand_;
 
-	connection_data data_;
-	mutable boost::mutex mutex_;
+	std::auto_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
 
 	boost::intrusive_ptr<logger> logger_;
+	boost::intrusive_ptr<message_filter> message_filter_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<response_handler> handler_;
 	boost::intrusive_ptr<threaded_listener> listener_;
 	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<connection_traits_base> connection_traits_;
+	bool started_;
 };
 
 }} // namespaces

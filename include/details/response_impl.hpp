@@ -22,6 +22,7 @@
 #include <map>
 
 #include "xiva/shared.hpp"
+#include "xiva/channel_info.hpp"
 
 namespace xiva { namespace details {
 
@@ -39,8 +40,8 @@ public:
 	std::string const& default_formatter_id() const;
 	void formatter_id(std::string const &fmt_id);
 
-	std::map<std::string, std::string> const& channels_data() const;
-	void formatter_by_channel(std::string const &channel_id, std::string const &fmt_id);
+	std::map<channel_info, std::string> const& channels_data() const;
+	void formatter_by_channel(channel_info const &ch_info, std::string const &fmt_id);
 
 	bool single_message() const;
 	void single_message(bool value);
@@ -56,7 +57,7 @@ private:
 private:
 	std::string type_;
 	std::string formatter_id_;
-	std::map<std::string, std::string> channels_data_;
+	std::map<channel_info, std::string> channels_data_;
 	std::string content_;
 	std::string const *content_ptr_;
 	bool single_message_;
@@ -83,7 +84,7 @@ response_impl::formatter_id(std::string const &fmt_id) {
 	formatter_id_.assign(fmt_id);
 }
 
-inline std::map<std::string, std::string> const&
+inline std::map<channel_info, std::string> const&
 response_impl::channels_data() const {
 	return channels_data_;
 }

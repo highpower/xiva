@@ -1,4 +1,5 @@
-noinst_HEADERS = acceptor_base.hpp acceptor.hpp asio.hpp char_traits.hpp \
+noinst_HEADERS = acceptor_base.hpp acceptor.hpp asio.hpp \
+	channels_stat_impl.hpp char_traits.hpp \
 	compound_listener.hpp connection_base.hpp connection_data.hpp \
 	connection.hpp connection_impl.hpp connection_manager_base.hpp \
 	connection_manager.hpp connection_traits_base.hpp connection_traits.hpp \

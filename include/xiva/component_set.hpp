@@ -18,6 +18,8 @@
 #ifndef XIVA_COMPONENT_SET_HPP_INCLUDED
 #define XIVA_COMPONENT_SET_HPP_INCLUDED
 
+#include <string>
+
 #include <boost/function.hpp>
 #include <boost/intrusive_ptr.hpp>
 
@@ -67,6 +69,11 @@ public:
 	 * @param f function that will be executed by the threads
 	 */
 	virtual void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f) = 0;
+
+	/** sets up the message filter 
+	 * @param filter an instance of class that implements message filter interface.
+	 */
+	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter) = 0;
 
 private:
 	/** shuold never be implemented */

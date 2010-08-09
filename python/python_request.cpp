@@ -1,6 +1,9 @@
 #include "acsetup.hpp"
 #include "python_request.hpp"
 
+#include <stdexcept>
+#include <boost/python/errors.hpp>
+
 #include "xiva/request.hpp"
 #include "request_class.hpp"
 
@@ -16,47 +19,111 @@ python_request::~python_request() {
 
 py::str
 python_request::uri() const {
-	return py::str(req_.uri());
+
+	try {
+		return py::str(req_.uri());
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 py::str
 python_request::param(std::string const &name) const {
-	return py::str(req_.param(name));
+
+	try {
+		return py::str(req_.param(name));
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 bool
 python_request::has_param(std::string const &name) const {
-	return req_.has_param(name);
+
+	try {
+		return req_.has_param(name);
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 py::list
 python_request::params(std::string const &name) const {
-	py::list result;
-	enumeration<std::string>::ptr_type en = req_.params(name);
-	while (!en->empty()) {
-		result.append(en->next());
+
+	try {
+		py::list result;
+		enumeration<std::string>::ptr_type en = req_.params(name);
+		while (!en->empty()) {
+			result.append(en->next());
+		}
+		return result;
 	}
-	return result;
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 py::str
 python_request::header(std::string const &name) const {
-	return py::str(req_.header(name));
+
+	try {
+		return py::str(req_.header(name));
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 bool
 python_request::has_header(std::string const &name) const {
-	return req_.has_header(name);
+
+	try {
+		return req_.has_header(name);
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 py::str
 python_request::cookie(std::string const &name) const {
-	return py::str(req_.cookie(name));
+
+	try {
+		return py::str(req_.cookie(name));
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 bool
 python_request::has_cookie(std::string const &name) const {
-	return req_.has_cookie(name);
+
+	try {
+		return req_.has_cookie(name);
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
 }
 
 void

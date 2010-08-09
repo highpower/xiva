@@ -2,6 +2,7 @@
 #include "details/formatters_factory.hpp"
 
 #include "xiva/formatter.hpp"
+#include "xiva/formatter_creator.hpp"
 #include "xiva/response_handler.hpp"
 
 #include "details/response_impl.hpp"

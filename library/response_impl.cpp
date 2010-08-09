@@ -21,9 +21,9 @@ response_impl::swap(response_impl &other) throw () {
 }
 
 void
-response_impl::formatter_by_channel(std::string const &channel_id, std::string const &fmt_id) {
-	if (!channel_id.empty()) {
-		channels_data_[channel_id] = fmt_id;
+response_impl::formatter_by_channel(channel_info const &ch_info, std::string const &fmt_id) {
+	if (!ch_info.empty()) {
+		channels_data_[ch_info] = fmt_id;
 	}
 }
 

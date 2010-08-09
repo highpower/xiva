@@ -15,35 +15,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
-#define XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#ifndef XIVA_MESSAGE_FILTER_HPP_INCLUDED
+#define XIVA_MESSAGE_FILTER_HPP_INCLUDED
 
-#include <memory>
+#include <string>
 
+#include "xiva/config.hpp"
 #include "xiva/forward.hpp"
-#include "details/formatters_data.hpp"
+#include "xiva/shared.hpp"
 
-namespace xiva { namespace details {
+namespace xiva {
 
-class formatters_data_simple : public formatters_data {
+class message;
+
+class XIVA_API message_filter : public shared {
 
 public:
-	formatters_data_simple(formatters_factory const &factory, request_impl const &req, response_impl const &resp);
-	virtual ~formatters_data_simple();
+	message_filter();
+	virtual ~message_filter();
 
-	virtual bool allow_message(message const& msg, message_filter const *filter) const;
-
-	virtual formatter const* default_formatter() const;
-	virtual formatter const* find_formatter(message const& msg) const;
-
-	virtual void update(message const& msg);
-	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
+	virtual bool allow_message(message const &msg, std::string const &channel_data, formatter const *fmt) const = 0;
 
 private:
-	std::auto_ptr<formatter> fmt_ptr_;
+	message_filter(message_filter const &);
+	message_filter& operator = (message_filter const &);
 };
 
+} // namespace
 
-}} // namespaces
-
-#endif // XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#endif // XIVA_MESSAGE_FILTER_HPP_INCLUDED

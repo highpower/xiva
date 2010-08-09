@@ -28,26 +28,46 @@
 
 namespace xiva { namespace details {
 
+class compound_listener;
+class connection_base;
+
 class connection_manager_base : public shared {
 
 public:
-	connection_manager_base();
+	connection_manager_base(boost::intrusive_ptr<compound_listener> const &l);
 	virtual ~connection_manager_base();
 
 	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
 
+	virtual void init(settings const &s);
+
 	virtual void finish() = 0;
 	virtual void wait_for_complete() = 0;
-	virtual void init(settings const &s) = 0;
-	virtual void add_connection_listener(listener_ptr_type const &l) = 0;
-	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
 
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m) = 0;
 	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m) = 0;
 
+	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
+	virtual void add_connection_listener(listener_ptr_type const &l);
+	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
+
+	boost::shared_ptr<channels_stat> const& init_channels_stat();
+
+protected:	
+	message_filter const* msg_filter() const;
+
+	void fire_connection_opened(connection_base const &conn);
+	void fire_connection_closed(connection_base const &conn);
+	void fire_disconnected(std::string const &to);
+
 private:
 	connection_manager_base(connection_manager_base const &);
 	connection_manager_base& operator = (connection_manager_base const &);
+
+	boost::intrusive_ptr<compound_listener> listener_;
+	boost::intrusive_ptr<message_filter> message_filter_;
+	boost::shared_ptr<channels_stat_impl> channels_stat_impl_;
+	boost::shared_ptr<channels_stat> channels_stat_;
 };
 
 }} // namespaces

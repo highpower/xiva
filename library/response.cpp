@@ -28,8 +28,8 @@ response::formatter_id(std::string const &fmt_id) {
 }
 
 void
-response::formatter_by_channel(std::string const &channel_id, std::string const &fmt_id) {
-	impl_.formatter_by_channel(channel_id, fmt_id);
+response::formatter_by_channel(channel_info const &ch_info, std::string const &fmt_id) {
+	impl_.formatter_by_channel(ch_info, fmt_id);
 }
 
 void

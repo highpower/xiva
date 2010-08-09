@@ -15,35 +15,30 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
-#define XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#ifndef XIVA_FORMATTER_CREATOR_HPP_INCLUDED
+#define XIVA_FORMATTER_CREATOR_HPP_INCLUDED
 
 #include <memory>
 
+#include "xiva/config.hpp"
+#include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
-#include "details/formatters_data.hpp"
 
-namespace xiva { namespace details {
+namespace xiva {
 
-class formatters_data_simple : public formatters_data {
+class XIVA_API formatter_creator : public shared {
 
 public:
-	formatters_data_simple(formatters_factory const &factory, request_impl const &req, response_impl const &resp);
-	virtual ~formatters_data_simple();
+	formatter_creator();
+	virtual ~formatter_creator();
 
-	virtual bool allow_message(message const& msg, message_filter const *filter) const;
-
-	virtual formatter const* default_formatter() const;
-	virtual formatter const* find_formatter(message const& msg) const;
-
-	virtual void update(message const& msg);
-	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
+	virtual std::auto_ptr<formatter> create(request const &req) const = 0;
 
 private:
-	std::auto_ptr<formatter> fmt_ptr_;
+	formatter_creator(formatter_creator const &);
+	formatter_creator& operator = (formatter_creator const &);
 };
 
+} // namespace
 
-}} // namespaces
-
-#endif // XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#endif // XIVA_FORMATTER_CREATOR_HPP_INCLUDED

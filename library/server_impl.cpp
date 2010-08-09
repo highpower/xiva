@@ -7,7 +7,9 @@
 
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
+#include "xiva/message_filter.hpp"
 
+#include "details/connection_data.hpp"
 #include "details/acceptor.hpp"
 #include "details/connection.hpp"
 #include "details/threaded_connection.hpp"
@@ -27,9 +29,10 @@
 namespace xiva { namespace details {
 
 server_impl::server_impl() :
-	io_(), strand_(io_), data_()
+	io_(), strand_(io_), started_(false)
 {
 	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener());
+	data_.reset(new connection_data());
 }
 
 server_impl::~server_impl() {
@@ -37,7 +40,7 @@ server_impl::~server_impl() {
 
 void
 server_impl::stop() {
-	data_.stop();
+	data_->stop();
 	if (acceptor_) {
 		acceptor_->stop();
 	}
@@ -59,15 +62,14 @@ server_impl::init(settings const &s) {
 	if (!logger_) {
 		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
 	}
-	data_.attach_logger(logger_);
-	data_.init(s);
+	data_->attach_logger(logger_);
+	data_->init(s);
 
-	// boost::intrusive_ptr<response_handler> handler = data_.handler();
-	if (!data_.handler()) {
+	if (!data_->handler()) {
 		attach_response_handler(boost::intrusive_ptr<response_handler>(new url_response_handler()));
 	}
 
-	if (data_.handler()->threaded()) {
+	if (data_->handler()->threaded()) {
 		typedef threaded_handler_invoker invoker_type;
 		typedef invoker_type::connection_type connection_type;
 		typedef connection_manager<connection_type> manager_type;
@@ -75,9 +77,9 @@ server_impl::init(settings const &s) {
 		typedef acceptor<connection_type, traits_type> acceptor_type;
 
 		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
-		boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, data_));
+		boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, *data_));
 		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
-		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, data_, *ct));
+		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
 		connection_manager_ = cm;
 		connection_traits_ = ct;
 	}
@@ -89,13 +91,14 @@ server_impl::init(settings const &s) {
 		typedef acceptor<connection_type, traits_type> acceptor_type;
 
 		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
-		boost::intrusive_ptr<invoker_type> cv(new invoker_type(data_));
+		boost::intrusive_ptr<invoker_type> cv(new invoker_type(*data_));
 		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
-		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, data_, *ct));
+		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
 		connection_manager_ = cm;
 		connection_traits_ = ct;
 	}
 
+	connection_manager_->attach_message_filter(message_filter_);
 	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));
 	acceptor_->attach_logger(logger_);
 	message_queue_->attach_logger(logger_);
@@ -109,19 +112,27 @@ server_impl::init(settings const &s) {
 	}
 }
 
+boost::shared_ptr<channels_stat> const&
+server_impl::init_channels_stat() {
+	assert(!started_);
+	assert(connection_manager_);
+	return connection_manager_->init_channels_stat();;
+}
+
 void
 server_impl::start() {
+	started_ = true;
 	try {
 		io_.run();
 	}
 	catch (std::exception const &e) {
-		if (logger_ && !data_.stopping()) {
-			logger_->error("server_impl::start failed, catch exception: %s", e.what());
+		if (logger_ && !data_->stopping()) {
+			logger_->error("server_impl::start failed, exception: %s", e.what());
 		}
 	}
 	catch (...) {
-		if (logger_ && !data_.stopping()) {
-			logger_->error("server_impl::start failed, catch unknown exception");
+		if (logger_ && !data_->stopping()) {
+			logger_->error("server_impl::start failed, unknown exception");
 		}
 	}
 }
@@ -147,16 +158,21 @@ server_impl::attach_logger(boost::intrusive_ptr<logger> const &log) {
 }
 
 void
+server_impl::attach_message_filter(boost::intrusive_ptr<message_filter> const &filter) {
+	assert(filter);
+	message_filter_ = filter;
+}
+
+void
 server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> const &h) {
 	assert(h);
-	// handler_ = m;
-	data_.handler(h);
+	data_->handler(h);
 }
 
 void
 server_impl::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
 	assert(creator);
-	data_.fmt_factory().attach_creator(fmt_id, creator);
+	data_->fmt_factory().attach_creator(fmt_id, creator);
 }
 
 void

@@ -40,20 +40,24 @@ public:
 	virtual ~connection_base();
 
 	virtual void finish() = 0;
-	virtual bool send(boost::shared_ptr<message> const &message) = 0;
+	virtual void send(boost::shared_ptr<message> const &message) = 0;
 	virtual void handled(request_impl const &req, response_impl const &resp) = 0;
 	globals::connection_id id() const;
 
 	std::string const& name() const;
 	void name(std::string const &name);
 
+	bool allow_message(message const &msg, message_filter const *filter) const;
+	void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
+
 protected:
 	void init(request_impl const &req);
 	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
 
-	bool allow_message(message const &msg) const;
 	formatter const* default_formatter() const;
 	formatter const* find_formatter(message const &msg) const;
+
+	void notify_message_printed(message const &msg);
 
 	static bool print_policy_data(std::string const &data, std::streambuf &buf);
 

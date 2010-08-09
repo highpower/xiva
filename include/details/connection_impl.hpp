@@ -55,7 +55,7 @@ public:
 
 	virtual void start();
 	virtual void finish();
-	virtual bool send(message_ptr_type const &message);
+	virtual void send(message_ptr_type const &message);
 
 	void handle_read(syst::error_code const &code);
 	void handle_write_headers(syst::error_code const &code);
@@ -155,17 +155,16 @@ connection_impl<ConnectionBase, ConnectionTraits>::finish() {
 	send(boost::shared_ptr<message>());
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> bool
+template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<message> const &m) {
 
-	if (NULL != m.get() && !ConnectionBase::allow_message(*m)) {
-		return false;
+	if (m) {
+		data_.log()->debug("sending message to connection[%lu], name %s", ConnectionBase::id(), ConnectionBase::name().c_str());
 	}
 	messages_.push_back(m);
 	if (!writing_message_ && connected_) {
 		write_message();
 	}
-	return true;
 }
 
 template <typename ConnectionBase, typename ConnectionTraits> void
@@ -395,6 +394,9 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 			}
 			else {
 				printed = ConnectionBase::print_message_content(content, out_);
+			}
+			if (printed) {
+				ConnectionBase::notify_message_printed(*msg);
 			}
 			messages_.pop_front();
 

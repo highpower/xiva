@@ -22,6 +22,7 @@
 #include <map>
 
 #include "xiva/forward.hpp"
+#include "xiva/channel_id.hpp"
 #include "details/formatters_data.hpp"
 
 namespace xiva { namespace details {
@@ -32,13 +33,19 @@ public:
 	formatters_data_channels(formatters_factory const &factory, request_impl const &req, response_impl const &resp);
 	virtual ~formatters_data_channels();
 
-	virtual bool allow_message(message const& msg) const;
+	virtual bool allow_message(message const& msg, message_filter const *filter) const;
 
 	virtual formatter const* default_formatter() const;
 	virtual formatter const* find_formatter(message const& msg) const;
 
+	virtual void update(message const& msg);
+	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
+
 private:
-	std::map<std::string, formatter const*> channels_data_;
+	typedef std::pair<std::string, formatter const*> channel_data;
+	typedef std::map<channel_id, channel_data> channels_data;
+
+	channels_data channels_data_;
 	std::map<std::string, formatter*> formatters_;
 	formatter const *default_formatter_;
 };

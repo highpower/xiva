@@ -10,11 +10,4 @@ formatter::formatter()
 formatter::~formatter() {
 }
 
-formatter_creator::formatter_creator()
-{
-}
-
-formatter_creator::~formatter_creator() {
-}
-
 } // namespace

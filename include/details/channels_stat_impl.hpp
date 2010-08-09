@@ -15,35 +15,42 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
-#define XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#ifndef XIVA_DETAILS_CHANNELS_STAT_IMPL_HPP_INCLUDED
+#define XIVA_DETAILS_CHANNELS_STAT_IMPL_HPP_INCLUDED
 
-#include <memory>
+#include <string>
+#include <map>
+
+#include <boost/thread/mutex.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-#include "details/formatters_data.hpp"
+#include "xiva/enumeration.hpp"
 
 namespace xiva { namespace details {
 
-class formatters_data_simple : public formatters_data {
+class channels_stat_impl {
 
 public:
-	formatters_data_simple(formatters_factory const &factory, request_impl const &req, response_impl const &resp);
-	virtual ~formatters_data_simple();
+	channels_stat_impl();
+	virtual ~channels_stat_impl();
 
-	virtual bool allow_message(message const& msg, message_filter const *filter) const;
+	void inc(channel_id const &ch_id);
+	void dec(channel_id const &ch_id);
 
-	virtual formatter const* default_formatter() const;
-	virtual formatter const* find_formatter(message const& msg) const;
-
-	virtual void update(message const& msg);
-	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
+	enumeration<std::string>::ptr_type load_names() const;
+	enumeration<std::string>::ptr_type load_keys(std::string const &ch_name) const;
 
 private:
-	std::auto_ptr<formatter> fmt_ptr_;
-};
+	channels_stat_impl(channels_stat_impl const &);
+	channels_stat_impl& operator = (channels_stat_impl const &);
 
+	typedef std::map<std::string, unsigned int> channel_stat;
+
+	mutable boost::mutex mutex_;
+	std::map<std::string, channel_stat> data_;
+};
 
 }} // namespaces
 
-#endif // XIVA_DETAILS_FORMATTERS_DATA_SIMPLE_HPP_INCLUDED
+#endif // XIVA_DETAILS_CHANNELS_STAT_IMPL_HPP_INCLUDED

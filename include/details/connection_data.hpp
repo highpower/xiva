@@ -24,7 +24,6 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-#include "xiva/logger.hpp"
 
 #include "details/http_constants.hpp"
 #include "details/functors.hpp"

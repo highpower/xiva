@@ -1,6 +1,8 @@
 #include "acsetup.hpp"
 #include "xiva/message.hpp"
 
+#include "xiva/channel_info.hpp"
+
 namespace xiva {
 
 message::message()
@@ -25,14 +27,14 @@ message::content(std::string const &value) {
 	content_.assign(value);
 }
 
-std::set<std::string> const&
-message::channels() const {
-	return channels_;
+channel_info const&
+message::get_channel_info() const {
+	return ch_info_;
 }
 
 void
-message::swap_channels(std::set<std::string> &ch) {
-	channels_.swap(ch);
+message::set_channel_info(channel_info const &ch_info) {
+	ch_info_ = ch_info;
 }
 
 

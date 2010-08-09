@@ -4,9 +4,12 @@
 #include <cassert>
 
 #include "xiva/message.hpp"
+#include "xiva/message_filter.hpp"
 #include "xiva/request.hpp"
 #include "xiva/formatter.hpp"
+#include "xiva/channel_info.hpp"
 
+#include "details/channels_stat_impl.hpp"
 #include "details/response_impl.hpp"
 #include "details/formatters_factory.hpp"
 
@@ -15,26 +18,28 @@ namespace xiva { namespace details {
 formatters_data_channels::formatters_data_channels(
 	formatters_factory const &factory, request_impl const &req, response_impl const &resp) : default_formatter_(NULL)
 {
-	std::map<std::string, std::string> ch_data = resp.channels_data();
+	std::map<channel_info, std::string> ch_data = resp.channels_data();
 	assert(!ch_data.empty());
 
 	request request_adapter(req);
 
-	for (std::map<std::string, std::string>::iterator it = ch_data.begin(), end = ch_data.end(); it != end; ++it) {
-		std::string const &channel = it->first;
+	for (std::map<channel_info, std::string>::iterator it = ch_data.begin(), end = ch_data.end(); it != end; ++it) {
+		channel_info const &ch_info = it->first;
+		assert(!ch_info.empty());
+
 		std::string const &fmt_id = it->second;
 		if (fmt_id.empty()) {
-			channels_data_[channel] = NULL;
+			channels_data_[ch_info] = channel_data(ch_info.data(), NULL);
 			continue;
 		}
 		std::map<std::string, formatter*>::const_iterator fmt_it = formatters_.find(fmt_id);
 		if (formatters_.end() != fmt_it) {
-			channels_data_.insert(make_pair(channel, fmt_it->second));
+			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_it->second);
 		}
 		else {
 			std::auto_ptr<formatter> fmt_ptr = factory.find(fmt_id, request_adapter);
-			channels_data_.insert(make_pair(channel, fmt_ptr.get()));
-			formatters_.insert(make_pair(fmt_id, fmt_ptr.get()));
+			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr.get());
+			formatters_.insert(std::make_pair(fmt_id, fmt_ptr.get()));
 			fmt_ptr.release();
 		}
 	}
@@ -63,18 +68,19 @@ formatters_data_channels::~formatters_data_channels() {
 }
 
 bool
-formatters_data_channels::allow_message(message const& msg) const {
-	std::set<std::string> const &channels = msg.channels();
-	if (channels.empty()) {
+formatters_data_channels::allow_message(message const& msg, message_filter const *filter) const {
+
+	channel_info const &msg_ch_info = msg.get_channel_info();
+	if (msg_ch_info.empty()) {
 		return false;
 	}
 
-	for (std::set<std::string>::const_iterator it = channels.begin(), end = channels.end(); it != end; ++it) {
-		if (channels_data_.end() != channels_data_.find(*it)) {
-			return true;
-		}
+	channels_data::const_iterator ch_it = channels_data_.find(msg_ch_info);
+	if (channels_data_.end() == ch_it) {
+		return false;
 	}
-	return false;
+	channel_data const &ch_data = ch_it->second;
+	return NULL == filter || filter->allow_message(msg, ch_data.first, ch_data.second);
 }
 
 formatter const*
@@ -85,17 +91,44 @@ formatters_data_channels::default_formatter() const {
 formatter const*
 formatters_data_channels::find_formatter(message const &msg) const {
 
-	std::set<std::string> const &channels = msg.channels();
-	assert(!channels.empty());
+	channel_info const &msg_ch_info = msg.get_channel_info();
+	assert(!msg_ch_info.empty());
 
-	for (std::set<std::string>::const_iterator it = channels.begin(), end = channels.end(); it != end; ++it) {
-		std::map<std::string, formatter const*>::const_iterator ch_it = channels_data_.find(*it);
+	channels_data::const_iterator ch_it = channels_data_.find(msg_ch_info);
+	if (channels_data_.end() == ch_it) {
+		assert(false);
+		return NULL; // unreachable code
+	}
+	channel_data const &ch_data = ch_it->second;
+	return ch_data.second;
+}
+
+void
+formatters_data_channels::update(message const& msg) {
+
+	channel_info const &msg_ch_info = msg.get_channel_info();
+	assert(!msg_ch_info.empty());
+
+	if (!msg_ch_info.data().empty()) {
+		channels_data::iterator ch_it = channels_data_.find(msg_ch_info);
 		if (channels_data_.end() != ch_it) {
-			return ch_it->second;
+			channel_data &ch_data = ch_it->second;
+			ch_data.first.assign(msg_ch_info.data());
 		}
 	}
-	assert(false);
-	return NULL; // not reachable code
+}
+
+void
+formatters_data_channels::update_channels_stat(channels_stat_impl &ch_stat, bool add) const {
+
+	for (channels_data::const_iterator it = channels_data_.begin(), end = channels_data_.end(); it != end; ++it) {
+		if (add) {
+			ch_stat.inc(it->first);
+		}
+		else {
+			ch_stat.dec(it->first);
+		}
+	}
 }
 
 } } // namespaces

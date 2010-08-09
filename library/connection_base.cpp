@@ -5,6 +5,7 @@
 
 #include "xiva/http_error.hpp"
 #include "xiva/message.hpp"
+#include "xiva/message_filter.hpp"
 
 #include "details/formatters_data.hpp"
 #include "details/formatters_factory.hpp"
@@ -37,11 +38,18 @@ connection_base::init_formatters(formatters_factory const &f, request_impl const
 }
 
 bool
-connection_base::allow_message(message const &msg) const {
+connection_base::allow_message(message const &msg, message_filter const *filter) const {
 	if (NULL == fmt_data_.get()) {
-		return true;
+		return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string, NULL);
 	}
-	return fmt_data_->allow_message(msg);
+	return fmt_data_->allow_message(msg, filter);
+}
+
+void
+connection_base::update_channels_stat(channels_stat_impl &ch_stat, bool add) const {
+	if (NULL != fmt_data_.get()) {
+		fmt_data_->update_channels_stat(ch_stat, add);
+	}
 }
 
 formatter const*
@@ -58,6 +66,13 @@ connection_base::find_formatter(message const &msg) const {
 		return NULL;
 	}
 	return fmt_data_->find_formatter(msg);
+}
+
+void
+connection_base::notify_message_printed(message const &msg) {
+	if (NULL != fmt_data_.get()) {
+		fmt_data_->update(msg);
+	}
 }
 
 bool

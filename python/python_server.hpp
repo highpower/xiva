@@ -23,7 +23,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-#include "details/dynamic_loader.hpp"
+//#include "details/dynamic_loader.hpp"
 
 namespace py = boost::python;
 
@@ -39,25 +39,33 @@ public:
 
 	void stop();
 	void init(py::object const &impl);
+	void list_channels_enable();
 	void start();
 
-	void send(std::string const &to, std::string const &msg);
-	void send_to_channels(std::string const &to, std::string const &msg, std::string const &channels);
+	py::list list_channels() const;
+	py::list list_channel(std::string const &channel_name) const;
 
-	void load(std::string const &name);
+	void send(std::string const &to, std::string const &msg);
+	void send_to_channel(std::string const &to, std::string const &msg,
+		std::string const &channel_name, std::string const &channel_key, std::string const &channel_data);
+
+	//void load(std::string const &name);
+
 	void attach_logger(py::object const &impl);
 	void attach_response_handler(py::object const &impl);
 	void attach_formatter_creator(std::string const &fmt_id, py::object const &impl);
 	void add_connection_listener(py::object const &impl);
+	void attach_message_filter(py::object const &impl);
 
 private:
 	python_server(python_server const &);
 	python_server& operator = (python_server const &);
 
 private:
-	details::dynamic_loader loader_;
+	//details::dynamic_loader loader_;
 	boost::shared_ptr<details::server_impl> impl_;
 	boost::intrusive_ptr<python_logger> logger_;
+	boost::shared_ptr<channels_stat> channels_stat_;
 };
 
 }} // namespaces

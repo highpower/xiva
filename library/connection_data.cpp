@@ -7,6 +7,7 @@
 #include "xiva/settings.hpp"
 #include "xiva/formatter.hpp"
 #include "xiva/response_handler.hpp"
+#include "xiva/logger.hpp"
 
 #include "details/formatters_factory.hpp"
 

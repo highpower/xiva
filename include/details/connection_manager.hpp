@@ -22,7 +22,7 @@
 #include <iterator>
 #include <utility>
 #include <string>
-#include <vector>
+#include <list>
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 
@@ -35,11 +35,8 @@
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
 #include "xiva/error.hpp"
-#include "xiva/logger.hpp"
-#include "xiva/connection_listener.hpp"
 
-#include "details/connection.hpp"
-#include "details/compound_listener.hpp"
+#include "details/connection_base.hpp"
 #include "details/connection_manager_base.hpp"
 
 namespace mi = boost::multi_index;
@@ -69,26 +66,20 @@ public:
 	virtual ~connection_manager();
 
 	typedef typename boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
-	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
 
 	void clear();
 	bool empty() const;
 	void insert_connection(connection_ptr_type const &conn);
 	void remove_connection(connection_ptr_type const &conn);
 
-	void send(std::string const &to, boost::shared_ptr<message> const &m);
-	void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
+	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
+	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
 
-	void finish();
-	void wait_for_complete();
-	void init(settings const &s);
-	void add_connection_listener(listener_ptr_type const &l);
-	void attach_logger(boost::intrusive_ptr<logger> const &log);
+	virtual void finish();
+	virtual void wait_for_complete();
 
 private:
 	bool finished() const;
-	void fire_connection_opened(ConnectionBase const &conn);
-	void fire_connection_closed(ConnectionBase const &conn);
 
 	typedef std::allocator<connection_ptr_type> allocator_type;
 	typedef cm_connection_id<ConnectionBase> conn_id_type;
@@ -101,8 +92,6 @@ private:
 private:
 	bool finished_;
 	connection_set_type connections_;
-	boost::intrusive_ptr<logger> logger_;
-	boost::intrusive_ptr<compound_listener> listener_;
 };
 
 
@@ -121,7 +110,7 @@ cm_connection_name<ConnectionBase>::operator () (connection_ptr_type const &conn
 
 template <typename ConnectionBase>
 connection_manager<ConnectionBase>::connection_manager(boost::intrusive_ptr<compound_listener> const &l) :
-	finished_(false), listener_(l)
+	connection_manager_base(l), finished_(false)
 {
 }
 
@@ -169,23 +158,25 @@ connection_manager<ConnectionBase>::send(std::string const &to, boost::shared_pt
 	if (finished()) {
 		return;
 	}
+	assert(m);
 	typedef typename connection_set_type::template nth_index<1>::type index_type;
 	index_type &index = connections_.template get<1>();
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
 	if (p.first == p.second) {
-		listener_->disconnected(to);
+		fire_disconnected(to);
 		return;
 	}
-	std::vector<connection_ptr_type> conns;
-	conns.reserve(std::distance(p.first, p.second));
+	message_filter const *filter = msg_filter();
+	std::list<connection_ptr_type> conns;
 	for ( ; p.first != p.second; ++p.first) {
-		conns.push_back(*p.first);
-	}
-	for (typename std::vector<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
-		connection_ptr_type &conn = *it;
-		if (conn->send(m)) {
-			logger_->debug("sending message to connection[%lu] by name %s", conn->id(), to.c_str());
+		connection_ptr_type const &conn = *p.first;
+		if (conn->allow_message(*m, filter)) {
+			conns.push_back(conn);
 		}
+	}
+	for (typename std::list<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
+		connection_ptr_type &conn = *it;
+		conn->send(m);
 	}
 }
 
@@ -194,22 +185,24 @@ connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost
 	if (finished()) {
 		return;
 	}
+	assert(m);
 	typedef typename connection_set_type::template nth_index<0>::type index_type;
 	index_type &index = connections_.template get<0>();
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(to);
 	if (p.first == p.second) {
 		return;
 	}
-	std::vector<connection_ptr_type> conns;
-	conns.reserve(std::distance(p.first, p.second));
+	message_filter const *filter = msg_filter();
+	std::list<connection_ptr_type> conns;
 	for ( ; p.first != p.second; ++p.first) {
-		conns.push_back(*p.first);
-	}
-	for (typename std::vector<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
-		connection_ptr_type &conn = *it;
-		if (conn->send(m)) {
-			logger_->debug("sending message to connection[%lu] by id", conn->id());
+		connection_ptr_type const &conn = *p.first;
+		if (conn->allow_message(*m, filter)) {
+			conns.push_back(conn);
 		}
+	}
+	for (typename std::list<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
+		connection_ptr_type &conn = *it;
+		conn->send(m);
 	}
 }
 
@@ -225,38 +218,11 @@ template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::wait_for_complete() {
 }
 
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::init(settings const &s) {
-	listener_->init(s);
-}
-
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::add_connection_listener(listener_ptr_type const &l) {
-	listener_->add_connection_listener(l);
-}
-
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::attach_logger(boost::intrusive_ptr<logger> const &log) {
-	logger_ = log;
-	listener_->attach_logger(log);
-}
-
 template <typename ConnectionBase> bool
 connection_manager<ConnectionBase>::finished() const {
 	return finished_;
 }
 
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::fire_connection_opened(ConnectionBase const &conn) {
-	listener_->connection_opened(conn.name(), conn.id());
-}
-
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::fire_connection_closed(ConnectionBase const &conn) {
-	listener_->connection_closed(conn.name(), conn.id());
-}
-
-}
-} // namespaces
+}} // namespaces
 
 #endif // XIVA_DETAILS_CONNECTION_MANAGER_HPP_INCLUDED

@@ -35,7 +35,7 @@ public:
 	std::size_t message_count() const;
 
 	virtual void finish();
-	virtual bool send(boost::shared_ptr<message> const &m);
+	virtual void send(boost::shared_ptr<message> const &m);
 	virtual void handled(details::request_impl const &req, details::response_impl const &resp);
 
 private:

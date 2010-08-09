@@ -25,7 +25,6 @@
 #include <boost/thread/thread.hpp>
 
 #include "xiva/shared.hpp"
-#include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
 
 #include "details/asio.hpp"

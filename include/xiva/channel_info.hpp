@@ -15,43 +15,60 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_MESSAGE_HPP_INCLUDED
-#define XIVA_MESSAGE_HPP_INCLUDED
+#ifndef XIVA_CHANNEL_INFO_HPP_INCLUDED
+#define XIVA_CHANNEL_INFO_HPP_INCLUDED
+
 
 #include <string>
 
 #include "xiva/config.hpp"
-#include "xiva/channel_info.hpp"
+#include "xiva/channel_id.hpp"
 
 namespace xiva {
 
-class XIVA_API message {
+class XIVA_API channel_info : public channel_id {
+
 public:
-	message();
-	message(std::string const &value);
-	template <typename Iter> message(Iter begin, Iter end);
-	virtual ~message();
+	channel_info();
+	channel_info(std::string const &name, std::string const &key, std::string const &data);
 
-	std::string const& content() const;
-	void content(std::string const &value);
+	// simple non-virtual destructor
+	~channel_info();
 
-	channel_info const& get_channel_info() const;
-	void set_channel_info(channel_info const &ch_info);
+	std::string const& data() const;
+	void data(std::string const &value);
 
 private:
-	message(message const &);
-	message& operator = (message const &);
-
-private:
-	std::string content_;
-	channel_info ch_info_;
+	std::string data_;
 };
 
-template <typename Iter> inline
-message::message(Iter begin, Iter end) :
-		content_(begin, end) {
+
+inline
+channel_info::channel_info()
+{
 }
+
+inline
+channel_info::channel_info(std::string const &name, std::string const &key, std::string const &data) :
+	channel_id(name, key), data_(data)
+{
+}
+
+inline
+channel_info::~channel_info() {
+}
+
+inline std::string const&
+channel_info::data() const {
+	return data_;
+}
+
+inline void
+channel_info::data(std::string const &value) {
+	data_.assign(value);
+}
+
 
 } // namespace
 
-#endif // XIVA_MESSAGE_HPP_INCLUDED
+#endif // XIVA_CHANNEL_INFO_HPP_INCLUDED

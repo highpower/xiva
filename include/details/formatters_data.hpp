@@ -28,10 +28,13 @@ public:
 	formatters_data();
 	virtual ~formatters_data();
 
-	virtual bool allow_message(message const& msg) const = 0;
+	virtual bool allow_message(message const& msg, message_filter const *filter) const = 0;
 
 	virtual formatter const* default_formatter() const = 0;
 	virtual formatter const* find_formatter(message const& msg) const = 0;
+
+	virtual void update(message const& msg) = 0;
+	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const = 0;
 
 private:
 	formatters_data(formatters_data const &);

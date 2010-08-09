@@ -1,4 +1,6 @@
-pkginclude_HEADERS = component_set.hpp config.hpp connection_listener.hpp \
-	enumeration.hpp error.hpp forward.hpp formatter.hpp globals.hpp \
-	http_error.hpp logger.hpp message.hpp message_sender.hpp request.hpp \
-	response_handler.hpp response.hpp server.hpp settings.hpp shared.hpp
+pkginclude_HEADERS = channel_id.hpp channel_info.hpp channels_stat.hpp \
+	component_set.hpp config.hpp connection_listener.hpp \
+	enumeration.hpp error.hpp formatter.hpp formatter_creator.hpp \
+	forward.hpp globals.hpp http_error.hpp logger.hpp \
+	message.hpp message_filter.hpp message_sender.hpp request.hpp \
+	response.hpp response_handler.hpp server.hpp settings.hpp shared.hpp

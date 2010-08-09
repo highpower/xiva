@@ -1,6 +1,8 @@
 #include "acsetup.hpp"
 #include "python_formatter.hpp"
 
+#include <stdexcept>
+
 #include "interpreter_lock.hpp"
 
 namespace xiva { namespace python {
@@ -16,17 +18,31 @@ python_formatter::~python_formatter() {
 std::string
 python_formatter::wrap_message(std::string const &content) const {
 
-	interpreter_lock lock;
-
-	return py::extract<std::string>(py::call_method<py::str>(impl_.ptr(), "wrap_message", content));
+	try {
+		interpreter_lock lock;
+		return py::extract<std::string>(py::call_method<py::str>(impl_.ptr(), "wrap_message", content));
+	}
+	catch (std::exception const &) {
+		throw;
+	}
+	catch (...) {
+		throw std::runtime_error("caugth unknown exception in python_formatter::wrap_message");
+	}
 }
 
 std::string
 python_formatter::ping_message() const {
 
-	interpreter_lock lock;
-
-	return py::extract<std::string>(py::call_method<py::str>(impl_.ptr(), "ping_message"));
+	try {
+		interpreter_lock lock;
+		return py::extract<std::string>(py::call_method<py::str>(impl_.ptr(), "ping_message"));
+	}
+	catch (std::exception const &) {
+		throw;
+	}
+	catch (...) {
+		throw std::runtime_error("caugth unknown exception in python_formatter::ping_message");
+	}
 }
 
 }} // namespaces

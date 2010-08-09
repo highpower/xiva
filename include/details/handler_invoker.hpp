@@ -23,7 +23,6 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/shared.hpp"
-#include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
 
 namespace xiva { namespace details {

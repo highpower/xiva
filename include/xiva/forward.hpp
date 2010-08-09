@@ -20,6 +20,9 @@
 
 namespace xiva {
 
+class channel_id;
+class channel_info;
+class channels_stat;
 class formatter;
 class formatter_creator;
 class logger;
@@ -31,12 +34,14 @@ class settings;
 
 class http_error;
 class component_set;
+class message_filter;
 class message_sender;
 class response_handler;
 class connection_listener;
 
 namespace details {
 
+class channels_stat_impl;
 class formatters_factory;
 class server_impl;
 class request_impl;
