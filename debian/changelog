@@ -1,3 +1,9 @@
+xiva (1.3.1-2) unstable; urgency=low
+
+  * fixed python interpreter locking
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 20 Aug 2010 15:25:49 +0400
+
 xiva (1.3.1-1) unstable; urgency=low
 
   * only one channel allowed for a message
