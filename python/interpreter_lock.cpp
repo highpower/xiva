@@ -2,6 +2,7 @@
 #include "interpreter_lock.hpp"
 
 #include <cassert>
+#include <stdexcept>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -19,8 +20,8 @@ public:
 	void lock_thread();
 	void unlock_thread();
 
-	bool lock();
-	void unlock(bool threaded);
+	void lock();
+	void unlock();
 
 private:
 	interpreter_lock_impl(interpreter_lock_impl const &);
@@ -63,22 +64,22 @@ interpreter_thread_lock::~interpreter_thread_lock() {
 }
 
 
-interpreter_lock::interpreter_lock() : threaded_(false) {
+interpreter_lock::interpreter_lock() {
 	assert(NULL != interpreter_impl_);
-	threaded_ = interpreter_impl_->lock();
+	interpreter_impl_->lock();
 }
 
 interpreter_lock::~interpreter_lock() {
 	assert(NULL != interpreter_impl_);
-	interpreter_impl_->unlock(threaded_);
+	interpreter_impl_->unlock();
 }
 
-interpreter_unlock::interpreter_unlock() {
-	PyEval_ReleaseLock();
+interpreter_unlock::interpreter_unlock() : save_(PyEval_SaveThread())
+{
 }
 
 interpreter_unlock::~interpreter_unlock() {
-	PyEval_AcquireLock();
+	PyEval_RestoreThread(reinterpret_cast<PyThreadState*>(save_));
 }
 
 
@@ -95,11 +96,10 @@ void
 interpreter_lock_impl::lock_thread() {
 	boost::mutex::scoped_lock lock(mutex_);
 	assert(NULL == thread_state_);
-	thread_state_ = PyThreadState_Swap(NULL);
+	thread_state_ = PyEval_SaveThread();
 	assert(NULL != thread_state_);
 	assert(thread_lock_count_ < 0);
 	thread_lock_count_ = 0;
-	PyEval_ReleaseLock();
 }
 
 void
@@ -109,14 +109,13 @@ interpreter_lock_impl::unlock_thread() {
 		condition_.wait(lock);
 	}
 	assert(NULL != thread_state_);
-	PyEval_AcquireLock();
-	PyThreadState_Swap(thread_state_);
+	PyEval_RestoreThread(thread_state_);
 	thread_lock_count_ = -1;
 	thread_state_ = NULL;
 	condition_.notify_all();
 }
 
-bool
+void
 interpreter_lock_impl::lock() {
 	boost::mutex::scoped_lock lock(mutex_);
 	while (NULL != thread_state_) {
@@ -125,26 +124,21 @@ interpreter_lock_impl::lock() {
 		}
 		condition_.wait(lock);
 	}
-	PyEval_AcquireLock();
 	if (NULL == thread_state_) {
-		return false;
+		throw std::runtime_error("Can not acquire python interpreter lock");
 	}
+	PyEval_RestoreThread(thread_state_);
 	thread_lock_count_++;
-	PyThreadState_Swap(thread_state_);
-	return true;
 }
 
 void
-interpreter_lock_impl::unlock(bool threaded) {
-	if (threaded) {
-		boost::mutex::scoped_lock lock(mutex_);
-		assert(NULL != thread_state_);
-		/* thread_state_ = */ PyThreadState_Swap(NULL);
-		if (!--thread_lock_count_) {
-			condition_.notify_all();
-		}
+interpreter_lock_impl::unlock() {
+	boost::mutex::scoped_lock lock(mutex_);
+	assert(NULL != thread_state_);
+	/* thread_state_ = */ PyEval_SaveThread();
+	if (!--thread_lock_count_) {
+		condition_.notify_all();
 	}
-	PyEval_ReleaseLock();
 }
 
 }} // namespaces

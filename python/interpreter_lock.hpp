@@ -56,8 +56,6 @@ public:
 private:
 	interpreter_lock(interpreter_lock const &);
 	interpreter_lock& operator = (interpreter_lock const &);
-
-	bool threaded_;
 };
 
 class interpreter_unlock {
@@ -69,6 +67,8 @@ public:
 private:
 	interpreter_unlock(interpreter_unlock const &);
 	interpreter_unlock& operator = (interpreter_unlock const &);
+
+	void *save_;
 };
 
 }} // namespaces

@@ -49,7 +49,7 @@ void
 python_server::init(py::object const &impl) {
 	try {
 		python_settings settings(impl);
-		interpreter_unlock unlock;
+		interpreter_thread_lock thread_lock;
 		impl_->init(settings);
 	}
 	catch (std::exception const &e) {
@@ -87,6 +87,7 @@ python_server::list_channels() const {
 	py::list result;
 	try {
 		if (channels_stat_) {
+			interpreter_unlock unlock;
 			enumeration<std::string>::ptr_type en = channels_stat_->load_names();
 			while (!en->empty()) {
 				result.append(en->next());
@@ -106,6 +107,7 @@ python_server::list_channel(std::string const &channel_name) const {
 	py::list result;
 	try {
 		if (channels_stat_) {
+			interpreter_unlock unlock;
 			enumeration<std::string>::ptr_type en = channels_stat_->load_keys(channel_name);
 			while (!en->empty()) {
 				result.append(en->next());
@@ -123,6 +125,7 @@ void
 python_server::send(std::string const &to, std::string const &msg) {
 
 	try {
+		interpreter_unlock unlock;
 		boost::shared_ptr<message> m(new message(msg));
 		impl_->send(to, m);
 	}
@@ -138,6 +141,7 @@ python_server::send_to_channel(
 		std::string const &channel_name, std::string const &channel_key, std::string const &channel_data) {
 
 	try {
+		interpreter_unlock unlock;
 		boost::shared_ptr<message> m(new message(msg));
 		channel_info ch_info(channel_name, channel_key, channel_data);
 		if (!ch_info.empty()) {
