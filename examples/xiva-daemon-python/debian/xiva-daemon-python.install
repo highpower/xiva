@@ -1,0 +1,4 @@
+*daemon.py usr/bin
+*start.sh usr/bin
+xiva*.conf* etc/xiva
+

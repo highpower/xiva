@@ -1,0 +1,25 @@
+{
+	#xiva application server settings
+	#
+	'socket': '/tmp/xivadaemon.sock',
+	'pidfile': '/var/run/xiva/xivadaemon.pid',
+	'log':
+	{
+		'level': 'INFO', # 'DEBUG', 'INFO', 'WARNING'
+		'type' : 'syslog', # 'syslog', 'default'
+		'name' : 'xiva-daemon-python',
+	},
+
+	#xiva settings
+	#
+	'address': '0.0.0.0',
+	'backlog': 100,
+	'port': 8881,
+	'handler_threads': 5,
+	'listener_threads': 1,
+	'ping_interval': 20000,
+	'inactive_timeout': 60000,
+	'read_timeout': 5000,
+	'write_timeout': 5000,
+	'policy_file_name': '/var/www/crossdomain.xml',
+}

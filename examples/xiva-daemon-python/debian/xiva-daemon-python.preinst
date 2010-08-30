@@ -1,0 +1,15 @@
+#!/bin/sh
+
+LOG_DIR=/var/log/xiva
+RUN_DIR=/var/run/xiva
+
+USER=www-data
+
+mkdir -p $LOG_DIR $RUN_DIR
+
+chown $USER $LOG_DIR $RUN_DIR 
+chgrp $USER $LOG_DIR $RUN_DIR
+
+
+
+

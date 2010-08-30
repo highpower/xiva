@@ -1,0 +1,18 @@
+Source: xiva-daemon-python
+Priority: optional
+Maintainer: Alexey Ponomarev <ponomarev@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0), xiva-python (>= 1.3), xiva-python (<< 1.4)
+Standards-Version: 3.6.1
+Section: libs
+
+Package: xiva-daemon-python
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, xiva-python, python
+Description: Simple xiva-server on python and init scripts
+
+Package: xiva-daemon-python-dev
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, xiva-daemon-python
+Description: Tools for development apps for xiva-server on python
