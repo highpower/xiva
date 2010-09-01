@@ -1,3 +1,9 @@
+xiva (1.3.2-2) unstable; urgency=low
+
+  * fixed depends for xiva-python
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 01 Sep 2010 17:53:10 +0400
+
 xiva (1.3.2-1) unstable; urgency=low
 
   * unlock main thread while using xiva server

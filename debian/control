@@ -52,5 +52,5 @@ Section: libs
 Conflicts: python-xiva
 Replaces: python-xiva
 Architecture: any
-Depends: libxiva (= ${Source-Version})
+Depends: ${shlibs:Depends}, libxiva (= ${Source-Version})
 Description: Python binding for C++ libxiva library
