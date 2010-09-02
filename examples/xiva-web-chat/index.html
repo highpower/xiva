@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>A simple chat that uses Xiva</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Cantarell">
+  <!--[if lt IE 9]>
+    <script src="blocks/l-page/html5.js"></script>
+    <script src="blocks/l-page/innershiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="l-page">
+  <header>
+    <h1>Xiva Chatroom</h1>
+    <div class="b-userlist">
+      People in this chat:
+      <span class="b-userlist__user"><strong>Leonya</strong> (you)</span>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
+      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>
+    </div>
+  </header>
+  <section class="b-chat">
+    <div class="b-rooms">
+      <div class="b-rooms__room">
+        <a href="#" class="b-pseudo-link">Developer chat</a>
+        &nbsp;
+        <span class="b-rooms__room__unread">2</span>
+      </div>
+      <div class="b-rooms__room b-rooms__room">
+        <a href="#" class="b-pseudo-link">For lulz</a>
+      </div>
+      <div class="b-rooms__room b-rooms__room">
+        <a href="#" class="b-pseudo-link">For lulz 2</a>
+      </div>
+      <div class="b-rooms__room b-rooms__room">
+        <a href="#" class="b-pseudo-link">For lulz 3</a>
+      </div>
+      <div class="b-rooms__room b-rooms__room_active">
+        <a href="#" class="b-pseudo-link">For lulz 4</a>
+      </div>
+    </div>
+    <div class="b-messages">
+      <div class="b-message">
+        <div class="b-message__head">
+          <div class="b-message__head__user">
+            Alex
+          </div>
+          <div class="b-message__head__time">
+            Aug 31, 2010 15:35
+          </div>
+        </div>
+        <div class="b-message__body">
+          Hi!
+        </div>
+      </div>
+      <div class="b-message">
+        <div class="b-message__head">
+          <div class="b-message__head__user">
+            Alex
+          </div>
+          <div class="b-message__head__time">
+            Aug 31, 2010 15:35
+          </div>
+        </div>
+        <div class="b-message__body">
+          How're you doing?
+        </div>
+      </div>
+      <div class="b-message b-message_you">
+        <div class="b-message__head">
+          <div class="b-message__head__user">
+            Leonya
+          </div>
+          <div class="b-message__head__time">
+            Aug 31, 2010 15:35
+          </div>
+        </div>
+        <div class="b-message__body">
+          Hey there, doing fine :)
+        </div>
+      </div>
+      <div class="b-message">
+        <div class="b-message__head">
+          <div class="b-message__head__user">
+            Alex
+          </div>
+          <div class="b-message__head__time">
+            Aug 31, 2010 15:35
+          </div>
+        </div>
+        <div class="b-message__body">
+          This chat is pretty amazing, don't you think?
+        </div>
+      </div>
+    </div>
+    <div class="b-writemessage">
+      <form action="">
+        <textarea class="b-writemessage__area" cols="" rows=""></textarea>
+      </form>
+    </div>
+  </section>
+  <footer>
+    <p><a href="http://github.com/highpower/xiva">Xiva</a> is &copy; Yandex 2010</p>
+  </footer>
+</div>
+<script src="http://yandex.st/jquery/1.4.2/jquery.min.js" charset="utf-8"></script>
+<script src="index.js" charset="utf-8"></script>
+</body>
+</html>

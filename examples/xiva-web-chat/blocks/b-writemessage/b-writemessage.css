@@ -1,0 +1,16 @@
+.b-writemessage {
+  clear: both;
+
+  margin: 2px 2px 2px 200px;
+}
+
+.b-writemessage .b-writemessage__area {
+  width: 100%;
+  height: 50px;
+
+  margin: 0;
+  padding: 0;
+
+  border: 1px solid #666;
+  border-color: #666 #CCC #CCC;
+}

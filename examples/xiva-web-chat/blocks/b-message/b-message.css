@@ -1,0 +1,32 @@
+.b-message {
+  margin: 3px 3px 9px 3px;
+}
+
+.b-message .b-message__head {
+  overflow: auto;
+  padding: 3px;
+  
+  font-size: 80%;
+
+  background: #FEF;
+  border: 1px solid #FEF;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+}
+
+.b-message .b-message__head__user {
+  float: left;
+  width: 50%;
+}
+
+.b-message .b-message__head__time {
+  float: right;
+  width: 50%;
+
+  text-align: right;
+}
+
+.b-message .b-message__body {
+  margin: 5px 3px;
+}

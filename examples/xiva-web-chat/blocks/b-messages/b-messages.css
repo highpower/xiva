@@ -1,0 +1,13 @@
+.b-messages {
+  float: left;
+  width: 593px;
+  height: 255px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  margin-bottom: 10px;
+
+  border-bottom: 1px solid #EEE;
+  border-left: 1px solid #EEE;
+}
