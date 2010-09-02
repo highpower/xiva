@@ -1,0 +1,12 @@
+Source: xiva-daemon-tools-perl
+Priority: optional
+Maintainer: Alexey Ponomarev <ponomarev@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0), perl
+Standards-Version: 3.6.1
+Section: libs
+
+Package: xiva-daemon-tools-perl
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, xiva-daemon-python, perl
+Description: Perl tools for simple xiva-server on python

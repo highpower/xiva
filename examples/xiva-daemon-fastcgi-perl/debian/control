@@ -1,0 +1,12 @@
+Source: xiva-daemon-fastcgi-perl
+Priority: optional
+Maintainer: Alexey Ponomarev <ponomarev@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0), libfcgi-perl
+Standards-Version: 3.6.1
+Section: libs
+
+Package: xiva-daemon-fastcgi-perl
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, xiva-daemon-python, libfcgi-perl
+Description: Simple xiva-server on python and init scripts
