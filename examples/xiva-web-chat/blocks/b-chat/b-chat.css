@@ -1,5 +1,6 @@
 .b-chat {
   overflow: auto;
+  display: block;
 
   padding: 2px;
 
