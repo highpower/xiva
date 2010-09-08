@@ -17,7 +17,7 @@ h1 {
   font-family: 'Cantarell', arial, serif;
 
   color: #FFF;
-  background-color: #FFD0FF;
+  background-color: #F33;
   background: -moz-linear-gradient(-90deg, #FFD0FF, #F33);
   background: -webkit-gradient(linear, left top, left bottom, from(#FFD0FF), to(#F33));
 }

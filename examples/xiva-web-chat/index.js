@@ -24,7 +24,6 @@ $(document).ready(function() {
     // Set event handlers.
     ws.onopen = function() {
       if (inited === false) {
-        messageArea.get(0).disabled = false;
         messageArea.val('');
         inited = true;
       }
