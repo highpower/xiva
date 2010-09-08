@@ -23,5 +23,6 @@
 }
 
 .b-rooms .b-rooms__room__unread {
+  margin-left: 5px;
   font-weight: bold;
 }

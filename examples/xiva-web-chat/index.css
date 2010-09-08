@@ -1,4 +1,5 @@
 @import url("blocks/g-reset/g-reset.css");
+@import url("blocks/g-hidden/g-hidden.css");
 @import url("blocks/b-pseudo-link/b-pseudo-link.css");
 
 @import url("blocks/l-page/l-page.css");

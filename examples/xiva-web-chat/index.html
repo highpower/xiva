@@ -14,117 +14,83 @@
 <div class="l-page">
   <header>
     <h1>Xiva Chatroom</h1>
-    <div class="b-userlist">
+    <div class="b-userlist g-hidden">
       People in this chat:
-      <span class="b-userlist__user"><strong>Leonya</strong> (you)</span>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Alex</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Oleg</a>,
-      <a href="#" class="b-pseudo-link b-userlist__user">Marinka</a>
+      <span class="b-userlist__users"></span>
     </div>
   </header>
-  <section class="b-chat">
+  <section class="b-chat b-chat_login">
+    <div class="b-login">
+      <form action="">
+        <div class="b-login__field">
+          <label for="username">Name:</label>
+          <input id="username"/>
+        </div>
+
+        <div class="b-login__field">
+          <label for="roomname">Room:</label>
+          <select id="roomname">
+            <option name="room_1">Room 1</option>
+            <option name="room_2">Room 2</option>
+            <option name="room_3">Room 3</option>
+            <option name="room_4">Room 4</option>
+            <option name="room_5">Room 5</option>
+            <option name="room_6">Room 6</option>
+            <option name="room_7">Room 7</option>
+            <option name="room_8">Room 8</option>
+            <option name="room_9">Room 9</option>
+            <option name="room_10">Room 10</option>
+          </select>
+        </div>
+        
+        <button class="b-login__send">Login</button>
+      </form>
+    </div>
+  </section>
+  <section class="b-chat b-chat_chat g-hidden">
     <div class="b-rooms">
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 1</a>
-        &nbsp;
-        <span class="b-rooms__room__unread">2</span>
-      </div>
-      <div class="b-rooms__room b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 2</a>
-      </div>
-      <div class="b-rooms__room b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 3</a>
-      </div>
-      <div class="b-rooms__room b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 4</a>
+        <a href="#" id="room_1" class="b-pseudo-link">Room 1</a>
       </div>
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 5</a>
+        <a href="#" id="room_2" class="b-pseudo-link">Room 2</a>
       </div>
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 6</a>
+        <a href="#" id="room_3" class="b-pseudo-link">Room 3</a>
       </div>
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 7</a>
+        <a href="#" id="room_4" class="b-pseudo-link">Room 4</a>
       </div>
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 8</a>
+        <a href="#" id="room_5" class="b-pseudo-link">Room 5</a>
       </div>
       <div class="b-rooms__room">
-        <a href="#" class="b-pseudo-link">Room 9</a>
+        <a href="#" id="room_6" class="b-pseudo-link">Room 6</a>
       </div>
-      <div class="b-rooms__room b-rooms__room_active">
-        Room 10
+      <div class="b-rooms__room">
+        <a href="#" id="room_7" class="b-pseudo-link">Room 7</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_8" class="b-pseudo-link">Room 8</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_9" class="b-pseudo-link">Room 9</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_10" class="b-pseudo-link">Room 10</a>
       </div>
     </div>
     <div class="b-messages">
-      <div class="b-message">
-        <div class="b-message__head">
-          <div class="b-message__head__user">
-            Alex
-          </div>
-          <div class="b-message__head__time">
-            Aug 31, 2010 15:35
-          </div>
-        </div>
-        <div class="b-message__body">
-          Hi!
-        </div>
-      </div>
-      <div class="b-message">
-        <div class="b-message__head">
-          <div class="b-message__head__user">
-            Alex
-          </div>
-          <div class="b-message__head__time">
-            Aug 31, 2010 15:35
-          </div>
-        </div>
-        <div class="b-message__body">
-          How're you doing?
-        </div>
-      </div>
-      <div class="b-message b-message_you">
-        <div class="b-message__head">
-          <div class="b-message__head__user">
-            Leonya
-          </div>
-          <div class="b-message__head__time">
-            Aug 31, 2010 15:35
-          </div>
-        </div>
-        <div class="b-message__body">
-          Hey there, doing fine :)
-        </div>
-      </div>
-      <div class="b-message">
-        <div class="b-message__head">
-          <div class="b-message__head__user">
-            Alex
-          </div>
-          <div class="b-message__head__time">
-            Aug 31, 2010 15:35
-          </div>
-        </div>
-        <div class="b-message__body">
-          This chat is pretty amazing, don't you think?
-        </div>
-      </div>
+      <div id="messages_room_1" class="g-hidden"></div>
+      <div id="messages_room_2" class="g-hidden"></div>
+      <div id="messages_room_3" class="g-hidden"></div>
+      <div id="messages_room_4" class="g-hidden"></div>
+      <div id="messages_room_5" class="g-hidden"></div>
+      <div id="messages_room_6" class="g-hidden"></div>
+      <div id="messages_room_7" class="g-hidden"></div>
+      <div id="messages_room_8" class="g-hidden"></div>
+      <div id="messages_room_9" class="g-hidden"></div>
+      <div id="messages_room_10" class="g-hidden"></div>
     </div>
     <div class="b-writemessage">
       <form action="">
@@ -142,6 +108,7 @@
 <script src="web-socket-js/FABridge.js"></script>
 <script src="web-socket-js/web_socket.js"></script>
 
+<script src="json2.js"></script>
 <script src="index.js" charset="utf-8"></script>
 </body>
 </html>
