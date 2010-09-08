@@ -48,6 +48,8 @@ $(document).ready(function() {
     var loginName = $('#username');
     var loginRoom = $('#roomname :selected');
     
+    if ($.trim(loginName.val()) == '') return;
+    
     currentName = loginName.val();
     currentRoom = loginRoom.attr('name');
     
@@ -68,6 +70,8 @@ $(document).ready(function() {
     // Append user to the userlist
     $('.b-userlist').removeClass('g-hidden');
     $('.b-userlist__users').append('<span class="b-userlist__user"><strong>' + currentName + '</strong> (you)</span>');
+    
+    postMessage("login");
   });
   
   messageArea.keydown(function(e) {
@@ -75,7 +79,7 @@ $(document).ready(function() {
       e.preventDefault();
 
       if (messageArea.val() != '') {
-        postMessage();
+        postMessage("message");
         messageArea.val('');
       }
     }
@@ -112,11 +116,12 @@ $(document).ready(function() {
     currentRoom = roomId;
   });
   
-  function postMessage() {
+  function postMessage(type) {
     var messageObj = {
       username: currentName,
       room: currentRoom,
-      text: messageArea.val()
+      type: type,
+      text: (type == "message") ? messageArea.val() : ''
     };
     
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
@@ -133,28 +138,30 @@ $(document).ready(function() {
     
     messageObj = JSON.parse(messageObj);
     
-    var date = new Date();
+    if (messageObj.type == "message") {
+      var date = new Date();
     
-    var message = $('<div class="b-message" style="opacity: 0.5"><div class="b-message__head"><div class="b-message__head__user">' + messageObj.username + '</div><div class="b-message__head__time">' + date + '</div></div><div class="b-message__body">' + messageObj.text + '</div></div>');
+      var message = $('<div class="b-message" style="opacity: 0.5"><div class="b-message__head"><div class="b-message__head__user">' + messageObj.username + '</div><div class="b-message__head__time">' + date + '</div></div><div class="b-message__body">' + messageObj.text + '</div></div>');
     
-    if (messageObj.username == currentName) {
-      message.addClass('b-message_you');
-    }
+      if (messageObj.username == currentName) {
+        message.addClass('b-message_you');
+      }
     
-    // Add message to the room it was sent to
-    $('#messages_' + messageObj.room).append(message);
-    message.animate({ opacity: 1 }, 1000);
-    bMessages.scrollTop(10000);
+      // Add message to the room it was sent to
+      $('#messages_' + messageObj.room).append(message);
+      message.animate({ opacity: 1 }, 1000);
+      bMessages.scrollTop(10000);
     
-    // Update unread count if the user is not in the current room
-    if (messageObj.room != currentRoom) {
-      var roomElement = $('#' + messageObj.room).parent();
-      var roomUnread = roomElement.find('.b-rooms__room__unread');
+      // Update unread count if the user is not in the current room
+      if (messageObj.room != currentRoom) {
+        var roomElement = $('#' + messageObj.room).parent();
+        var roomUnread = roomElement.find('.b-rooms__room__unread');
       
-      if (roomUnread.length > 0) {
-        roomUnread.html(parseInt(roomUnread.html(), 10) + 1);
-      } else {
-        roomElement.append($('<span class="b-rooms__room__unread">1</span>'));
+        if (roomUnread.length > 0) {
+          roomUnread.html(parseInt(roomUnread.html(), 10) + 1);
+        } else {
+          roomElement.append($('<span class="b-rooms__room__unread">1</span>'));
+        }
       }
     }
     
