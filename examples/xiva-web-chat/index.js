@@ -17,6 +17,7 @@ $(document).ready(function() {
   var messageArea = $('.b-writemessage__area', bMessageArea);
   var loginButton = $('.b-login__send', bLogin);
   
+  var usernames = {};
   var currentName, currentRoom;
 
   var ws;
@@ -76,7 +77,6 @@ $(document).ready(function() {
     
     // Append user to the userlist
     bUserList.removeClass('g-hidden');
-    userContainer.append('<span class="b-userlist__user"><strong>' + currentName + '</strong> (you)</span>');
 
     // Send 'login' event
     postMessage("login");
@@ -127,17 +127,25 @@ $(document).ready(function() {
     newRoomElement.html('<span id="' + newRoom + '">' + newRoomLabel + '</a>');
     
     $('header h1').html('Xiva Chatroom &mdash; ' + newRoomLabel);
-    
+
+    // Switch rooms
+    var _currentRoom = currentRoom, _newRoom = newRoom;
+    switchUserRoom(currentName, currentRoom);
     currentRoom = newRoom;
+    postMessage("switch", {oldRoom: _currentRoom, newRoom: _newRoom});
   });
   
-  function postMessage(type) {
+  function postMessage(type, params) {
     var messageObj = {
       username: currentName,
       room: currentRoom,
       type: type,
       text: (type == "message") ? encodeMessage(messageArea.val()) : ''
     };
+
+    if (params && params.oldRoom) {
+      messageObj.oldRoom = params.oldRoom;
+    }
     
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
@@ -154,6 +162,7 @@ $(document).ready(function() {
     messageObj = JSON.parse(messageObj);
 
     var username = messageObj.username,
+        oldRoom = messageObj.oldRoom,
         room = messageObj.room,
         type = messageObj.type,
         text = decodeMessage(messageObj.text),
@@ -191,22 +200,57 @@ $(document).ready(function() {
         }
       }
     }
-    
-    // Update user list ('message' and 'login' events)
-    if (username != currentName) {
-      var existingUser = false;
 
-      userLinks = $('a.b-userlist__user', bUserList);
-      userLinks.each(function() {
-        if ($(this).html() == username) {
-          existingUser = true;
-        }
-      });
+    if (type == "switch") {
+      switchUserRoom(username, oldRoom);
+    }
 
-      if (existingUser === false) {
-        userContainer.append(', ' + '<a href="#" class="b-userlist__user b-pseudo-link">' + username + '</a>');
+    addCreateUser(username);
+    updateUserList();
+  }
+
+  function addCreateUser(username) {
+    usernames[currentRoom] = usernames[currentRoom] || [];
+    usernames[currentRoom].push(username);
+
+    usernames[currentRoom] = uniqueArray(usernames[currentRoom]).sort();
+  }
+
+  function switchUserRoom(username, currentRoom) {
+    // Remove user from current room
+    var currentRoomUsers = usernames[currentRoom] || [];
+
+    var idx = currentRoomUsers.indexOf(username);
+
+    idx > -1 && currentRoomUsers.splice(idx, 1);
+  }
+
+  function updateUserList() {
+    userContainer.html('');
+    userContainer.append('<span class="b-userlist__user"><strong>' + currentName + '</strong> (you)</span>');
+
+    var usersInRoom = usernames[currentRoom] || [];
+
+    for (var i=0; i<usersInRoom.length; i++) {
+      if (usersInRoom[i] && usersInRoom[i] != currentName) {
+        userContainer.append(', ' + '<a href="#" class="b-userlist__user b-pseudo-link">' + usersInRoom[i] + '</a>');
       }
     }
+  }
+
+  // Utils
+  function uniqueArray(arr) {
+    var a = [];
+    var l = arr.length;
+    for(var i=0; i<l; i++) {
+      for(var j=i+1; j<l; j++) {
+        if (arr[i] === arr[j]) {
+          j = ++i;
+        }
+      }
+      a.push(arr[i]);
+    }
+    return a;
   }
 
   function encodeMessage(str) {
