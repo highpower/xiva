@@ -136,7 +136,7 @@ $(document).ready(function() {
       username: currentName,
       room: currentRoom,
       type: type,
-      text: (type == "message") ? messageArea.val() : ''
+      text: (type == "message") ? encodeMessage(messageArea.val()) : ''
     };
     
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
@@ -156,7 +156,7 @@ $(document).ready(function() {
     var username = messageObj.username,
         room = messageObj.room,
         type = messageObj.type,
-        text = messageObj.text,
+        text = decodeMessage(messageObj.text),
         date = new Date();
     
     if (type == "message") {
@@ -207,5 +207,46 @@ $(document).ready(function() {
         userContainer.append(', ' + '<a href="#" class="b-userlist__user b-pseudo-link">' + username + '</a>');
       }
     }
+  }
+
+  function encodeMessage(str) {
+    var encodedStr = '';
+
+    function pad(chr) {
+      while (chr.length < 4) {
+        chr = '0' + chr;
+      }
+
+      return chr;
+    }
+
+    for (var i=0; i<str.length; i++) {
+      var chr = '\\u';
+
+      chr += pad(str[i].charCodeAt(0).toString(16));
+
+      encodedStr += chr;
+    }
+
+    return encodedStr;
+  }
+
+  function decodeMessage(str) {
+    var decodedStr = '';
+
+    for (var i=0; i<str.length; i++) {
+      var charCode = '';
+
+      charCode += str[i+2];
+      charCode += str[i+3];
+      charCode += str[i+4];
+      charCode += str[i+5];
+
+      decodedStr += String.fromCharCode(parseInt(charCode, 16));
+
+      i+=5;
+    }
+
+    return decodedStr.replace(/^[0]+}/, '');
   }
 });
