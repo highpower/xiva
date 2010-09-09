@@ -1,22 +1,30 @@
 $(document).ready(function() {
   var inited = false;
   
+  // Blocks
+  var bLogin = $('.b-login');
+  var bUserList = $('.b-userlist');
+  var bChatLogin = $('.b-chat_login');
+  var bChatChat = $('.b-chat_chat');
+  var bRooms = $('.b-rooms');
   var bMessages = $('.b-messages');
-  var messageArea = $('.b-writemessage__area');
+  var bMessageArea = $('.b-writemessage');
 
-  var userLinks = $('a.b-userlist__user');
-  var roomLinks = $('.b-rooms__room a');
-  
-  var loginButton = $('.b-login__send');
+  // Elements
+  var userContainer = $('.b-userlist__users', bUserList);
+  var userLinks = $('a.b-userlist__user', bUserList);
+  var roomLinks = $('.b-rooms__room a', bRooms);
+  var messageArea = $('.b-writemessage__area', bMessageArea);
+  var loginButton = $('.b-login__send', bLogin);
   
   var currentName, currentRoom;
-  
+
+  var ws;
+
   // WebSocket implementation
   WebSocket.__swfLocation = 'web-socket-js/WebSocketMain.swf';
 
-  var ws;
-  
-  function init() {
+  var initSocket = function() {
     // Connect to Web Socket.
     // Change host/port here to your own Web Socket server.
     ws = new WebSocket('ws://leonya.dev.yandex.net:8881/?id=chat');
@@ -34,12 +42,12 @@ $(document).ready(function() {
     };
     
     ws.onclose = function() {
-      setTimeout(init, 1000);
+      setTimeout(initSocket, 1000);
     };
-  }
-  
-  init();
-	
+  };
+
+  initSocket();
+
   // UI
   loginButton.click(function(e) {
     e.preventDefault();
@@ -53,8 +61,8 @@ $(document).ready(function() {
     currentRoom = loginRoom.attr('name');
     
     // Show chat window    
-    $('.b-chat_login').addClass('g-hidden');
-    $('.b-chat_chat').removeClass('g-hidden');
+    bChatLogin.addClass('g-hidden');
+    bChatChat.removeClass('g-hidden');
     
     // Show current chat room
     $('#messages_' + currentRoom).removeClass('g-hidden');
@@ -67,52 +75,60 @@ $(document).ready(function() {
     roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
     
     // Append user to the userlist
-    $('.b-userlist').removeClass('g-hidden');
-    $('.b-userlist__users').append('<span class="b-userlist__user"><strong>' + currentName + '</strong> (you)</span>');
-    
+    bUserList.removeClass('g-hidden');
+    userContainer.append('<span class="b-userlist__user"><strong>' + currentName + '</strong> (you)</span>');
+
+    // Send 'login' event
     postMessage("login");
   });
   
   messageArea.keydown(function(e) {
+    var target = $(this);
+
     if (e.keyCode == 13) {
       e.preventDefault();
 
-      if (messageArea.val() != '') {
+      if (target.val() != '') {
         postMessage("message");
-        messageArea.val('');
+        target.val('');
       }
     }
   });
 
   userLinks.live('click', function(e) {
+    var target = $(this);
+
     e.preventDefault();
-    messageArea.val('@' + $(e.target).html() + ' ');
+    messageArea.val('@' + target.html() + ' ');
     messageArea.focus();
   });
 
   roomLinks.live('click', function(e) {
     e.preventDefault();
     
-    var roomId = this.id;
+    var newRoom = this.id;
     
     $('#messages_' + currentRoom).addClass('g-hidden');
-    $('#messages_' + roomId).removeClass('g-hidden');
+    $('#messages_' + newRoom).removeClass('g-hidden');
     
-    var currentRoomElement = $('#' + currentRoom).parent();
-    var newRoomElement = $('#' + roomId).parent();
+    var currentRoomLink = $('#' + currentRoom);
+    var newRoomLink = $('#' + newRoom);
+
+    var currentRoomElement = currentRoomLink.parent();
+    var newRoomElement = newRoomLink.parent();
     
-    var currentRoomLabel = $('#' + currentRoom).html();
-    var newRoomLabel = $('#' + roomId).html();
+    var currentRoomLabel = currentRoomLink.html();
+    var newRoomLabel = newRoomLink.html();
     
     currentRoomElement.removeClass('b-rooms__room_active');
     newRoomElement.addClass('b-rooms__room_active');
     
     currentRoomElement.html('<a id="' + currentRoom + '" class="b-pseudo-link" href="#">' + currentRoomLabel + '</a>');
-    newRoomElement.html('<span id="' + roomId + '">' + newRoomLabel + '</a>');
+    newRoomElement.html('<span id="' + newRoom + '">' + newRoomLabel + '</a>');
     
     $('header h1').html('Xiva Chatroom &mdash; ' + newRoomLabel);
     
-    currentRoom = roomId;
+    currentRoom = newRoom;
   });
   
   function postMessage(type) {
@@ -136,24 +152,36 @@ $(document).ready(function() {
     if (messageObj === "ping\n") return;
     
     messageObj = JSON.parse(messageObj);
+
+    var username = messageObj.username,
+        room = messageObj.room,
+        type = messageObj.type,
+        text = messageObj.text,
+        date = new Date();
     
-    if (messageObj.type == "message") {
-      var date = new Date();
+    if (type == "message") {
+      var message = $('<div class="b-message" style="opacity: 0.5">' +
+                        '<div class="b-message__head">' +
+                          '<div class="b-message__head__user">' + username + '</div>' +
+                          '<div class="b-message__head__time">' + date + '</div>' +
+                        '</div>' +
+                        '<div class="b-message__body">' + text + '</div>' +
+                      '</div>');
     
-      var message = $('<div class="b-message" style="opacity: 0.5"><div class="b-message__head"><div class="b-message__head__user">' + messageObj.username + '</div><div class="b-message__head__time">' + date + '</div></div><div class="b-message__body">' + messageObj.text + '</div></div>');
-    
-      if (messageObj.username == currentName) {
+      if (username == currentName) {
         message.addClass('b-message_you');
       }
     
       // Add message to the room it was sent to
-      $('#messages_' + messageObj.room).append(message);
+      $('#messages_' + room).append(message);
+
+      // Animate new message
       message.animate({ opacity: 1 }, 1000);
       bMessages.scrollTop(10000);
     
       // Update unread count if the user is not in the current room
-      if (messageObj.room != currentRoom) {
-        var roomElement = $('#' + messageObj.room).parent();
+      if (room != currentRoom) {
+        var roomElement = $('#' + room).parent();
         var roomUnread = roomElement.find('.b-rooms__room__unread');
       
         if (roomUnread.length > 0) {
@@ -164,17 +192,19 @@ $(document).ready(function() {
       }
     }
     
-    // Update user list
-    if (messageObj.username != currentName) {
+    // Update user list ('message' and 'login' events)
+    if (username != currentName) {
       var existingUser = false;
-      $('a.b-userlist__user').each(function() {
-        if ($(this).html() == messageObj.username) {
+
+      userLinks = $('a.b-userlist__user', bUserList);
+      userLinks.each(function() {
+        if ($(this).html() == username) {
           existingUser = true;
         }
       });
 
       if (existingUser === false) {
-        $('.b-userlist__users').append(', ' + '<a href="#" class="b-userlist__user b-pseudo-link">' + messageObj.username + '</a>');
+        userContainer.append(', ' + '<a href="#" class="b-userlist__user b-pseudo-link">' + username + '</a>');
       }
     }
   }
