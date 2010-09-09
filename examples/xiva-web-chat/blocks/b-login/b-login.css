@@ -33,6 +33,10 @@
   border-color: #666 #CCC #CCC;
 }
 
-.b-login button {
+.b-login .b-login__send {
   font-size: 120%;
+}
+
+.b-login .b-login__send_disabled {
+  color: #999;
 }

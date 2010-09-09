@@ -33,6 +33,7 @@ $(document).ready(function() {
     // Set event handlers.
     ws.onopen = function() {
       if (inited === false) {
+        loginButton.removeClass('b-login__send_disabled').html('Login');
         messageArea.val('');
         inited = true;
       }
