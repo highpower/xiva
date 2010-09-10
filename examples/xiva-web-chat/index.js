@@ -80,7 +80,7 @@ $(document).ready(function() {
     bUserList.removeClass('g-hidden');
 
     // Send 'login' event
-    postMessage("login");
+    postMessage("login", {});
   });
   
   messageArea.keydown(function(e) {
@@ -90,7 +90,7 @@ $(document).ready(function() {
       e.preventDefault();
 
       if (target.val() != '') {
-        postMessage("message");
+        postMessage("message", {});
         target.val('');
       }
     }
@@ -141,13 +141,10 @@ $(document).ready(function() {
       username: currentName,
       room: currentRoom,
       type: type,
-      text: (type == "message") ? encodeMessage(messageArea.val()) : ''
+      text: (type == "message") ? encodeMessage(messageArea.val()) : '',
+      params: params
     };
 
-    if (params && params.oldRoom) {
-      messageObj.oldRoom = params.oldRoom;
-    }
-    
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
     var client = new XMLHttpRequest();
@@ -163,11 +160,11 @@ $(document).ready(function() {
     messageObj = JSON.parse(messageObj);
 
     var username = messageObj.username,
-        oldRoom = messageObj.oldRoom,
         room = messageObj.room,
         type = messageObj.type,
         text = decodeMessage(messageObj.text),
-        date = new Date();
+        date = new Date(),
+        params = messageObj.params;
     
     if (type == "message") {
       var message = $('<div class="b-message" style="opacity: 0.5">' +
@@ -203,18 +200,20 @@ $(document).ready(function() {
     }
 
     if (type == "switch") {
-      switchUserRoom(username, oldRoom);
+      switchUserRoom(username, params.oldRoom);
+      addCreateUser(username, params.newRoom);
+    } else {
+      addCreateUser(username, currentRoom);
     }
 
-    addCreateUser(username);
     updateUserList();
   }
 
-  function addCreateUser(username) {
-    usernames[currentRoom] = usernames[currentRoom] || [];
-    usernames[currentRoom].push(username);
+  function addCreateUser(username, room) {
+    usernames[room] = usernames[room] || [];
+    usernames[room].push(username);
 
-    usernames[currentRoom] = uniqueArray(usernames[currentRoom]).sort();
+    usernames[room] = uniqueArray(usernames[room]).sort();
   }
 
   function switchUserRoom(username, currentRoom) {
