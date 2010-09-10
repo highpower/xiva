@@ -57,8 +57,19 @@ $(document).ready(function() {
     var loginName = $('#username');
     var loginRoom = $('#roomname :selected');
     
-    if ($.trim(loginName.val()) == '') return;
-    
+    var loginFieldContainer = loginName.parent();
+    var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
+
+    if (isValidUser(loginName.val())) {
+      loginFieldContainer.removeClass('b-login__field_invalid');
+      loginErrorContainer.addClass('g-hidden');
+    } else {
+      loginFieldContainer.addClass('b-login__field_invalid');
+      loginErrorContainer.removeClass('g-hidden');
+      loginName.focus();
+      return;
+    }
+
     currentName = loginName.val();
     currentRoom = loginRoom.attr('name');
     
@@ -163,9 +174,9 @@ $(document).ready(function() {
         room = messageObj.room,
         type = messageObj.type,
         text = decodeMessage(messageObj.text),
-        date = new Date(),
-        params = messageObj.params;
-    
+        params = messageObj.params,
+        date = new Date();
+
     if (type == "message") {
       var message = $('<div class="b-message" style="opacity: 0.5">' +
                         '<div class="b-message__head">' +
@@ -238,6 +249,26 @@ $(document).ready(function() {
     }
   }
 
+  // Checks if a given username is already taken
+  // Very limited usefulness due to lack of persistent storage
+  function isValidUser(username) {
+    username = $.trim(username);
+
+    if (username == '') return false;
+    
+    var isDuplicate = false;
+
+    for (var i in usernames) {
+      for (var j=0; j<usernames[i].length; j++) {
+        if (usernames[i][j] == username) {
+          isDuplicate = true;
+        }
+      }
+    }
+
+    return !isDuplicate;
+  }
+
   // Utils
   function uniqueArray(arr) {
     var a = [];
@@ -253,6 +284,7 @@ $(document).ready(function() {
     return a;
   }
 
+  // Encodes a string into a sequence of \uXXXX codes
   function encodeMessage(str) {
     var encodedStr = '';
 
@@ -275,6 +307,7 @@ $(document).ready(function() {
     return encodedStr;
   }
 
+  // Decodes a sequence of \uXXXX codes
   function decodeMessage(str) {
     var decodedStr = '';
 

@@ -16,6 +16,12 @@
   text-align: left;
 }
 
+.b-login .b-login__field__error {
+  margin: 5px 0 0 80px;
+
+  font-size: 70%;
+}
+
 .b-login .b-login__field label {
   display: block;
   float: left;
@@ -31,6 +37,10 @@
 
   border: 1px solid #666;
   border-color: #666 #CCC #CCC;
+}
+
+.b-login .b-login__field_invalid input {
+  color: #F00;
 }
 
 .b-login .b-login__send {
