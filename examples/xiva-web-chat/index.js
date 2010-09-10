@@ -138,7 +138,7 @@ $(document).ready(function() {
   
   function postMessage(type, params) {
     var messageObj = {
-      username: currentName,
+      username: encodeMessage(currentName),
       room: currentRoom,
       type: type,
       text: (type == "message") ? encodeMessage(messageArea.val()) : '',
@@ -159,7 +159,7 @@ $(document).ready(function() {
     
     messageObj = JSON.parse(messageObj);
 
-    var username = messageObj.username,
+    var username = decodeMessage(messageObj.username),
         room = messageObj.room,
         type = messageObj.type,
         text = decodeMessage(messageObj.text),
