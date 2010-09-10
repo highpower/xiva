@@ -64,9 +64,11 @@ $(document).ready(function() {
       loginFieldContainer.removeClass('b-login__field_invalid');
       loginErrorContainer.addClass('g-hidden');
     } else {
-      loginFieldContainer.addClass('b-login__field_invalid');
-      loginErrorContainer.removeClass('g-hidden');
-      loginName.focus();
+      bChatLogin.effect('shake', {distance: 10, times: 2}, 35, function() {
+        loginFieldContainer.addClass('b-login__field_invalid');
+        loginErrorContainer.removeClass('g-hidden');
+        loginName.focus();
+      });
       return;
     }
 
