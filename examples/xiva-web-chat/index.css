@@ -5,6 +5,7 @@
 @import url("blocks/l-page/l-page.css");
 @import url("blocks/b-chat/b-chat.css");
 @import url("blocks/b-chat/_type/b-chat_login.css");
+@import url("blocks/b-chat/_type/b-chat_chat.css");
 @import url("blocks/b-userlist/b-userlist.css");
 @import url("blocks/b-rooms/b-rooms.css");
 @import url("blocks/b-messages/b-messages.css");

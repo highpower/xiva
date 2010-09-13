@@ -77,7 +77,9 @@ $(document).ready(function() {
     
     // Show chat window    
     bChatLogin.addClass('g-hidden');
-    bChatChat.removeClass('g-hidden');
+    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
+      $(this).height('auto');
+    });
     
     // Show current chat room
     $('#messages_' + currentRoom).removeClass('g-hidden');
