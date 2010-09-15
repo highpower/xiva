@@ -1,0 +1,28 @@
+.b-rooms {
+  float: left;
+  width: 200px;
+  height: 255px;
+
+  margin-bottom: 10px;
+}
+
+.b-rooms .b-rooms__room {
+  padding: 6px;
+
+  border-bottom: 1px solid #EEE;
+}
+
+.b-rooms .b-rooms__room:hover {
+  background-color: #F9F9F9;
+  background: -moz-linear-gradient(90deg, #F9F9F9, #FFF)
+}
+
+.b-rooms .b-rooms__room_active, .b-rooms .b-rooms__room_active:hover {
+  font-weight: bold;
+  background: #EEE;
+}
+
+.b-rooms .b-rooms__room__unread {
+  margin-left: 5px;
+  font-weight: bold;
+}

@@ -1,0 +1,7 @@
+.b-chat {
+  overflow: auto;
+
+  padding: 2px;
+
+  border: 1px solid #ccc;
+}

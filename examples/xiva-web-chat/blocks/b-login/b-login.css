@@ -1,0 +1,51 @@
+.b-login {
+  clear: both;
+
+  padding: 16px;
+
+  text-align: center;
+  font-size: 140%;
+
+  background-color: #F9F9F9;
+  background: -moz-linear-gradient(90deg, #F0F0F0, #FFF)
+}
+
+.b-login .b-login__field {
+  margin: 0 30% 10px 30%;
+
+  text-align: left;
+}
+
+.b-login .b-login__field__error {
+  margin: 5px 0 0 80px;
+
+  font-size: 70%;
+}
+
+.b-login .b-login__field label {
+  display: block;
+  float: left;
+  width: 80px;
+}
+
+.b-login .b-login__field input, .b-login .b-login__field select {
+  width: 180px;
+}
+
+.b-login .b-login__field input {
+  font-size: 100%;
+
+  border: 1px solid #666;
+  border-color: #666 #CCC #CCC;
+}
+
+.b-login .b-login__field_invalid input {
+}
+
+.b-login .b-login__send {
+  font-size: 120%;
+}
+
+.b-login .b-login__send_disabled {
+  color: #999;
+}

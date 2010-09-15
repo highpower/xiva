@@ -1,0 +1,14 @@
+@import url("blocks/g-reset/g-reset.css");
+@import url("blocks/g-hidden/g-hidden.css");
+@import url("blocks/b-pseudo-link/b-pseudo-link.css");
+
+@import url("blocks/l-page/l-page.css");
+@import url("blocks/b-chat/b-chat.css");
+@import url("blocks/b-chat/_type/b-chat_login.css");
+@import url("blocks/b-userlist/b-userlist.css");
+@import url("blocks/b-rooms/b-rooms.css");
+@import url("blocks/b-messages/b-messages.css");
+@import url("blocks/b-message/b-message.css");
+@import url("blocks/b-message/_type/b-message_you.css");
+@import url("blocks/b-login/b-login.css");
+@import url("blocks/b-writemessage/b-writemessage.css");

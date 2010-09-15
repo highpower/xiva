@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>A simple chat that uses Xiva</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Cantarell">
+  <!--[if lt IE 9]>
+    <script src="blocks/l-page/html5.js"></script>
+    <script src="blocks/l-page/innershiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="l-page">
+  <header>
+    <h1>Xiva Chatroom</h1>
+    <div class="b-userlist g-hidden">
+      People in this chat:
+      <span class="b-userlist__users"></span>
+    </div>
+  </header>
+  <section class="b-chat b-chat_login">
+    <div class="b-login">
+      <form action="">
+        <div class="b-login__field">
+          <label for="username">Name:</label>
+          <input id="username"/>
+          <div class="b-login__field__error g-hidden">
+            Name is not specified or already taken
+          </div>
+        </div>
+
+        <div class="b-login__field">
+          <label for="roomname">Room:</label>
+          <select id="roomname">
+            <option name="room_1">Room 1</option>
+            <option name="room_2">Room 2</option>
+            <option name="room_3">Room 3</option>
+            <option name="room_4">Room 4</option>
+            <option name="room_5">Room 5</option>
+            <option name="room_6">Room 6</option>
+            <option name="room_7">Room 7</option>
+            <option name="room_8">Room 8</option>
+            <option name="room_9">Room 9</option>
+            <option name="room_10">Room 10</option>
+          </select>
+        </div>
+        
+        <button class="b-login__send b-login__send_disabled">Loading...</button>
+      </form>
+    </div>
+  </section>
+  <section class="b-chat b-chat_chat g-hidden">
+    <div class="b-rooms">
+      <div class="b-rooms__room">
+        <a href="#" id="room_1" class="b-pseudo-link">Room 1</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_2" class="b-pseudo-link">Room 2</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_3" class="b-pseudo-link">Room 3</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_4" class="b-pseudo-link">Room 4</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_5" class="b-pseudo-link">Room 5</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_6" class="b-pseudo-link">Room 6</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_7" class="b-pseudo-link">Room 7</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_8" class="b-pseudo-link">Room 8</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_9" class="b-pseudo-link">Room 9</a>
+      </div>
+      <div class="b-rooms__room">
+        <a href="#" id="room_10" class="b-pseudo-link">Room 10</a>
+      </div>
+    </div>
+    <div class="b-messages">
+      <div id="messages_room_1" class="g-hidden"></div>
+      <div id="messages_room_2" class="g-hidden"></div>
+      <div id="messages_room_3" class="g-hidden"></div>
+      <div id="messages_room_4" class="g-hidden"></div>
+      <div id="messages_room_5" class="g-hidden"></div>
+      <div id="messages_room_6" class="g-hidden"></div>
+      <div id="messages_room_7" class="g-hidden"></div>
+      <div id="messages_room_8" class="g-hidden"></div>
+      <div id="messages_room_9" class="g-hidden"></div>
+      <div id="messages_room_10" class="g-hidden"></div>
+    </div>
+    <div class="b-writemessage">
+      <form action="">
+        <textarea class="b-writemessage__area" cols="" rows=""></textarea>
+      </form>
+    </div>
+  </section>
+  <footer>
+    <p><a href="http://github.com/highpower/xiva">Xiva</a> is &copy; Yandex 2010</p>
+  </footer>
+</div>
+<script src="http://yandex.st/jquery/1.4.2/jquery.min.js" charset="utf-8"></script>
+<script src="http://yandex.st/jquery-ui/1.8.2/jquery-ui.min.js" charset="utf-8"></script>
+
+<script src="web-socket-js/swfobject.js"></script>
+<script src="web-socket-js/FABridge.js"></script>
+<script src="web-socket-js/web_socket.js"></script>
+
+<script src="json2.js"></script>
+<script src="index.js" charset="utf-8"></script>
+</body>
+</html>

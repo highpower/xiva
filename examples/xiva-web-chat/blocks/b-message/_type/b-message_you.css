@@ -1,0 +1,8 @@
+.b-message_you .b-message__head {
+  background-color: #EEE;
+  border-color: #EEE;
+}
+
+.b-message_you .b-message__body {
+  text-align: right;
+}
