@@ -230,7 +230,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		}
 
 		if (*begin == '<') {
-			if (sz != http_constants<char_type>::policy_file_request.size() ||
+			if (sz < http_constants<char_type>::policy_file_request.size() ||
 				!std::equal(http_constants<char_type>::policy_file_request.begin(),
 					http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>())) {
 				
