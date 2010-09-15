@@ -13,8 +13,11 @@
 
 namespace xiva { namespace details {
 
+static const int MAX_REQUEST_SIZE_DEFAULT = 16 * 1024;
+
 connection_data::connection_data() :
-	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), ping_interval_(0), stopping_(false)
+	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), ping_interval_(0),
+	max_request_size_(MAX_REQUEST_SIZE_DEFAULT), stopping_(false)
 {
 	formatters_factory_.reset(new formatters_factory());
 }

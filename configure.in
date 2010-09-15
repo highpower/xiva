@@ -1,4 +1,4 @@
-AC_INIT([xiva], [1.3.2], [highpower@yandex-team.ru])
+AC_INIT([xiva], [1.3.3], [highpower@yandex-team.ru])
 AM_INIT_AUTOMAKE(1.9)
 
 AC_GNU_SOURCE
@@ -73,6 +73,8 @@ AM_CONDITIONAL(HAVE_DAEMON, [test "f$ax_have_daemon" != "fno"])
 
 AC_SUBST(INCLTDL)
 AC_SUBST(LIBLTDL)
+
+AC_CHECK_LIB([ssl], [main])
 
 AC_CONFIG_FILES([Makefile include/Makefile include/xiva/Makefile 
 	include/details/Makefile library/Makefile stdext/Makefile 

@@ -26,10 +26,13 @@
 #include <boost/static_assert.hpp>
 
 #include "details/asio.hpp"
+#include "details/functors.hpp"
+#include "details/line_reader.hpp"
 #include "details/range.hpp"
 #include "details/string_utils.hpp"
 #include "details/http_constants.hpp"
 #include "details/iterator_checker.hpp"
+#include "details/request_helper.hpp"
 
 namespace xiva { namespace details {
 
@@ -37,48 +40,56 @@ struct http_request_checker {
 	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
 };
 
-struct websocket_request_checker {
+struct request_policy_checker {
 	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
 };
 
 template <typename Iter> inline std::pair<Iter, bool>
 http_request_checker::operator () (Iter first, Iter last) const {
 
-	typedef std::reverse_iterator<Iter> iterator_type;
 	typedef typename std::iterator_traits<Iter>::value_type char_type;
-	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
+	BOOST_STATIC_ASSERT(sizeof(char_type) == sizeof(char));
 
-	iterator_checker<Iter> iter_check;
-	(void) iter_check;
+	range<Iter> line, end_line;
+	line_reader<Iter> reader(first, last);
+	if (reader.read_line(line, end_line) && !end_line.empty()) {
 
-	iterator_type begin(last), end(first);
-	iterator_type pos = std::find(begin, end, static_cast<char_type>('\n'));
-	if (end != pos) {
-		range<iterator_type> range(pos, end);
-		if (starts_with(range, http_constants<char_type>::reversed_headers_end)) {
-			std::advance(pos, http_constants<char_type>::reversed_headers_end.size());
-			return std::make_pair(pos.base(), true);
-		}
-		else if (starts_with(range, http_constants<char_type>::reversed_nonstd_headers_end)) {
-			std::advance(pos, http_constants<char_type>::reversed_nonstd_headers_end.size());
-			return std::make_pair(pos.base(), true);
+		int read_body_ahead = 0;
+		request_helper<Iter> helper;
+
+		helper.parse_request_line(line);
+		while (reader.read_line(line, end_line)) {
+			int res = helper.check_read_body_ahead(line);
+			if (res > 0) {
+				read_body_ahead = res;
+			}
+			Iter break_ptr;
+			if (helper.find_headers_break(end_line, break_ptr)) {
+				if (!read_body_ahead) {
+					return std::make_pair(end_line.begin(), true);
+				}
+				if (std::distance(break_ptr, last) >= read_body_ahead) {
+					return std::make_pair(last, true);
+				}
+			}
 		}
 	}
+
 	return std::make_pair(last, false);
 }
 
 template <typename Iter> inline std::pair<Iter, bool>
-websocket_request_checker::operator () (Iter first, Iter last) const {
+request_policy_checker::operator () (Iter first, Iter last) const {
 
 	typedef std::reverse_iterator<Iter> iterator_type;
 	typedef typename std::iterator_traits<Iter>::value_type char_type;
-	BOOST_STATIC_ASSERT(sizeof(typename std::iterator_traits<Iter>::value_type) == 1);
+	BOOST_STATIC_ASSERT(sizeof(char_type) == sizeof(char));
 
 	iterator_checker<Iter> iter_check;
 	(void) iter_check;
 
 	iterator_type begin(last), end(first);
-	if ((first != last) && (static_cast<char_type>('<') == *first)) {
+	if (static_cast<char_type>('<') == *first) {
 		return std::make_pair(last, (static_cast<char_type>(0) == *begin));
 	}
 	return std::make_pair(last, false);
@@ -87,22 +98,41 @@ websocket_request_checker::operator () (Iter first, Iter last) const {
 class request_checker {
 
 public:
-	request_checker();
+	explicit request_checker(int max_size);
 	template <typename Iter> std::pair<Iter, bool> operator () (Iter first, Iter second) const;
 
 private:
 	http_request_checker http_checker_;
-	websocket_request_checker websocket_checker_;
+	request_policy_checker policy_checker_;
+	int max_size_;
 };
 
-request_checker::request_checker() 
+request_checker::request_checker(int max_size) : max_size_(max_size)
 {
 }
 
 template <typename Iter> inline std::pair<Iter, bool>
 request_checker::operator () (Iter first, Iter last) const {
-	std::pair<Iter, bool> result = websocket_checker_(first, last);
-	return (result.second) ? result : http_checker_(first, last);
+
+	typedef typename std::iterator_traits<Iter>::difference_type diff_type;
+	diff_type size = std::distance(first, last);
+
+	enum { min_size = sizeof("get / http/1.1\n\n") - 1 };
+	// sizeof ("<policy-file-request/>\0") - 1 > min_size
+
+	if (size < min_size) {
+		return std::make_pair(last, false);
+	}
+	if (size > (diff_type)max_size_) {
+		return std::make_pair(last, true); // will be handled in connection_impl
+	}
+	try {
+		std::pair<Iter, bool> result = policy_checker_(first, last);
+		return (result.second) ? result : http_checker_(first, last);
+	}
+	catch (...) {
+		return std::make_pair(last, true); // will be handled in request_impl
+	}
 }
 
 }} // namespaces

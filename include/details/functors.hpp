@@ -43,6 +43,11 @@ struct is_space : public unary_predicate<is_space<Char>, Char> {
 };
 
 template <typename Char>
+struct is_blank : public unary_predicate<is_blank<Char>, Char> {
+	static bool check(Char value);
+};
+
+template <typename Char>
 struct is_line_end : public unary_predicate<is_line_end<Char>, Char> {
 	static bool check(Char value);
 };
@@ -103,6 +108,11 @@ binary_predicate<Pred, T>::operator () (T const &var, T const &target) const {
 template <typename Char> inline bool
 is_space<Char>::check(Char value) {
 	return char_traits<Char>::is_space(value);
+}
+
+template <typename Char> inline bool
+is_blank<Char>::check(Char value) {
+	return char_traits<Char>::is_blank(value);
 }
 
 template <typename Char> inline bool

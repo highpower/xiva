@@ -30,6 +30,7 @@
 #include "details/urlencode.hpp"
 #include "details/line_reader.hpp"
 #include "details/http_constants.hpp"
+#include "details/request_helper.hpp"
 
 namespace xiva { namespace details {
 
@@ -41,6 +42,7 @@ public:
 	virtual ~request_impl();
 	
 	std::string const& uri() const;
+	std::string const& body() const;
 
 	bool has_param(std::string const &name) const;
 	std::string const& param(std::string const &name) const;
@@ -69,7 +71,6 @@ private:
 	template <typename Iter> void parse_headers_line_impl(range<Iter> const &line);
 
 	template <typename Iter, typename Map> static void parse_to(range<Iter> const &r, Map &map);
-	template <typename Iter> static bool is_required_protocol_version(range<Iter> const &r);
 
 	typedef std::pair<std::string const, std::string> param_type;
 	typedef std::allocator<param_type> allocator_type;
@@ -80,6 +81,7 @@ private:
 
 private:
 	std::string uri_;
+	std::string body_;
 	param_map_type params_;
 	header_map_type headers_;
 	cookie_map_type cookies_;
@@ -103,18 +105,33 @@ request_impl::uri() const {
         return uri_;
 }
 
+inline std::string const&
+request_impl::body() const {
+        return body_;
+}
+
 template <typename Iter> inline void
 request_impl::init(Iter begin, Iter end) {
 
-	range<Iter> line;
+	typedef typename std::iterator_traits<Iter>::value_type char_type;
+
+	request_helper<Iter> helper;
+	range<Iter> line, end_line;
 	line_reader<Iter> reader(begin, end);
 
-	if (!reader.read_line(line)) {
+	if (!reader.read_line(line, end_line)) {
 		throw http_error(http_error::bad_request);
 	}
 	parse_request_line(line, reader.multiline());
-	while (reader.read_line(line)) {
+	while (reader.read_line(line, end_line)) {
 		parse_headers_line(line, reader.multiline());
+		Iter break_ptr;
+		if (helper.find_headers_break(end_line, break_ptr)) {
+			if (break_ptr != end) {
+				body_.assign(break_ptr, end);
+			}
+			break;
+		}
 	}
 }
 
@@ -178,23 +195,9 @@ request_impl::parse_headers_line(range<Iter> const &line, bool multiline) {
 template <typename Iter> inline void
 request_impl::parse_request_line_impl(range<Iter> const &line) {
 
-	typedef typename std::iterator_traits<Iter>::value_type char_type;
-
-	is_space<char_type> space_check;
-	range<Iter> r = line, method, uri, protocol;
-
-	split_if_once(r, space_check, method, r);
-	if (!is_ci_equal(http_constants<char_type>::get, method)) {
-		throw http_error(http_error::method_not_allowed);
-	}
-
-	split_if_once(r, space_check, uri, r);
+	request_helper<Iter> helper;
+	range<Iter> uri = helper.parse_request_line(line);
 	parse_uri(uri);
-
-	split_if_once(r, space_check, protocol, r);
-	if (!is_required_protocol_version(trim(protocol))) {
-		throw http_error(http_error::version_not_supported);
-	}
 }
 
 template <typename Iter> inline void
@@ -203,7 +206,9 @@ request_impl::parse_headers_line_impl(range<Iter> const &line) {
 	typedef typename std::iterator_traits<Iter>::value_type char_type;
 
 	range<Iter> head, tail;
-	split_once(line, ':', head, tail);
+	if (!split_once(line, ':', head, tail)) {
+		throw http_error(http_error::bad_request);
+	}
 
 	tail = trim(tail);
 	head = trim_right(head);
@@ -223,12 +228,6 @@ request_impl::parse_to(range<Iter> const &r, Map &map) {
 	split_once(r, '=', head, tail);
 	map.insert(std::make_pair(urldecode<typename Map::key_type>(head),
 		urldecode<typename Map::mapped_type>(tail)));
-}
-
-template <typename Iter> inline bool
-request_impl::is_required_protocol_version(range<Iter> const &r) {
-	typedef typename std::iterator_traits<Iter>::value_type char_type;
-	return is_ci_equal(http_constants<char_type>::protocol_version, r);
 }
 
 }} // namespaces

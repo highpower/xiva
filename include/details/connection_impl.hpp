@@ -21,6 +21,8 @@
 #include <iosfwd>
 #include <string>
 #include <cassert>
+#include <stdexcept>
+#include <algorithm>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -38,6 +40,7 @@
 #include "details/request_impl.hpp"
 #include "details/response_impl.hpp"
 #include "details/request_checker.hpp"
+#include "details/http_constants.hpp"
 
 namespace xiva { namespace details {
 
@@ -210,14 +213,32 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 	try {
 		typedef streambuf_type::const_buffers_type buffers_type;
 		typedef asio::buffers_iterator<buffers_type> iterator_type;
+		typedef typename iterator_type::difference_type diff_type;
+		typedef typename iterator_type::value_type char_type;
 
 		buffers_type data = in_.data();
 		iterator_type begin = iterator_type::begin(data);
 		iterator_type end = iterator_type::end(data);
-		is_policy_ = data_.is_policy(begin, end);
-		if (is_policy_) {
-			write_policy_data();
+
+		if (begin == end) {
+			throw std::runtime_error("empty request");
 		}
+
+		diff_type sz = std::distance(begin, end);
+		if (sz > (diff_type)data_.max_request_size()) {
+			throw http_error(http_error::entity_too_large);
+		}
+
+		if (*begin == '<') {
+			if (sz != http_constants<char_type>::policy_file_request.size() ||
+				!std::equal(http_constants<char_type>::policy_file_request.begin(),
+					http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>())) {
+				
+				throw std::runtime_error("invalid policy request");
+			}
+			is_policy_ = true;
+			write_policy_data();
+		}		
 		else {
 			parsing_request = true;
 			request_impl req(begin, end);
@@ -327,7 +348,7 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 
 	try {
 		connection_impl_ptr_type self(this);
-		asio::async_read_until(socket_, in_, request_checker(), 
+		asio::async_read_until(socket_, in_, request_checker(data_.max_request_size()), 
 			boost::bind(&type::handle_read, self, asio::placeholders::error));
 		setup_timeout(data_.read_timeout());
 	}

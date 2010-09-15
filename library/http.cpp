@@ -114,6 +114,8 @@ http_status::str(unsigned short code) {
 		return "Not Found";
 	case 405:
 		return "Method Not Allowed";
+	case 413:
+		return "Request Entity Too Large";
 	case 416:
 		return "Requested Range Not Satisfiable";
 

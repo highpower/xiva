@@ -25,9 +25,6 @@
 
 namespace xiva { namespace details {
 
-class websocket_info;
-std::ostream& operator << (std::ostream &stream, websocket_info const &val);
-
 class websocket_info {
 
 public:
@@ -35,18 +32,23 @@ public:
 	
 	bool empty() const;
 	bool valid() const;
+
 	void parse(request_impl const &req);
+
 	static void write_message(std::ostream &stream, std::string const &msg);
+
+	void write_headers(std::ostream &stream) const;
+	void write_body(std::ostream &stream) const;
 
 private:
 	websocket_info(websocket_info const &);
 	websocket_info& operator = (websocket_info const &);
-	friend std::ostream& operator << (std::ostream &stream, websocket_info const &val);
 
-private:	
+private:
 	std::string origin_;
 	std::string protocol_;
 	std::string location_;
+	std::string sec_data_;
 	bool empty_;
 };
 

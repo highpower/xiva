@@ -22,12 +22,14 @@ using namespace details;
 typedef boost::mpl::list<std::vector<char>, std::list<char>,
 range<char const*>, std::string> checker_test_types;
 
+enum { MAX_REQUEST_SIZE = 128 };
+
 BOOST_AUTO_TEST_SUITE(checker_test)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_empty, Range, checker_test_types) {
 
 	Range range;
-	request_checker checker;
+	request_checker checker(MAX_REQUEST_SIZE);
 
 	std::pair<typename Range::iterator, bool> result = checker(range.begin(), range.end());
 	BOOST_CHECK(!result.second);
@@ -35,7 +37,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_empty, Range, checker_test_types) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_standard, Range, checker_test_types) {
 
-	request_checker checker;
+	request_checker checker(MAX_REQUEST_SIZE);
 	is_line_end<char> line_end;
 	Range range = as<Range>("GET / HTTP/1.1\r\nHost: xiva.yandex.net\r\n\r\n");
 
@@ -46,7 +48,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_standard, Range, checker_test_types) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_nonstandard, Range, checker_test_types) {
 
-	request_checker checker;
+	request_checker checker(MAX_REQUEST_SIZE);
 	is_line_end<char> line_end;
 	Range range = as<Range>("GET / HTTP/1.1\nHost: xiva.yandex.net\n\n");
 
@@ -57,11 +59,23 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_nonstandard, Range, checker_test_types) {
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_noline_breaks, Range, checker_test_types) {
 
-	request_checker checker;
+	request_checker checker(MAX_REQUEST_SIZE);
 	Range range = as<Range>("GET / HTTP/1.1");
 
 	std::pair<typename Range::iterator, bool> result = checker(range.begin(), range.end());
 	BOOST_CHECK(!result.second);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_too_large, Range, checker_test_types) {
+
+	enum { MAX_SIZE = 20 };
+	request_checker checker(MAX_SIZE);
+	Range range = as<Range>("GET / HTTP/1.1\nHost: xiva.yandex.net\n\n");
+	BOOST_CHECK(range.size() > MAX_SIZE);
+
+	std::pair<typename Range::iterator, bool> result = checker(range.begin(), range.end());
+	BOOST_CHECK(result.first == range.end());
+	BOOST_CHECK(result.second);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

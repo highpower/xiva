@@ -27,12 +27,11 @@ namespace xiva { namespace details {
 template <typename Char>
 struct http_constants;
 
-template <>
-struct http_constants<const char> {
-
+struct http_constants_char {
 	static char const* const endl;
-	static std::string const empty_string;
+	static range<char const*> const range_endl;
 
+	static std::string const empty_string;
 	static range<char const*> const get;
 	static range<char const*> const range_name;
 	static range<char const*> const cookie;
@@ -40,27 +39,19 @@ struct http_constants<const char> {
 	static range<char const*> const protocol_version;
 	static range<char const*> const policy_file_request;
 
-	static range<char const*> const reversed_headers_end;
-	static range<char const*> const reversed_nonstd_headers_end;
+	static range<char const*> const sec_websocket_key1;
+
+	static range<char const*> const headers_end;
+	static range<char const*> const nonstd_headers_end;
 };
 
 template <>
-struct http_constants<char> {
-
-        static char const* const endl;
-        static std::string const empty_string;
-
-        static range<char const*> const get;
-        static range<char const*> const range_name;
-        static range<char const*> const cookie;
-        static range<char const*> const param_delimiter;
-        static range<char const*> const protocol_version;
-        static range<char const*> const policy_file_request;
-
-        static range<char const*> const reversed_headers_end;
-        static range<char const*> const reversed_nonstd_headers_end;
+struct http_constants<const char> : public http_constants_char {
 };
 
+template <>
+struct http_constants<char> : public http_constants_char {
+};
 
 }} // namespaces
 

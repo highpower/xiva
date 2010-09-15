@@ -18,15 +18,11 @@
 #ifndef XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 #define XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 
-#include <iterator>
-#include <map>
+#include <string>
 #include <memory>
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-
-#include "details/http_constants.hpp"
-#include "details/functors.hpp"
 
 namespace xiva { namespace details {
 
@@ -41,6 +37,7 @@ public:
 	unsigned int write_timeout() const;
 	unsigned int inactive_timeout() const;
 	unsigned int ping_interval() const;
+	unsigned int max_request_size() const;
 
 	boost::intrusive_ptr<response_handler> const& handler() const;
 	void handler(boost::intrusive_ptr<response_handler> const &h);
@@ -50,9 +47,6 @@ public:
 
 	formatters_factory const& fmt_factory() const;
 	formatters_factory& fmt_factory();
-
-	template <typename Iter>
-	static bool is_policy(Iter begin, Iter end);
 
 	std::string const& policy_data() const;
 
@@ -69,19 +63,9 @@ private:
 	boost::intrusive_ptr<response_handler> handler_;
 	unsigned int read_timeout_, write_timeout_, inactive_timeout_;
 	unsigned int ping_interval_;
+	unsigned int max_request_size_;
 	bool stopping_;
 };
-
-template <typename Iter> bool
-connection_data::is_policy(Iter begin, Iter end) {
-
-	typedef typename std::iterator_traits<Iter>::value_type char_type;
-	if (std::distance(begin, end) < http_constants<char_type>::policy_file_request.size()) {
-		return false;
-	}
-	return std::equal(http_constants<char_type>::policy_file_request.begin(), 
-		http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>());
-}
 
 inline unsigned int
 connection_data::read_timeout() const {
@@ -101,6 +85,11 @@ connection_data::inactive_timeout() const {
 inline unsigned int
 connection_data::ping_interval() const {
 	return ping_interval_;
+}
+
+inline unsigned int
+connection_data::max_request_size() const {
+	return max_request_size_;
 }
 
 inline std::string const&

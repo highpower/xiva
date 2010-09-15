@@ -29,6 +29,7 @@ template <>
 struct char_traits<char> {
 
 	static bool is_space(char value);
+	static bool is_blank(char value);
 	static bool is_alpha(char value);
 	static bool is_alpha_numeric(char value);
 
@@ -39,6 +40,11 @@ struct char_traits<char> {
 inline bool
 char_traits<char>::is_space(char value) {
 	return isspace(value);
+}
+
+inline bool
+char_traits<char>::is_blank(char value) {
+	return isblank(value);
 }
 
 inline bool
@@ -66,6 +72,7 @@ template <>
 struct char_traits<const char> {
 
         static bool is_space(const char value);
+        static bool is_blank(const char value);
         static bool is_alpha(const char value);
         static bool is_alpha_numeric(const char value);
 
@@ -76,6 +83,11 @@ struct char_traits<const char> {
 inline bool
 char_traits<const char>::is_space(const char value) {
         return isspace(value);
+}
+
+inline bool
+char_traits<const char>::is_blank(const char value) {
+	return isblank(value);
 }
 
 inline bool

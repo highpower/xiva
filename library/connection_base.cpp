@@ -114,7 +114,7 @@ connection_base::print_headers(std::string const &content_type, std::streambuf &
 
 	std::ostream stream(&buf);
 	if (is_websocket) {
-		stream << ws_info_;
+		ws_info_.write_headers(stream);
 	}
 	else {
 		stream << http_status(200);
@@ -125,6 +125,9 @@ connection_base::print_headers(std::string const &content_type, std::streambuf &
 	stream << http_header::server();
 	stream << http_header("Content-Type", content_type.c_str());
 	stream << http_constants<char>::endl;
+	if (is_websocket) {
+		ws_info_.write_body(stream);
+	}
 	return true;
 }
 
