@@ -175,11 +175,11 @@ $(document).ready(function() {
 
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
-    var client = new XMLHttpRequest();
-    client.onreadystatechange = function() {};
-    client.open("POST", "/xiva");
-    client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');  
-    client.send(message);
+    $.ajax({
+      type: 'POST',
+      url: '/xiva',
+      data: message
+    });
   }
 
   function receiveMessage(messageObj) {
