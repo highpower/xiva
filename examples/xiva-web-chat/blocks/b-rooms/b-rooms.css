@@ -14,15 +14,18 @@
 
 .b-rooms .b-rooms__room:hover {
   background-color: #F9F9F9;
-  background: -moz-linear-gradient(90deg, #F9F9F9, #FFF)
+  background: -moz-linear-gradient(90deg, #F9F9F9, #FFF);
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#F9F9F9));
 }
 
 .b-rooms .b-rooms__room_active, .b-rooms .b-rooms__room_active:hover {
   font-weight: bold;
+
   background: #EEE;
 }
 
 .b-rooms .b-rooms__room__unread {
   margin-left: 5px;
+
   font-weight: bold;
 }

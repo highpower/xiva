@@ -23,7 +23,8 @@ $(document).ready(function() {
   var ws;
 
   // WebSocket implementation
-  WebSocket.__swfLocation = 'web-socket-js/WebSocketMain.swf';
+  WEB_SOCKET_SWF_LOCATION = "web-socket-js/WebSocketMain.swf";
+  WEB_SOCKET_DEBUG = true;
 
   var initSocket = function() {
     // Connect to Web Socket.
@@ -77,7 +78,9 @@ $(document).ready(function() {
     
     // Show chat window    
     bChatLogin.addClass('g-hidden');
-    bChatChat.removeClass('g-hidden');
+    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
+      $(this).height('auto');
+    });
     
     // Show current chat room
     $('#messages_' + currentRoom).removeClass('g-hidden');
@@ -96,19 +99,31 @@ $(document).ready(function() {
     postMessage("login", {});
   });
   
-  messageArea.keydown(function(e) {
-    var target = $(this);
+  
+  var createTextareaListener = function() {
+    messageArea = $('.b-writemessage__area', bMessageArea);
 
-    if (e.keyCode == 13) {
-      e.preventDefault();
+    messageArea.keydown(function(e) {
+      var target = $(this);
 
-      if (target.val() != '') {
-        postMessage("message", {});
-        target.val('');
+      if (e.keyCode == 13) {
+        e.preventDefault();
+
+        if (target.val() != '') {
+          postMessage("message", {});
+          target.val('');
+
+          // Despite e.preventDefault(), a line break is still inserted in Opera - fix by recreating the textarea
+          if (window.opera) {
+            target.replaceWith('<textarea class="b-writemessage__area" cols="" rows=""></textarea>');
+            createTextareaListener();
+          }
+        }
       }
-    }
-  });
-
+    });
+  };
+  
+  createTextareaListener();
   userLinks.live('click', function(e) {
     var target = $(this);
 
@@ -160,11 +175,11 @@ $(document).ready(function() {
 
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
-    var client = new XMLHttpRequest();
-    client.onreadystatechange = function() {};
-    client.open("POST", "/xiva");
-    client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');  
-    client.send(message);
+    $.ajax({
+      type: 'POST',
+      url: '/xiva',
+      data: message
+    });
   }
 
   function receiveMessage(messageObj) {
@@ -177,7 +192,7 @@ $(document).ready(function() {
         type = messageObj.type,
         text = decodeMessage(messageObj.text),
         params = messageObj.params,
-        date = new Date();
+        date = formatDate(new Date());
 
     if (type == "message") {
       var message = $('<div class="b-message" style="opacity: 0.5">' +
@@ -284,6 +299,10 @@ $(document).ready(function() {
       a.push(arr[i]);
     }
     return a;
+  }
+  
+  function formatDate(date) {
+    return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
   }
 
   // Encodes a string into a sequence of \uXXXX codes
