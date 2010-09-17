@@ -31,6 +31,9 @@
 
 .b-login .b-login__field input, .b-login .b-login__field select {
   width: 180px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 .b-login .b-login__field input {
