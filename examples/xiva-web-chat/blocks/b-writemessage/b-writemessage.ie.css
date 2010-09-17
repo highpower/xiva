@@ -1,0 +1,7 @@
+* html .b-writemessage {
+  margin-top: -56px;
+}
+
+* html .b-writemessage .b-writemessage__area {
+  width: 585px;
+}
