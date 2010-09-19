@@ -1,3 +1,7 @@
-.b-login .b-login__field input, .b-login .b-login__field select {
+* html .b-login .b-login__field input {
   width: 130px;
+}
+
+* html .b-login .b-login__field select {
+  width: 134px;
 }

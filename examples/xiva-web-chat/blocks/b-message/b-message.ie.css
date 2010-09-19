@@ -1,0 +1,9 @@
+* html .b-message .b-message__head {
+  height: 15px;
+  
+  font-size: 85%;
+}
+
+* html .b-message .b-message__head__user {
+  width: 45%;
+}
