@@ -76,8 +76,8 @@ struct char_traits<const char> {
         static bool is_alpha(const char value);
         static bool is_alpha_numeric(const char value);
 
-        static const char to_upper(const char value);
-        static const char to_lower(const char value);
+        static char to_upper(const char value);
+        static char to_lower(const char value);
 };
 
 inline bool
@@ -100,12 +100,12 @@ char_traits<const char>::is_alpha_numeric(const char value) {
         return isalnum(value);
 }
 
-inline const char
+inline char
 char_traits<const char>::to_upper(const char value) {
         return toupper(value);
 }
 
-inline const char
+inline char
 char_traits<const char>::to_lower(const char value) {
         return tolower(value);
 }
