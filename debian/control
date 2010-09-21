@@ -1,7 +1,7 @@
 Source: xiva
 Priority: optional
 Maintainer: Oleg Obolenskiy <highpower@yandex-team.ru>
-Build-Depends: debhelper (>= 4.0.0), automake1.9, libtool, autotools-dev, libboost-dev, libboost-thread-dev, libboost-regex-dev, libboost-date-time-dev, libasio-dev, python-dev, libssl-dev
+Build-Depends: debhelper (>= 4.0.0), automake1.9, libtool, autotools-dev, libboost-dev, libboost-thread-dev, libboost-regex-dev, libboost-date-time-dev, libboost-dev (>= 1.40) | libasio-dev, python-dev, libssl-dev
 Standards-Version: 3.6.1
 Section: libs
 
