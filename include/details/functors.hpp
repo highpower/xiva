@@ -73,8 +73,18 @@ struct ci_less<char> : public std::binary_function<char, char, bool> {
 };
 
 template <>
+struct ci_less<const char> : public std::binary_function<const char, const char, bool> {
+	bool operator () (const char var, const char target) const;
+};
+
+template <>
 struct ci_equal<char> : public std::binary_function<char, char, bool> {
 	bool operator () (char var, char target) const;
+};
+
+template <>
+struct ci_equal<const char> : public std::binary_function<const char, const char, bool> {
+	bool operator () (const char var, const char target) const;
 };
 
 template <typename R1, typename R2> inline bool
@@ -141,8 +151,18 @@ ci_less<char>::operator () (char var, char target) const {
 }
 
 inline bool
+ci_less<const char>::operator () (const char var, const char target) const {
+	return char_traits<const char>::to_lower(var) < char_traits<const char>::to_lower(target);
+}
+
+inline bool
 ci_equal<char>::operator () (char var, char target) const {
 	return char_traits<char>::to_lower(var) == char_traits<char>::to_lower(target);
+}
+
+inline bool
+ci_equal<const char>::operator () (const char var, const char target) const {
+	return char_traits<const char>::to_lower(var) == char_traits<const char>::to_lower(target);
 }
 
 }} // namespaces
