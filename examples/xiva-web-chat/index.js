@@ -20,36 +20,25 @@ $(document).ready(function() {
   var usernames = {};
   var currentName, currentRoom;
 
-  var ws;
-
-  // WebSocket implementation
-  WEB_SOCKET_SWF_LOCATION = "web-socket-js/WebSocketMain.swf";
-  WEB_SOCKET_DEBUG = true;
-
-  var initSocket = function() {
-    // Connect to Web Socket.
-    // Change host/port here to your own Web Socket server.
-    ws = new WebSocket('ws://leonya.dev.yandex.net:8881/?id=chat');
-
-    // Set event handlers.
-    ws.onopen = function() {
-      if (inited === false) {
-        loginButton.removeClass('b-login__send_disabled').html('Login');
-        messageArea.val('');
-        inited = true;
-      }
-    };
-    
-    ws.onmessage = function(e) {
-      receiveMessage(e.data);
-    };
-    
-    ws.onclose = function() {
-      setTimeout(initSocket, 1000);
-    };
+  var onopen = function() {
+    if (inited === false) {
+      loginButton.removeClass('b-login__send_disabled').html('Login');
+      messageArea.val('');
+      inited = true;
+    }
   };
 
-  initSocket();
+  var onmessage = function(e) {
+    receiveMessage(e.data);
+  };
+
+  var onclose = function() {
+    setTimeout(transport.initSocket, 1000);
+  };
+  
+  var transport = new Xiva.Transport(onopen, onmessage, onclose);
+  
+  transport.initSocket();
 
   // UI
   loginButton.click(function(e) {
@@ -175,11 +164,7 @@ $(document).ready(function() {
 
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
-    $.ajax({
-      type: 'POST',
-      url: '/xiva',
-      data: message
-    });
+    transport.postMessage(message);
   }
 
   function receiveMessage(messageObj) {
