@@ -68,6 +68,7 @@ class XivaHandler(object):
 			resp.content('pong\n')
 			return
 		resp.content_type('application/x-javascript; charset=utf-8')
+		resp.single_message(req.has_param("single"))
 		fmt_id = "simple"
 		resp.formatter_id(fmt_id)
 		channels = req.param("channels")
