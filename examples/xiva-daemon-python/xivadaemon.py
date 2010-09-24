@@ -114,9 +114,11 @@ class XivaListenerLog(object):
 
 class XivaFormatterSimple(object):
 	def __init__(self, req):
-		pass
+		self.__callback = req.param("callback")
 
 	def wrap_message(self, content):
+		if len(self.__callback) > 0:
+			return self.__callback + "(" + content + ")\n"
 		return content + "\n" #"{'" + content + "'}\n" #simple version
 
 	def ping_message(self):
