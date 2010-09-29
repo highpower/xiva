@@ -33,7 +33,9 @@ $(document).ready(function() {
   };
 
   var onclose = function() {
-    setTimeout(transport.initSocket, 1000);
+    setTimeout(function(transport) {
+      transport.initSocket();
+    }(transport), 1000);
   };
   
   var transport = new Xiva.Transport(onopen, onmessage, onclose);

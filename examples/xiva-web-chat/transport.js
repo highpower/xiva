@@ -17,12 +17,11 @@ Xiva.Transport = function(onopen, onmessage, onclose) {
 
 Xiva.Transport.prototype = {
   initSocket: function() {
-    var self = this;
     if ((window.WebSocket && window.WebSocket.toString().match(/\[native code\]/)) || swfobject.hasFlashPlayerVersion("9.0.0")) {
-      self.initWSTransport();
+      this.initWSTransport();
     } else {
-      self.initXHRTransport();
-      self.onopen();
+      this.initXHRTransport();
+      this.onopen();
     }
   },
   
