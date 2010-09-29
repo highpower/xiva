@@ -11,99 +11,46 @@ $(document).ready(function() {
   var bMessageArea = $('.b-writemessage');
 
   // Elements
+  var loginForm = $('.b-login__form', bLogin);
+  var loginButton = $('.b-login__send', bLogin);
   var userContainer = $('.b-userlist__users', bUserList);
   var userLinks = $('a.b-userlist__user', bUserList);
   var roomLinks = $('.b-rooms__room a', bRooms);
   var messageArea = $('.b-writemessage__area', bMessageArea);
-  var loginButton = $('.b-login__send', bLogin);
   
   var usernames = {};
   var currentName, currentRoom;
 
-  var ws;
-
-  // WebSocket implementation
-  WEB_SOCKET_SWF_LOCATION = "web-socket-js/WebSocketMain.swf";
-  WEB_SOCKET_DEBUG = true;
-
-  var initSocket = function() {
-    // Connect to Web Socket.
-    // Change host/port here to your own Web Socket server.
-    ws = new WebSocket('ws://leonya.dev.yandex.net:8881/?id=chat');
-
-    // Set event handlers.
-    ws.onopen = function() {
-      if (inited === false) {
-        loginButton.removeClass('b-login__send_disabled').html('Login');
-        messageArea.val('');
-        inited = true;
-      }
-    };
-    
-    ws.onmessage = function(e) {
-      receiveMessage(e.data);
-    };
-    
-    ws.onclose = function() {
-      setTimeout(initSocket, 1000);
-    };
+  var onopen = function() {
+    if (inited === false) {
+      loginButton.removeClass('b-login__send_disabled').html('Login');
+      messageArea.val('');
+      inited = true;
+    }
   };
 
-  initSocket();
+  var onmessage = function(e) {
+    e.data && receiveMessage(e.data);
+  };
+
+  var onclose = function() {
+    setTimeout(function(transport) {
+      transport.initSocket();
+    }(transport), 1000);
+  };
+  
+  var transport = new Xiva.Transport(onopen, onmessage, onclose);
+  
+  transport.initSocket();
 
   // UI
-  loginButton.click(function(e) {
-    e.preventDefault();
-    
-    var loginName = $('#username');
-    var loginRoom = $('#roomname :selected');
-    
-    var loginFieldContainer = loginName.parent();
-    var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
-
-    if (isValidUser(loginName.val())) {
-      loginFieldContainer.removeClass('b-login__field_invalid');
-      loginErrorContainer.addClass('g-hidden');
-    } else {
-      bChatLogin.effect('shake', {distance: 10, times: 2}, 35, function() {
-        loginFieldContainer.addClass('b-login__field_invalid');
-        loginErrorContainer.removeClass('g-hidden');
-        loginName.focus();
-      });
-      return;
-    }
-
-    currentName = loginName.val();
-    currentRoom = loginRoom.attr('name');
-    
-    // Show chat window    
-    bChatLogin.addClass('g-hidden');
-    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
-      $(this).height('auto');
-    });
-    
-    // Show current chat room
-    $('#messages_' + currentRoom).removeClass('g-hidden');
-    $('header h1').html('Xiva Chatroom &mdash; ' + $('#' + currentRoom).html());
-    
-    // Make chosen room active
-    var roomElement = $('#' + currentRoom).parent();
-    
-    roomElement.addClass('b-rooms__room_active');
-    roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
-    
-    // Append user to the userlist
-    bUserList.removeClass('g-hidden');
-
-    // Send 'login' event
-    postMessage("login", {});
-  });
-  
+  loginButton.click(login);
+  loginForm.submit(login);
   
   var createTextareaListener = function() {
     messageArea = $('.b-writemessage__area', bMessageArea);
 
-    messageArea.keydown(function(e) {
+    messageArea.keypress(function(e) {
       var target = $(this);
 
       if (e.keyCode == 13) {
@@ -164,22 +111,67 @@ $(document).ready(function() {
     postMessage("switch", {oldRoom: _currentRoom, newRoom: _newRoom});
   });
   
+  function login(e) {
+    e.preventDefault();
+    
+    var loginName = $('#username');
+    var loginRoom = $('#roomname :selected');
+    
+    var loginFieldContainer = loginName.parent();
+    var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
+
+    if (isValidUser(loginName.val())) {
+      loginFieldContainer.removeClass('b-login__field_invalid');
+      loginErrorContainer.addClass('g-hidden');
+    } else {
+      bChatLogin.effect('shake', {distance: 10, times: 2}, 35, function() {
+        loginFieldContainer.addClass('b-login__field_invalid');
+        loginErrorContainer.removeClass('g-hidden');
+        loginName.focus();
+      });
+      return;
+    }
+
+    currentName = loginName.val();
+    currentRoom = loginRoom.attr('name');
+    
+    // Show chat window    
+    bChatLogin.addClass('g-hidden');
+    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
+      $(this).height('auto');
+    });
+    
+    // Show current chat room
+    $('#messages_' + currentRoom).removeClass('g-hidden');
+    $('header h1').html('Xiva Chatroom &mdash; ' + $('#' + currentRoom).html());
+    
+    // Make chosen room active
+    var roomElement = $('#' + currentRoom).parent();
+    
+    roomElement.addClass('b-rooms__room_active');
+    roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
+    
+    // Append user to the userlist
+    bUserList.removeClass('g-hidden');
+
+    // Send 'login' event
+    postMessage("login", {});
+    
+    messageArea.focus();
+  }
+  
   function postMessage(type, params) {
     var messageObj = {
-      username: encodeMessage(currentName),
+      username: transport.encodeMessage(currentName),
       room: currentRoom,
       type: type,
-      text: (type == "message") ? encodeMessage(messageArea.val()) : '',
+      text: (type == "message") ? transport.encodeMessage(messageArea.val()) : '',
       params: params
     };
-
+    
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
-    $.ajax({
-      type: 'POST',
-      url: '/xiva',
-      data: message
-    });
+    transport.postMessage(message);
   }
 
   function receiveMessage(messageObj) {
@@ -187,10 +179,10 @@ $(document).ready(function() {
     
     messageObj = JSON.parse(messageObj);
 
-    var username = decodeMessage(messageObj.username),
+    var username = transport.decodeMessage(messageObj.username),
         room = messageObj.room,
         type = messageObj.type,
-        text = decodeMessage(messageObj.text),
+        text = transport.decodeMessage(messageObj.text),
         params = messageObj.params,
         date = formatDate(new Date());
 
@@ -248,7 +240,7 @@ $(document).ready(function() {
     // Remove user from current room
     var currentRoomUsers = usernames[currentRoom] || [];
 
-    var idx = currentRoomUsers.indexOf(username);
+    var idx = currentRoomUsers.indexOf && currentRoomUsers.indexOf(username);
 
     idx > -1 && currentRoomUsers.splice(idx, 1);
   }
@@ -303,48 +295,5 @@ $(document).ready(function() {
   
   function formatDate(date) {
     return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
-  }
-
-  // Encodes a string into a sequence of \uXXXX codes
-  function encodeMessage(str) {
-    var encodedStr = '';
-
-    function pad(chr) {
-      while (chr.length < 4) {
-        chr = '0' + chr;
-      }
-
-      return chr;
-    }
-
-    for (var i=0; i<str.length; i++) {
-      var chr = '\\u';
-
-      chr += pad(str[i].charCodeAt(0).toString(16));
-
-      encodedStr += chr;
-    }
-
-    return encodedStr;
-  }
-
-  // Decodes a sequence of \uXXXX codes
-  function decodeMessage(str) {
-    var decodedStr = '';
-
-    for (var i=0; i<str.length; i++) {
-      var charCode = '';
-
-      charCode += str[i+2];
-      charCode += str[i+3];
-      charCode += str[i+4];
-      charCode += str[i+5];
-
-      decodedStr += String.fromCharCode(parseInt(charCode, 16));
-
-      i+=5;
-    }
-
-    return decodedStr.replace(/^[0]+}/, '');
   }
 });
