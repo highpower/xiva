@@ -11,11 +11,12 @@ $(document).ready(function() {
   var bMessageArea = $('.b-writemessage');
 
   // Elements
+  var loginForm = $('.b-login__form', bLogin);
+  var loginButton = $('.b-login__send', bLogin);
   var userContainer = $('.b-userlist__users', bUserList);
   var userLinks = $('a.b-userlist__user', bUserList);
   var roomLinks = $('.b-rooms__room a', bRooms);
   var messageArea = $('.b-writemessage__area', bMessageArea);
-  var loginButton = $('.b-login__send', bLogin);
   
   var usernames = {};
   var currentName, currentRoom;
@@ -43,53 +44,8 @@ $(document).ready(function() {
   transport.initSocket();
 
   // UI
-  loginButton.click(function(e) {
-    e.preventDefault();
-    
-    var loginName = $('#username');
-    var loginRoom = $('#roomname :selected');
-    
-    var loginFieldContainer = loginName.parent();
-    var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
-
-    if (isValidUser(loginName.val())) {
-      loginFieldContainer.removeClass('b-login__field_invalid');
-      loginErrorContainer.addClass('g-hidden');
-    } else {
-      bChatLogin.effect('shake', {distance: 10, times: 2}, 35, function() {
-        loginFieldContainer.addClass('b-login__field_invalid');
-        loginErrorContainer.removeClass('g-hidden');
-        loginName.focus();
-      });
-      return;
-    }
-
-    currentName = loginName.val();
-    currentRoom = loginRoom.attr('name');
-    
-    // Show chat window    
-    bChatLogin.addClass('g-hidden');
-    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
-      $(this).height('auto');
-    });
-    
-    // Show current chat room
-    $('#messages_' + currentRoom).removeClass('g-hidden');
-    $('header h1').html('Xiva Chatroom &mdash; ' + $('#' + currentRoom).html());
-    
-    // Make chosen room active
-    var roomElement = $('#' + currentRoom).parent();
-    
-    roomElement.addClass('b-rooms__room_active');
-    roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
-    
-    // Append user to the userlist
-    bUserList.removeClass('g-hidden');
-
-    // Send 'login' event
-    postMessage("login", {});
-  });
-  
+  loginButton.click(login);
+  loginForm.submit(login);
   
   var createTextareaListener = function() {
     messageArea = $('.b-writemessage__area', bMessageArea);
@@ -154,6 +110,55 @@ $(document).ready(function() {
     currentRoom = newRoom;
     postMessage("switch", {oldRoom: _currentRoom, newRoom: _newRoom});
   });
+  
+  function login(e) {
+    e.preventDefault();
+    
+    var loginName = $('#username');
+    var loginRoom = $('#roomname :selected');
+    
+    var loginFieldContainer = loginName.parent();
+    var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
+
+    if (isValidUser(loginName.val())) {
+      loginFieldContainer.removeClass('b-login__field_invalid');
+      loginErrorContainer.addClass('g-hidden');
+    } else {
+      bChatLogin.effect('shake', {distance: 10, times: 2}, 35, function() {
+        loginFieldContainer.addClass('b-login__field_invalid');
+        loginErrorContainer.removeClass('g-hidden');
+        loginName.focus();
+      });
+      return;
+    }
+
+    currentName = loginName.val();
+    currentRoom = loginRoom.attr('name');
+    
+    // Show chat window    
+    bChatLogin.addClass('g-hidden');
+    bChatChat.removeClass('g-hidden').slideDown(1000, function() {
+      $(this).height('auto');
+    });
+    
+    // Show current chat room
+    $('#messages_' + currentRoom).removeClass('g-hidden');
+    $('header h1').html('Xiva Chatroom &mdash; ' + $('#' + currentRoom).html());
+    
+    // Make chosen room active
+    var roomElement = $('#' + currentRoom).parent();
+    
+    roomElement.addClass('b-rooms__room_active');
+    roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
+    
+    // Append user to the userlist
+    bUserList.removeClass('g-hidden');
+
+    // Send 'login' event
+    postMessage("login", {});
+    
+    messageArea.focus();
+  }
   
   function postMessage(type, params) {
     var messageObj = {

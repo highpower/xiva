@@ -17,7 +17,8 @@ Xiva.Transport = function(onopen, onmessage, onclose) {
 
 Xiva.Transport.prototype = {
   initSocket: function() {
-    if ((window.WebSocket && window.WebSocket.toString().match(/\[native code\]/)) || swfobject.hasFlashPlayerVersion("9.0.0")) {
+    // Even though WS works in IE, connection setup is really slow, so it's probably better to use the XHR transport.
+    if (((window.WebSocket && window.WebSocket.toString().match(/\[native code\]/)) || swfobject.hasFlashPlayerVersion("9.0.0")) && !$.browser.msie) {
       this.initWSTransport();
     } else {
       this.initXHRTransport();
