@@ -68,6 +68,7 @@ class XivaHandler(object):
 			resp.content('pong\n')
 			return
 		resp.content_type('application/x-javascript; charset=utf-8')
+		resp.single_message(req.has_param("single"))
 		fmt_id = "simple"
 		resp.formatter_id(fmt_id)
 		channels = req.param("channels")
@@ -113,9 +114,11 @@ class XivaListenerLog(object):
 
 class XivaFormatterSimple(object):
 	def __init__(self, req):
-		pass
+		self.__callback = req.param("callback")
 
 	def wrap_message(self, content):
+		if len(self.__callback) > 0:
+			return self.__callback + "(" + content + ")\n"
 		return content + "\n" #"{'" + content + "'}\n" #simple version
 
 	def ping_message(self):
