@@ -29,7 +29,7 @@ $(document).ready(function() {
   };
 
   var onmessage = function(e) {
-    receiveMessage(e.data);
+    e.data && receiveMessage(e.data);
   };
 
   var onclose = function() {

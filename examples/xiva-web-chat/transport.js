@@ -3,9 +3,13 @@ var Xiva = {};
 Xiva.Transport = function(onopen, onmessage, onclose) {
   this.ws = null;
   
+  this.ws_url = window.location.hostname.toString() + ':8881/?id=chat';
+  
   this.onopen = onopen;
   this.onmessage = onmessage;
   this.onclose = onclose;
+  
+  this.connectionError = 0;
     
   window.WEB_SOCKET_SWF_LOCATION = "web-socket-js/WebSocketMain.swf";
   window.WEB_SOCKET_DEBUG = true;
@@ -17,13 +21,14 @@ Xiva.Transport.prototype = {
       this.initWSTransport();
     } else {
       this.initXHRTransport();
+      this.onopen();
     }
   },
   
   initWSTransport: function() {
     // Connect to Web Socket.
     // Change host/port here to your own Web Socket server.
-    this.ws = new WebSocket('ws://' + window.location.hostname.toString() + ':8881/?id=chat');
+    this.ws = new WebSocket('ws://' + this.ws_url);
 
     // Set event handlers.
     this.ws.onopen = this.onopen;
@@ -32,6 +37,29 @@ Xiva.Transport.prototype = {
   },
   
   initXHRTransport: function() {
+    var self = this;
+        
+    // A very simple JSON-P transport. Won't care about message ordering, stalled connections, or whatever.
+    $.ajax({
+      url: 'http://' + this.ws_url + '&single',
+      dataType: 'jsonp',
+      context: this,
+      success: function(data) {
+        this.connectionError = 0;
+        this.onmessage({data: JSON.stringify(data)}); // Simulate the WS response object
+        this.initXHRTransport(); // Reconnect
+      },
+      error: function() {
+        // Some trivial error protection
+        this.connectionError++;
+
+        if (connectionError < 10) {
+          window.setTimeout(function() {
+            this.initXHRTransport();
+          }, 100 * this.connectionError);
+        }
+      }
+    });
   },
   
   postMessage: function(message) {
