@@ -17,11 +17,12 @@ Xiva.Transport = function(onopen, onmessage, onclose) {
 
 Xiva.Transport.prototype = {
   initSocket: function() {
-    if (window.WebSocket.toString().match(/\[native code\]/) || swfobject.hasFlashPlayerVersion("9.0.0")) {
-      this.initWSTransport();
+    var self = this;
+    if ((window.WebSocket && window.WebSocket.toString().match(/\[native code\]/)) || swfobject.hasFlashPlayerVersion("9.0.0")) {
+      self.initWSTransport();
     } else {
-      this.initXHRTransport();
-      this.onopen();
+      self.initXHRTransport();
+      self.onopen();
     }
   },
   
@@ -68,5 +69,54 @@ Xiva.Transport.prototype = {
       url: '/xiva',
       data: message
     });
+  },
+  
+  // Encodes a string into a sequence of \uXXXX codes
+  encodeMessage: function(str) {
+    var encodedStr = '';
+
+    function pad(chr) {
+      while (chr.length < 4) {
+        chr = '0' + chr;
+      }
+
+      return chr;
+    }
+    
+    for (var i=0; i<str.length; i++) {
+      var chr = '\\u';
+
+      chr += pad(str.charCodeAt(i).toString(16));
+
+      encodedStr += chr;
+    }
+
+    return encodedStr;
+  },
+
+  // Decodes a sequence of \uXXXX codes
+  decodeMessage: function(str) {
+    // This is not an encoded string
+    if (str.indexOf('\\u') == -1) {
+      return str;
+    }
+    
+    var decodedStr = '';
+
+    for (var i=0; i<str.length; i++) {
+      var charCode = '';
+
+      charCode += str[i+2];
+      charCode += str[i+3];
+      charCode += str[i+4];
+      charCode += str[i+5];
+
+      decodedStr += String.fromCharCode(parseInt(charCode, 16));
+
+      i+=5;
+    }
+
+    return decodedStr.replace(/^[0]+}/, '');
   }
+  
 };

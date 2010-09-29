@@ -92,7 +92,7 @@ $(document).ready(function() {
   var createTextareaListener = function() {
     messageArea = $('.b-writemessage__area', bMessageArea);
 
-    messageArea.keydown(function(e) {
+    messageArea.keypress(function(e) {
       var target = $(this);
 
       if (e.keyCode == 13) {
@@ -155,13 +155,13 @@ $(document).ready(function() {
   
   function postMessage(type, params) {
     var messageObj = {
-      username: encodeMessage(currentName),
+      username: transport.encodeMessage(currentName),
       room: currentRoom,
       type: type,
-      text: (type == "message") ? encodeMessage(messageArea.val()) : '',
+      text: (type == "message") ? transport.encodeMessage(messageArea.val()) : '',
       params: params
     };
-
+    
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
     
     transport.postMessage(message);
@@ -172,10 +172,10 @@ $(document).ready(function() {
     
     messageObj = JSON.parse(messageObj);
 
-    var username = decodeMessage(messageObj.username),
+    var username = transport.decodeMessage(messageObj.username),
         room = messageObj.room,
         type = messageObj.type,
-        text = decodeMessage(messageObj.text),
+        text = transport.decodeMessage(messageObj.text),
         params = messageObj.params,
         date = formatDate(new Date());
 
@@ -233,7 +233,7 @@ $(document).ready(function() {
     // Remove user from current room
     var currentRoomUsers = usernames[currentRoom] || [];
 
-    var idx = currentRoomUsers.indexOf(username);
+    var idx = currentRoomUsers.indexOf && currentRoomUsers.indexOf(username);
 
     idx > -1 && currentRoomUsers.splice(idx, 1);
   }
@@ -288,48 +288,5 @@ $(document).ready(function() {
   
   function formatDate(date) {
     return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
-  }
-
-  // Encodes a string into a sequence of \uXXXX codes
-  function encodeMessage(str) {
-    var encodedStr = '';
-
-    function pad(chr) {
-      while (chr.length < 4) {
-        chr = '0' + chr;
-      }
-
-      return chr;
-    }
-
-    for (var i=0; i<str.length; i++) {
-      var chr = '\\u';
-
-      chr += pad(str[i].charCodeAt(0).toString(16));
-
-      encodedStr += chr;
-    }
-
-    return encodedStr;
-  }
-
-  // Decodes a sequence of \uXXXX codes
-  function decodeMessage(str) {
-    var decodedStr = '';
-
-    for (var i=0; i<str.length; i++) {
-      var charCode = '';
-
-      charCode += str[i+2];
-      charCode += str[i+3];
-      charCode += str[i+4];
-      charCode += str[i+5];
-
-      decodedStr += String.fromCharCode(parseInt(charCode, 16));
-
-      i+=5;
-    }
-
-    return decodedStr.replace(/^[0]+}/, '');
   }
 });
