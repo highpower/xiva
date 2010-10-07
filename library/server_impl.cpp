@@ -4,6 +4,8 @@
 #include <cassert>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <boost/current_function.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
@@ -31,8 +33,8 @@ namespace xiva { namespace details {
 server_impl::server_impl() :
 	io_(), strand_(io_), started_(false)
 {
-	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener());
-	data_.reset(new connection_data());
+	data_.reset(new connection_data(*this));
+	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener(*data_));
 }
 
 server_impl::~server_impl() {
@@ -152,6 +154,42 @@ server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m
 }
 
 void
+server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+	{
+		boost::mutex::scoped_lock sl(mutex_);
+		failures_.push_back(std::make_pair(to, id));
+	}
+	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
+}
+
+void
+server_impl::process_failures() {
+
+	try {
+		std::deque<queue_item_type> l;
+		boost::mutex::scoped_lock sl(mutex_);
+		l.swap(failures_);
+		sl.unlock();
+		if (!connection_manager_) {
+			return;
+		}
+
+		for (std::deque<queue_item_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
+			std::string const &to = i->first;
+			std::string id_str = boost::lexical_cast<std::string>(i->second);
+			logger_->info("try close connection name:%s, id:%s", to.c_str(), id_str.c_str());
+			connection_manager_->notify_connection_opened_failed(to, i->second);
+		}
+	}
+	catch (std::exception const &e) {
+		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+	}
+	catch (...) {
+		logger_->error("unknown exception was caught in %s", BOOST_CURRENT_FUNCTION);
+	}
+}
+
+void
 server_impl::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	assert(log);
 	logger_ = log;
@@ -211,6 +249,9 @@ server_impl::provider_thread_func(boost::function<globals::provider_type> f) {
 	}
 	catch (std::exception const &e) {
 		logger_->error("caught exception in provider function: %s", e.what());
+	}
+	catch (...) {
+		logger_->error("caught unknown exception in provider function");
 	}
 }
 

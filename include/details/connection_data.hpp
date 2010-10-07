@@ -23,13 +23,14 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
+#include "xiva/globals.hpp"
 
 namespace xiva { namespace details {
 
 class connection_data {
 
 public:
-	connection_data();
+	explicit connection_data(server_impl &server);
 	virtual ~connection_data();
 
 	void init(settings const &s);
@@ -53,10 +54,13 @@ public:
 	bool stopping() const;
 	void stop();
 
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id) const;
+
 private:
 	connection_data(connection_data const &);
 	connection_data & operator = (connection_data const &);
 
+	server_impl &server_;
 	std::auto_ptr<formatters_factory> formatters_factory_;
 	std::string policy_data_;
 	boost::intrusive_ptr<logger> logger_;

@@ -75,6 +75,8 @@ public:
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
 	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
 
+	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
+
 	virtual void finish();
 	virtual void wait_for_complete();
 
@@ -203,6 +205,24 @@ connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost
 	for (typename std::list<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
 		connection_ptr_type &conn = *it;
 		conn->send(m);
+	}
+}
+
+template <typename ConnectionBase> void
+connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+
+	(void) to;
+
+	if (finished()) {
+		return;
+	}
+	typedef typename connection_set_type::template nth_index<0>::type index_type;
+	index_type &index = connections_.template get<0>();
+	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(id);
+	if (p.first != p.second) {
+		connection_ptr_type conn = *p.first;
+		index.erase(id);
+		conn->close();
 	}
 }
 

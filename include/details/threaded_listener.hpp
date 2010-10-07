@@ -28,10 +28,12 @@
 
 namespace xiva { namespace details {
 
+class connection_data;
+
 class threaded_listener : public compound_listener, private boost::thread_group {
 
 public:
-	threaded_listener();
+	threaded_listener(connection_data const &data);
 	virtual ~threaded_listener();
 
 	void thread_func();
@@ -51,6 +53,7 @@ private:
 	typedef std::pair<data_type, bool> queue_item_type;
 
 private:
+	connection_data const &data_;
 	threaded_queue<queue_item_type> items_;
 };
 

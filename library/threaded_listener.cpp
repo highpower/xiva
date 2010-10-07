@@ -5,10 +5,11 @@
 #include <boost/function.hpp>
 
 #include "xiva/settings.hpp"
+#include "details/connection_data.hpp"
 
 namespace xiva { namespace details {
 
-threaded_listener::threaded_listener()
+threaded_listener::threaded_listener(connection_data const &data) : data_(data)
 {
 }
 
@@ -27,14 +28,21 @@ threaded_listener::thread_func() {
 	queue_item_type item;
 	while (items_.pop(item)) {
 		data_type const &dt = item.first;
-		if (item.second) {
-			notify_connection_opened(dt.first, dt.second);
+		try {
+			if (item.second) {
+				notify_connection_opened(dt.first, dt.second);
+			}
+			else if (dt.second) {
+				notify_connection_closed(dt.first, dt.second);
+			}
+			else {
+				notify_disconnected(dt.first);
+			}
 		}
-		else if (dt.second) {
-			notify_connection_closed(dt.first, dt.second);
-		}
-		else {
-			notify_disconnected(dt.first);
+		catch (...) {
+			if (item.second) {
+			    data_.notify_connection_opened_failed(dt.first, dt.second);
+			}
 		}
 	}
 }

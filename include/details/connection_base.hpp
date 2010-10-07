@@ -39,6 +39,7 @@ public:
 	connection_base();
 	virtual ~connection_base();
 
+	virtual void close() = 0;
 	virtual void finish() = 0;
 	virtual void send(boost::shared_ptr<message> const &message) = 0;
 	virtual void handled(request_impl const &req, response_impl const &resp) = 0;

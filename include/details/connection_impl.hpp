@@ -58,6 +58,7 @@ public:
 
 	virtual void start();
 	virtual void finish();
+	virtual void close();
 	virtual void send(message_ptr_type const &message);
 
 	void handle_read(syst::error_code const &code);
@@ -534,11 +535,19 @@ connection_impl<ConnectionBase, ConnectionTraits>::cleanup() {
 		boost::intrusive_ptr<ConnectionBase> self(this);
 		ct_.manager().remove_connection(self);
 	}
+	close();
+}
+
+template <typename ConnectionBase, typename ConnectionTraits> void
+connection_impl<ConnectionBase, ConnectionTraits>::close() {
+	timer_.cancel();
+	connected_ = false;
 	if (socket_.is_open()) {
 		socket_.close();
 		data_.log()->info("connection[%lu] from %s is closed", ConnectionBase::id(), address());
 	}
 }
+
 
 template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::setup_timeout(unsigned int timeout) {

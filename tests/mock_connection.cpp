@@ -23,6 +23,10 @@ mock_connection::message_count() const {
 }
 
 void
+mock_connection::close() {
+}
+
+void
 mock_connection::finish() {
 	finished_ = true;
 }

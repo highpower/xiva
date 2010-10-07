@@ -87,6 +87,9 @@ threaded_handler_invoker::thread_func() {
 		catch (std::exception const &e) {
 			logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
 		}
+		catch (...) {
+			logger_->error("unknown exception was caught in %s", BOOST_CURRENT_FUNCTION);
+		}
 	}
 }
 
