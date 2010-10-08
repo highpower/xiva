@@ -80,6 +80,7 @@ private:
 
 	typedef std::pair<std::string, globals::connection_id> queue_item_type;
 
+	void process_failure(std::string const &to, globals::connection_id id);
 	void process_failures();
 
 private:

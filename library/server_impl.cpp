@@ -4,7 +4,6 @@
 #include <cassert>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
-#include <boost/current_function.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "xiva/logger.hpp"
@@ -163,6 +162,31 @@ server_impl::notify_connection_opened_failed(std::string const &to, globals::con
 }
 
 void
+server_impl::process_failure(std::string const &to, globals::connection_id id) {
+
+	std::string id_str = boost::lexical_cast<std::string>(id);
+	if (logger_) {
+		logger_->info("try close connection name:%s, id:%s", to.c_str(), id_str.c_str());
+	}
+
+	try {
+		connection_manager_->notify_connection_opened_failed(to, id);
+	}
+	catch (std::exception const &e) {
+		if (logger_) {
+			logger_->error("exception was caught on process failure name:%s, id:%s: %s",
+				to.c_str(), id_str.c_str(), e.what());
+		}
+	}
+	catch (...) {
+		if (logger_) {
+			logger_->error("unknown exception was caught on process failure name:%s, id:%s",
+				to.c_str(), id_str.c_str());
+		}
+	}
+}
+
+void
 server_impl::process_failures() {
 
 	try {
@@ -170,22 +194,23 @@ server_impl::process_failures() {
 		boost::mutex::scoped_lock sl(mutex_);
 		l.swap(failures_);
 		sl.unlock();
-		if (!connection_manager_) {
+		if (data_->stopping() || !connection_manager_) {
 			return;
 		}
 
 		for (std::deque<queue_item_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
-			std::string const &to = i->first;
-			std::string id_str = boost::lexical_cast<std::string>(i->second);
-			logger_->info("try close connection name:%s, id:%s", to.c_str(), id_str.c_str());
-			connection_manager_->notify_connection_opened_failed(to, i->second);
+			process_failure(i->first, i->second);
 		}
 	}
 	catch (std::exception const &e) {
-		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		if (logger_) {
+			logger_->error("exception was caught on process failures: %s", e.what());
+		}
 	}
 	catch (...) {
-		logger_->error("unknown exception was caught in %s", BOOST_CURRENT_FUNCTION);
+		if (logger_) {
+			logger_->error("unknown exception was caught on process failures");
+		}
 	}
 }
 

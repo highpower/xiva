@@ -542,6 +542,7 @@ template <typename ConnectionBase, typename ConnectionTraits> void
 connection_impl<ConnectionBase, ConnectionTraits>::close() {
 	timer_.cancel();
 	connected_ = false;
+	managed_ = false;
 	if (socket_.is_open()) {
 		socket_.close();
 		data_.log()->info("connection[%lu] from %s is closed", ConnectionBase::id(), address());
