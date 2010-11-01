@@ -74,7 +74,7 @@ server_impl::init(settings const &s) {
 		typedef threaded_handler_invoker invoker_type;
 		typedef invoker_type::connection_type connection_type;
 		typedef connection_manager<connection_type> manager_type;
-		typedef connection_traits<connection_type, invoker_type> traits_type;
+		typedef connection_traits<invoker_type> traits_type;
 		typedef acceptor<connection_type, traits_type> acceptor_type;
 
 		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
@@ -88,7 +88,7 @@ server_impl::init(settings const &s) {
 		typedef handler_invoker invoker_type;
 		typedef invoker_type::connection_type connection_type;
 		typedef connection_manager<connection_type> manager_type;
-		typedef connection_traits<connection_type, invoker_type> traits_type;
+		typedef connection_traits<invoker_type> traits_type;
 		typedef acceptor<connection_type, traits_type> acceptor_type;
 
 		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
