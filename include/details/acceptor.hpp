@@ -34,15 +34,16 @@ namespace xiva { namespace details {
 
 class connection_data;
 
-template <typename ConnectionBase, typename ConnectionTraits>
+template <typename ConnectionTraits>
 class acceptor : public acceptor_base {
 
 public:
 	acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct);
 	virtual ~acceptor();
 
-	typedef connection_impl<ConnectionBase, ConnectionTraits> ConnectionImpl;
-	typedef acceptor<ConnectionBase, ConnectionTraits> Acceptor;
+	typedef typename ConnectionTraits::connection_type connection_type;
+	typedef connection_impl<connection_type, ConnectionTraits> ConnectionImpl;
+	typedef acceptor<ConnectionTraits> Acceptor;
 
 	typedef boost::intrusive_ptr<ConnectionImpl> connection_ptr_type;
 	typedef boost::intrusive_ptr<Acceptor> acceptor_ptr_type;
@@ -67,22 +68,22 @@ private:
 };
 
 
-template <typename ConnectionBase, typename ConnectionTraits>
-acceptor<ConnectionBase, ConnectionTraits>::acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
+template <typename ConnectionTraits>
+acceptor<ConnectionTraits>::acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
 	io_(io), data_(data), ct_(ct), acceptor_(io_)
 {
 }
 
-template <typename ConnectionBase, typename ConnectionTraits>
-acceptor<ConnectionBase, ConnectionTraits>::~acceptor() {
+template <typename ConnectionTraits>
+acceptor<ConnectionTraits>::~acceptor() {
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::accept() {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::accept() {
 	try {
 		acceptor_ptr_type self(this);
 		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first,
+		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionTraits>::handle_accept_first,
 		                       self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
@@ -90,12 +91,12 @@ acceptor<ConnectionBase, ConnectionTraits>::accept() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::accept_again() {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::accept_again() {
 	try {
 		acceptor_ptr_type self(this);
 		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again,
+		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionTraits>::handle_accept_again,
 		                       self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
@@ -103,8 +104,8 @@ acceptor<ConnectionBase, ConnectionTraits>::accept_again() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first(connection_ptr_type conn, syst::error_code const &code) {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::handle_accept_first(connection_ptr_type conn, syst::error_code const &code) {
 	if (code) {
 		throw error("network error occured while first accepting connection: %s",
 		            code.message().c_str());
@@ -112,8 +113,8 @@ acceptor<ConnectionBase, ConnectionTraits>::handle_accept_first(connection_ptr_t
 	process_connection(conn);
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::error_code const &code) {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::error_code const &code) {
 	if (data_.stopping()) {
 		return;
 	}
@@ -127,21 +128,21 @@ acceptor<ConnectionBase, ConnectionTraits>::handle_accept_again(connection_ptr_t
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::process_connection(connection_ptr_type conn) {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::process_connection(connection_ptr_type conn) {
 	conn->start();
 	logger_->info("connection with id %lu accepted from %s", conn->id(), conn->address());
 	accept_again();
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::attach_logger(boost::intrusive_ptr<logger> const &log) {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	assert(log);
 	logger_ = log;
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::bind(std::string const &addr, unsigned short port, unsigned short backlog) {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::bind(std::string const &addr, unsigned short port, unsigned short backlog) {
 
 	asio::ip::address address = asio::ip::address::from_string(addr);
 	asio::ip::tcp::endpoint endpoint(address, port);
@@ -153,8 +154,8 @@ acceptor<ConnectionBase, ConnectionTraits>::bind(std::string const &addr, unsign
 	acceptor_.listen(backlog);
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-acceptor<ConnectionBase, ConnectionTraits>::stop() {
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::stop() {
 	acceptor_.close();
 }
 
