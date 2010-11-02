@@ -66,16 +66,16 @@ http_request_checker::operator () (Iter first, Iter last) const {
 			Iter break_ptr;
 			if (helper.find_headers_break(end_line, break_ptr)) {
 				if (!read_body_ahead) {
-					return std::make_pair(end_line.begin(), true);
+					return std::make_pair(end_line.begin(), true);  // ok, without body
 				}
 				if (std::distance(break_ptr, last) >= read_body_ahead) {
-					return std::make_pair(last, true);
+					return std::make_pair(last, true); // ok, with ahead body
 				}
 			}
 		}
 	}
 
-	return std::make_pair(last, false);
+	return std::make_pair(first, false); // continue, cannot find end of headers or ahead body
 }
 
 template <typename Iter> inline std::pair<Iter, bool>
@@ -121,7 +121,7 @@ request_checker::operator () (Iter first, Iter last) const {
 	// sizeof ("<policy-file-request/>\0") - 1 > min_size
 
 	if (size < min_size) {
-		return std::make_pair(last, false);
+		return std::make_pair(first, false); // continue, too little data
 	}
 	if (size > (diff_type)max_size_) {
 		return std::make_pair(last, true); // will be handled in connection_impl
