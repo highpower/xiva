@@ -37,7 +37,6 @@ struct http_constants_char {
 	static range<char const*> const cookie;
 	static range<char const*> const param_delimiter;
 	static range<char const*> const protocol_version;
-	static range<char const*> const policy_file_request;
 
 	static range<char const*> const sec_websocket_key1;
 

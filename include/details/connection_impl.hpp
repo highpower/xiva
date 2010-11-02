@@ -231,9 +231,11 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		}
 
 		if (*begin == '<') {
-			if (sz < http_constants<char_type>::policy_file_request.size() ||
-				!std::equal(http_constants<char_type>::policy_file_request.begin(),
-					http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>())) {
+			enum { policy_file_request_ascz_size = sizeof("<policy-file-request/>") }; // 22 + 1 for '\0'
+			char const *policy_str = "<policy-file-request/>";
+
+			if (sz < static_cast<diff_type>(policy_file_request_ascz_size) ||
+				!std::equal(policy_str, policy_str + policy_file_request_ascz_size, begin, ci_equal<char>())) {
 				
 				throw std::runtime_error("invalid policy request");
 			}
