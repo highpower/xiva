@@ -95,8 +95,7 @@ case "$1" in
 	;;
 
     *)
-        N=/etc/init.d/$THIS
-        echo "Usage: $N {start|stop|restart}" >&2
+        echo "Usage: $0 {start|stop|restart}" >&2
         exit 1
         ;;
 esac
