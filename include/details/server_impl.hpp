@@ -83,6 +83,9 @@ private:
 	void process_failure(std::string const &to, globals::connection_id id);
 	void process_failures();
 
+	template <typename invoker_type>
+	void init_data(bool ssl);
+
 private:
 	asio::io_service io_;
 	asio::io_service::strand strand_;
@@ -95,12 +98,14 @@ private:
 
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<message_filter> message_filter_;
+	boost::intrusive_ptr<connection_traits_base> ssl_connection_traits_;
+	boost::intrusive_ptr<connection_traits_base> connection_traits_;
+	boost::intrusive_ptr<acceptor_base> ssl_acceptor_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<response_handler> handler_;
 	boost::intrusive_ptr<threaded_listener> listener_;
 	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
-	boost::intrusive_ptr<connection_traits_base> connection_traits_;
 	bool started_;
 };
 

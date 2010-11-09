@@ -15,53 +15,46 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
-#define XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
-
-#include <iosfwd>
-#include <string>
+#ifndef XIVA_DETAILS_CONNECTION_SOCKET_HPP_INCLUDED
+#define XIVA_DETAILS_CONNECTION_SOCKET_HPP_INCLUDED
 
 #include "xiva/forward.hpp"
+#include "details/asio.hpp"
 
 namespace xiva { namespace details {
 
-class websocket_info {
-
+class connection_socket {
 public:
-	websocket_info();
-	
-	bool empty() const;
-	bool valid() const;
+	explicit connection_socket(asio::io_service &io);
+	virtual ~connection_socket();
 
-	void parse(request_impl const &req, bool secure);
+	asio::ip::tcp::socket& raw_sock();
+	asio::ip::tcp::socket& native_sock();
 
-	static void write_message(std::ostream &stream, std::string const &msg);
-
-	void write_headers(std::ostream &stream) const;
-	void write_body(std::ostream &stream) const;
+	template <typename HandshakeHandler>
+	void async_handshake(HandshakeHandler handler);
 
 private:
-	websocket_info(websocket_info const &);
-	websocket_info& operator = (websocket_info const &);
+	connection_socket(connection_socket const &);
+	connection_socket& operator = (connection_socket const &);
 
-private:
-	std::string origin_;
-	std::string protocol_;
-	std::string location_;
-	std::string sec_data_;
-	bool empty_;
+	asio::ip::tcp::socket socket_;
 };
 
-inline bool
-websocket_info::empty() const {
-	return empty_;
+inline asio::ip::tcp::socket&
+connection_socket::raw_sock() {
+	return socket_;
 }
 
-inline bool
-websocket_info::valid() const {
-	return !location_.empty();
+inline asio::ip::tcp::socket&
+connection_socket::native_sock() {
+	return socket_;
+}
+
+template <typename HandshakeHandler> inline void
+connection_socket::async_handshake(HandshakeHandler /* handler */ ) {
 }
 
 }} // namespaces
 
-#endif // XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
+#endif // XIVA_DETAILS_CONNECTION_SOCKET_HPP_INCLUDED

@@ -38,6 +38,12 @@ public:
 	virtual unsigned short port() const;
 	virtual unsigned short backlog() const;
 
+	virtual std::string ssl_address() const;
+	virtual unsigned short ssl_port() const;
+	virtual unsigned short ssl_backlog() const;
+	virtual std::string ssl_cert_file_name() const;
+	virtual std::string ssl_cacert_file_name() const;
+
 	virtual unsigned int read_timeout() const;
 	virtual unsigned int write_timeout() const;
 	virtual unsigned int inactive_timeout() const;

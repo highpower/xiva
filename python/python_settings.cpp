@@ -57,6 +57,31 @@ python_settings::backlog() const {
 	return get<unsigned short>("backlog", 1024);
 }
 
+std::string
+python_settings::ssl_address() const {
+	return get<std::string>("ssl_address", "127.0.0.1");
+}
+
+unsigned short
+python_settings::ssl_port() const {
+	return get<unsigned short>("ssl_port", 0);
+}
+
+unsigned short
+python_settings::ssl_backlog() const {
+	return get<unsigned short>("ssl_backlog", 1024);
+}
+
+std::string
+python_settings::ssl_cert_file_name() const {
+	return get<std::string>("ssl_cert_file_name", "");
+}
+
+std::string
+python_settings::ssl_cacert_file_name() const {
+	return get<std::string>("ssl_cacert_file_name", "");
+}
+
 unsigned int
 python_settings::read_timeout() const {
 	return get<unsigned int>("read_timeout", 5000);

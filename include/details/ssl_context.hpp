@@ -15,53 +15,36 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
-#define XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
+#ifndef XIVA_DETAILS_SSL_CONTEXT_HPP_INCLUDED
+#define XIVA_DETAILS_SSL_CONTEXT_HPP_INCLUDED
 
-#include <iosfwd>
-#include <string>
+#include <memory>
 
 #include "xiva/forward.hpp"
+#include "details/asio.hpp"
 
 namespace xiva { namespace details {
 
-class websocket_info {
+class ssl_connection_socket;
+
+class ssl_context {
 
 public:
-	websocket_info();
-	
-	bool empty() const;
-	bool valid() const;
+	explicit ssl_context(asio::io_service &io);
+	virtual ~ssl_context();
 
-	void parse(request_impl const &req, bool secure);
+	void init(settings const &s);
 
-	static void write_message(std::ostream &stream, std::string const &msg);
-
-	void write_headers(std::ostream &stream) const;
-	void write_body(std::ostream &stream) const;
+	std::auto_ptr<ssl_connection_socket> create_socket(asio::io_service &io);
 
 private:
-	websocket_info(websocket_info const &);
-	websocket_info& operator = (websocket_info const &);
+	ssl_context(ssl_context const &);
+	ssl_context& operator = (ssl_context const &);
 
 private:
-	std::string origin_;
-	std::string protocol_;
-	std::string location_;
-	std::string sec_data_;
-	bool empty_;
+	asio::ssl::context context_;
 };
-
-inline bool
-websocket_info::empty() const {
-	return empty_;
-}
-
-inline bool
-websocket_info::valid() const {
-	return !location_.empty();
-}
 
 }} // namespaces
 
-#endif // XIVA_DETAILS_WEBSOCKET_INFO_HPP_INCLUDED
+#endif // XIVA_DETAILS_SSL_CONTEXT_HPP_INCLUDED

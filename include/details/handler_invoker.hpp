@@ -24,6 +24,7 @@
 
 #include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
+#include "details/asio.hpp"
 
 namespace xiva { namespace details {
 
@@ -34,7 +35,7 @@ class connection_data;
 class handler_invoker : public shared {
 
 public:
-	explicit handler_invoker(connection_data const &data);
+	handler_invoker(asio::io_service &io, connection_data const &data);
 	virtual ~handler_invoker();
 
 	typedef connection connection_type;

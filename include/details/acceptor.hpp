@@ -42,7 +42,7 @@ public:
 	virtual ~acceptor();
 
 	typedef typename ConnectionTraits::connection_type connection_type;
-	typedef connection_impl<connection_type, ConnectionTraits> ConnectionImpl;
+	typedef connection_impl<ConnectionTraits> ConnectionImpl;
 	typedef acceptor<ConnectionTraits> Acceptor;
 
 	typedef boost::intrusive_ptr<ConnectionImpl> connection_ptr_type;
@@ -83,8 +83,9 @@ acceptor<ConnectionTraits>::accept() {
 	try {
 		acceptor_ptr_type self(this);
 		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionTraits>::handle_accept_first,
-		                       self, conn, asio::placeholders::error));
+		acceptor_.async_accept(conn->socket().raw_sock(),
+			boost::bind(&acceptor<ConnectionTraits>::handle_accept_first,
+				self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught while accepting connection: %s", e.what());
@@ -96,8 +97,9 @@ acceptor<ConnectionTraits>::accept_again() {
 	try {
 		acceptor_ptr_type self(this);
 		connection_ptr_type conn(new ConnectionImpl(io_, data_, ct_));
-		acceptor_.async_accept(conn->socket(), boost::bind(&acceptor<ConnectionTraits>::handle_accept_again,
-		                       self, conn, asio::placeholders::error));
+		acceptor_.async_accept(conn->socket().raw_sock(),
+			boost::bind(&acceptor<ConnectionTraits>::handle_accept_again,
+				self, conn, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught while accepting connection again: %s", e.what());
@@ -131,7 +133,8 @@ acceptor<ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::
 template <typename ConnectionTraits> void
 acceptor<ConnectionTraits>::process_connection(connection_ptr_type conn) {
 	conn->start();
-	logger_->info("connection with id %lu accepted from %s", conn->id(), conn->address());
+	logger_->info("%s with id %lu accepted from %s",
+		ct_.secure() ? "ssl connection" : "connection", conn->id(), conn->address());
 	accept_again();
 }
 

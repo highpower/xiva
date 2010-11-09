@@ -52,7 +52,7 @@ public:
 	void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
 
 protected:
-	void init(request_impl const &req);
+	void init(request_impl const &req, bool secure);
 	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
 
 	formatter const* default_formatter() const;

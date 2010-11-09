@@ -24,8 +24,10 @@
 #include "xiva/forward.hpp"
 #include "xiva/logger.hpp"
 
+#include "details/asio.hpp"
 #include "details/connection_manager.hpp"
 #include "details/connection_traits_base.hpp"
+#include "details/connection_socket.hpp"
 
 namespace xiva { namespace details {
 
@@ -33,6 +35,7 @@ template <typename HandlerInvoker>
 class connection_traits : public connection_traits_base {
 
 public:
+	typedef connection_socket socket_type;
 	typedef typename HandlerInvoker::connection_type connection_type;
 	typedef connection_manager<connection_type> connection_manager_type;
 	typedef boost::intrusive_ptr<HandlerInvoker> handler_invoker_ptr_type;
@@ -40,6 +43,9 @@ public:
 	
 	connection_traits(connection_manager_ptr_type cm, handler_invoker_ptr_type cv);
 	virtual ~connection_traits();
+
+	static bool secure();
+	static std::auto_ptr<connection_socket> create_socket(asio::io_service &io);
 
 	HandlerInvoker& handler_invoker();
 	connection_manager_type& manager();
@@ -67,6 +73,16 @@ connection_traits<HandlerInvoker>::connection_traits(connection_manager_ptr_type
 
 template <typename HandlerInvoker> inline
 connection_traits<HandlerInvoker>::~connection_traits() {
+}
+
+template <typename HandlerInvoker> inline bool
+connection_traits<HandlerInvoker>::secure() {
+	return false;
+}
+
+template <typename HandlerInvoker> std::auto_ptr<connection_socket>
+connection_traits<HandlerInvoker>::create_socket(asio::io_service &io) {
+	return std::auto_ptr<socket_type>(new connection_socket(io));
 }
 
 template <typename HandlerInvoker> inline HandlerInvoker&

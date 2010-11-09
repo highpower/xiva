@@ -28,8 +28,8 @@ connection_base::id() const {
 }
 
 void
-connection_base::init(request_impl const &req) {
-	ws_info_.parse(req);
+connection_base::init(request_impl const &req, bool secure) {
+	ws_info_.parse(req, secure);
 }
 
 void
