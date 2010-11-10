@@ -165,12 +165,12 @@ websocket_info::parse(request_impl const &req, bool secure) {
 
 	std::string const &uri = req.uri();
 	if (secure) {
-		location_.reserve(WS_STR_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
-		location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
-	}
-	else {
 		location_.reserve(WS_STR_SECURE_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
 		location_.assign(WS_STR_SECURE_SCHEME_DELIMITER).append(host).append(uri);
+	}
+	else {
+		location_.reserve(WS_STR_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
+		location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
 	}
 
 	origin_ = req.header(WS_STR_ORIGIN);
