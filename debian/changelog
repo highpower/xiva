@@ -1,3 +1,10 @@
+xiva (1.4.2-1) unstable; urgency=low
+
+  * move ssl_context into private members of ssl_connection_traits
+  * fixed scheme in location header on parse websocket info
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 10 Nov 2010 11:16:00 +0300
+
 xiva (1.4.1-1) unstable; urgency=low
 
   * support ssl
