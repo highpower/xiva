@@ -30,7 +30,7 @@
 namespace xiva { namespace details {
 
 template <typename HandlerInvoker>
-class ssl_connection_traits : public connection_traits<HandlerInvoker>, public ssl_context {
+class ssl_connection_traits : public connection_traits<HandlerInvoker> {
 
 public:
 	typedef ssl_connection_socket socket_type;
@@ -50,11 +50,14 @@ public:
 private:
 	ssl_connection_traits(ssl_connection_traits const &);
 	ssl_connection_traits& operator = (ssl_connection_traits const &);
+
+private:
+	ssl_context context_;
 };
 
 template <typename HandlerInvoker> inline
 ssl_connection_traits<HandlerInvoker>::ssl_connection_traits(asio::io_service &io, connection_manager_ptr_type cm, handler_invoker_ptr_type hi) :
-	connection_traits<HandlerInvoker>(cm, hi), ssl_context(io)
+	connection_traits<HandlerInvoker>(cm, hi), context_(io)
 {
 }
 
@@ -69,13 +72,13 @@ ssl_connection_traits<HandlerInvoker>::secure() {
 
 template <typename HandlerInvoker> std::auto_ptr<ssl_connection_socket>
 ssl_connection_traits<HandlerInvoker>::create_socket(asio::io_service &io) {
-	return ssl_context::create_socket(io);
+	return context_.create_socket(io);
 }
 
 template <typename HandlerInvoker> void
 ssl_connection_traits<HandlerInvoker>::init(settings const &s) {
 	connection_traits<HandlerInvoker>::init(s);
-	ssl_context::init(s);
+	context_.init(s);
 }
 
 }} // namespaces
