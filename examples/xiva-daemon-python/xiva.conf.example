@@ -10,11 +10,25 @@
 		'name' : 'xiva-daemon-python',
 	},
 
-	#xiva settings
+	#
+	# xiva non-crypted endpoint
 	#
 	'address': '0.0.0.0',
 	'backlog': 100,
 	'port': 8881,
+
+	#
+	# xiva crypted optional endpoint
+	#
+	'ssl_port': 0, # 8443  # (0 - disable)
+	'ssl_backlog': 100,
+	'ss_address': '0.0.0.0',
+	'ssl_cert_file_name': '/etc/cert/cert_key.pem',
+	'ssl_cacert_file_name': '/etc/cert/cacert.pem',
+
+	#
+	# xiva core settings
+	#
 	'handler_threads': 5,
 	'listener_threads': 1,
 	'ping_interval': 20000,
