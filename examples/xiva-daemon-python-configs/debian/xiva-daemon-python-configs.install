@@ -1,0 +1,3 @@
+xiva*.conf* etc/xiva
+*.xml var/www
+

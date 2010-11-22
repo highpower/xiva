@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE=1
+
+build:
+	dh_testdir
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_install
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+binary: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+#	dh_installinit --no-start
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+.PHONY: build install clean binary

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+WWW_DIR=/var/www
+
+USER=www-data
+
+mkdir -p $WWW_DIR $RUN_DIR
+
+chown $USER $WWW_DIR $WWW_DIR 
+chgrp $USER $WWW_DIR $WWW_DIR
