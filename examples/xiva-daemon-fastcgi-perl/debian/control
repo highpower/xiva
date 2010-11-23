@@ -8,5 +8,5 @@ Section: libs
 Package: xiva-daemon-fastcgi-perl
 Section: libs
 Architecture: all
-Depends: ${shlibs:Depends}, xiva-daemon-python, libfcgi-perl
+Depends: ${shlibs:Depends}, xiva-daemon-python, libfcgi-perl, spawn-fcgi, grep, awk, sed, procps
 Description: Fastcgi perl script for pushing messages into python xiva-server
