@@ -132,7 +132,7 @@ $(document).ready(function() {
       return;
     }
 
-    currentName = loginName.val();
+    currentName = transport.escapeHTML(loginName.val());
     currentRoom = loginRoom.attr('name');
     
     // Show chat window    
@@ -192,7 +192,7 @@ $(document).ready(function() {
                           '<div class="b-message__head__user">' + username + '</div>' +
                           '<div class="b-message__head__time">' + date + '</div>' +
                         '</div>' +
-                        '<div class="b-message__body">' + text + '</div>' +
+                        '<div class="b-message__body">' + transport.escapeHTML(text) + '</div>' +
                       '</div>');
     
       if (username == currentName) {
