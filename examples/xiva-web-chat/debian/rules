@@ -1,0 +1,44 @@
+#!/usr/bin/make -f
+
+PRJDIR=$(CURDIR)
+DEBDIR=$(CURDIR)/debian/xiva-web-chat/usr/local/www/xiva-web-chat
+
+configure: configure-stamp
+
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	dh_clean 
+
+install/xiva-web-chat::
+	mkdir -p $(DEBDIR)
+	for d in $(PRJDIR)/*; do case $$d in */debian) ;; *) cp -r $$d $(DEBDIR) ;; esac; done
+	find $(DEBDIR) -name .git | xargs rm -Rf
+	find $(DEBDIR) -name .gitignore | xargs rm -f
+	rm -Rf $(DEBDIR)/web-socket-js/flash-src
+					
+binary-indep: build install
+
+binary-arch: build install install/xiva-web-chat
+	dh_testdir
+	dh_installchangelogs
+	dh_link
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

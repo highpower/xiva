@@ -1,0 +1,12 @@
+Source: xiva-web-chat
+Section: misc
+Priority: extra
+Maintainer: Leonid Khachaturov <leonya@yandex-team.ru>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.8.0
+
+Package: xiva-web-chat
+Depends: xiva-daemon-python
+Architecture: all
+Description: Xiva-based web-chat
+ A sample application built on Xiva. Contains a reference transport implementation
