@@ -55,6 +55,47 @@ xml_settings::backlog() const {
 	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/endpoint/backlog");
 }
 
+std::string
+xml_settings::ssl_address() const {
+	return value("/" XIVA_PACKAGE_NAME "/ssl-endpoint/address");
+}
+
+unsigned short
+xml_settings::ssl_port() const {
+	try {
+		return as<unsigned short>("/" XIVA_PACKAGE_NAME "/ssl-endpoint/port");
+	}
+	catch (error const &) {
+		return 0;
+	}
+}
+
+unsigned short
+xml_settings::ssl_backlog() const {
+	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/ssl-endpoint/backlog");
+}
+
+
+std::string
+xml_settings::ssl_cert_file_name() const {
+	try {
+		return value("/" XIVA_PACKAGE_NAME "/ssl-endpoint/cert-file-name");
+	}
+	catch (error const &) {
+		return std::string();
+	}
+}
+
+std::string
+xml_settings::ssl_cacert_file_name() const {
+	try {
+		return value("/" XIVA_PACKAGE_NAME "/ssl-endpoint/cacert-file-name");
+	}
+	catch (error const &) {
+		return std::string();
+	}
+}
+
 unsigned int
 xml_settings::read_timeout() const {
 	return as<unsigned short>("/" XIVA_PACKAGE_NAME "/read-timeout");

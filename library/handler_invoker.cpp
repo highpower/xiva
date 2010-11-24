@@ -14,8 +14,10 @@
 
 namespace xiva { namespace details {
 
-handler_invoker::handler_invoker(connection_data const &data)
+handler_invoker::handler_invoker(asio::io_service &io, connection_data const &data)
 {
+	(void)io;
+
 	handler_ = data.handler();
 	assert(handler_);
 	assert(!handler_->threaded());

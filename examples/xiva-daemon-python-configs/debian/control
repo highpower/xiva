@@ -1,0 +1,12 @@
+Source: xiva-daemon-python-configs
+Priority: optional
+Maintainer: Alexey Ponomarev <ponomarev@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+Section: libs
+
+Package: xiva-daemon-python-configs
+Section: libs
+Architecture: all
+Depends: xiva-daemon-python
+Description: Configs for sample xiva-server on python

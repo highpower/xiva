@@ -62,12 +62,22 @@ compound_listener::log() const {
 
 void
 compound_listener::notify_connection_opened(std::string const &to, globals::connection_id id) {
+
+	std::list<listener_ptr_type>::iterator it = listeners_.begin(), end = listeners_.end();
 	try {
-		std::for_each(listeners_.begin(), listeners_.end(), 
-		    boost::bind(&connection_listener::connection_opened, _1, boost::cref(to), id));
+		//std::for_each(listeners_.begin(), listeners_.end(), 
+		//	boost::bind(&connection_listener::connection_opened, _1, boost::cref(to), id));
+		while(it != end) {
+			(*it)->connection_opened(to, id);
+			++it;
+		}
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+		while(it != listeners_.begin()) {
+			--it;
+			(*it)->connection_closed(to, id);
+		}
 		throw;
 	}
 }
@@ -76,7 +86,7 @@ void
 compound_listener::notify_connection_closed(std::string const &to, globals::connection_id id) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-		    boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), id));
+			boost::bind(&connection_listener::connection_closed, _1, boost::cref(to), id));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
@@ -88,7 +98,7 @@ void
 compound_listener::notify_disconnected(std::string const &to) {
 	try {
 		std::for_each(listeners_.begin(), listeners_.end(), 
-		    boost::bind(&connection_listener::disconnected, _1, boost::cref(to)));
+			boost::bind(&connection_listener::disconnected, _1, boost::cref(to)));
 	}
 	catch (std::exception const &e) {
 		logger_->error("exception caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());

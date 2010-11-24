@@ -42,6 +42,9 @@ static std::string const
 WS_STR_SCHEME_DELIMITER = "ws://";
 
 static std::string const
+WS_STR_SECURE_SCHEME_DELIMITER = "wss://";
+
+static std::string const
 WS_STR_SEC_PREFIX = "Sec-";
 
 static std::string const
@@ -126,7 +129,7 @@ get_websocket_key_value(char const *s, std::string const &key) {
 }
 
 void
-websocket_info::parse(request_impl const &req) {
+websocket_info::parse(request_impl const &req, bool secure) {
 
 	if (req.header(WS_STR_CONNECTION) != WS_STR_UPGRADE || req.header(WS_STR_UPGRADE) != WS_STR_WEBSOCKET) {
 		return;
@@ -161,8 +164,14 @@ websocket_info::parse(request_impl const &req) {
 	}
 
 	std::string const &uri = req.uri();
-	location_.reserve(WS_STR_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
-	location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
+	if (secure) {
+		location_.reserve(WS_STR_SECURE_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
+		location_.assign(WS_STR_SECURE_SCHEME_DELIMITER).append(host).append(uri);
+	}
+	else {
+		location_.reserve(WS_STR_SCHEME_DELIMITER.size() + host.size() + uri.size() + 1);
+		location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
+	}
 
 	origin_ = req.header(WS_STR_ORIGIN);
 	protocol_ = req.header(WS_STR_WEBSOCKET_PROTOCOL);

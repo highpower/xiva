@@ -21,6 +21,7 @@
 #include <iosfwd>
 #include <string>
 #include <cassert>
+#include <memory>
 #include <stdexcept>
 #include <algorithm>
 
@@ -42,24 +43,32 @@
 #include "details/request_checker.hpp"
 #include "details/http_constants.hpp"
 
+//#include "details/ssl_connection_traits.hpp"
+
+//typedef asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
+
 namespace xiva { namespace details {
 
-template <typename ConnectionBase, typename ConnectionTraits>
-class connection_impl : public ConnectionBase {
+template <typename ConnectionTraits>
+class connection_impl : public ConnectionTraits::connection_type {
 
 public:
 	connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct);
 	virtual ~connection_impl();
 
-	typedef connection_impl<ConnectionBase, ConnectionTraits> type;
+	typedef typename ConnectionTraits::connection_type connection_base_type;
+	typedef connection_impl<ConnectionTraits> type;
 	typedef typename boost::intrusive_ptr<type> connection_impl_ptr_type;
+	typedef typename ConnectionTraits::socket_type socket_type;
 
 	typedef boost::shared_ptr<message> message_ptr_type;
 
 	virtual void start();
 	virtual void finish();
+	virtual void close();
 	virtual void send(message_ptr_type const &message);
 
+	void handle_handshake(syst::error_code const &code);
 	void handle_read(syst::error_code const &code);
 	void handle_write_headers(syst::error_code const &code);
 	void handle_write_message(syst::error_code const &code);
@@ -70,13 +79,14 @@ public:
 	void handle_inactive_timeout(syst::error_code const &code);
 
 	char const* address() const;
-	asio::ip::tcp::socket& socket();
+	socket_type& socket();
 	virtual void handled(request_impl const &req, response_impl const &resp);
 
 private:
 	typedef std::allocator<char> allocator_type;
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
 
+	void handshake();
 	void read();
 	void write_static_content(response_impl const &resp, std::string const &content);
 	void write_headers(response_impl const &resp);
@@ -103,7 +113,7 @@ private:
 
 	asio::deadline_timer timer_;
 	boost::posix_time::ptime inactive_expires_;
-	asio::ip::tcp::socket socket_;
+	std::auto_ptr<socket_type> socket_;
 	std::list<message_ptr_type> messages_;
 
 	bool writing_message_;
@@ -117,52 +127,52 @@ private:
 	static const unsigned int MINIMAL_INACTIVE_TIMEOUT = 100;
 };
 
-template <typename ConnectionBase, typename ConnectionTraits>
-connection_impl<ConnectionBase, ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), timer_(io_), socket_(io_),
+template <typename ConnectionTraits>
+connection_impl<ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
+	io_(io), data_(data), ct_(ct), timer_(io_), socket_(ct.create_socket(io)),
 	writing_message_(false), connected_(false), is_policy_(false), single_message_(false), disable_ping_(false), managed_(false)
 {
 }
 
-template <typename ConnectionBase, typename ConnectionTraits>
-connection_impl<ConnectionBase, ConnectionTraits>::~connection_impl() {
+template <typename ConnectionTraits>
+connection_impl<ConnectionTraits>::~connection_impl() {
 
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> inline char const*
-connection_impl<ConnectionBase, ConnectionTraits>::address() const {
+template <typename ConnectionTraits> inline char const*
+connection_impl<ConnectionTraits>::address() const {
 	return addr_.c_str();
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> inline asio::ip::tcp::socket&
-connection_impl<ConnectionBase, ConnectionTraits>::socket() {
-	return socket_;
+template <typename ConnectionTraits> inline typename ConnectionTraits::socket_type &
+connection_impl<ConnectionTraits>::socket() {
+	assert(NULL != socket_.get());
+	return *socket_;
 }
 
-
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::start() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::start() {
 	try {
-    		asio::ip::tcp::endpoint endpoint = socket_.remote_endpoint();
+    		asio::ip::tcp::endpoint endpoint = socket().raw_sock().remote_endpoint();
 		asio::ip::address addr = endpoint.address();
 		addr_ = addr.to_string();
-		read();
+		handshake();
 	} 
 	catch (std::exception const &e) {
 		handle_exception(e);
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::finish() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::finish() {
 	send(boost::shared_ptr<message>());
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<message> const &m) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::send(boost::shared_ptr<message> const &m) {
 
 	if (m) {
-		data_.log()->debug("sending message to connection[%lu], name %s", ConnectionBase::id(), ConnectionBase::name().c_str());
+		data_.log()->debug("sending message to connection[%lu], name %s", connection_base_type::id(), connection_base_type::name().c_str());
 	}
 	messages_.push_back(m);
 	if (!writing_message_ && connected_) {
@@ -170,8 +180,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::send(boost::shared_ptr<messag
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &req, response_impl const &resp) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handled(request_impl const &req, response_impl const &resp) {
 	timer_.cancel();
 	try {
 		std::string const *content = resp.content_ptr();
@@ -179,17 +189,17 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &r
 			write_static_content(resp, *content);
 			return;
 		}
-		std::string const &name = ConnectionBase::name();
+		std::string const &name = connection_base_type::name();
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
 		}
-		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), ConnectionBase::id(), address());
+		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), connection_base_type::id(), address());
 		single_message_ = resp.single_message();
-		ConnectionBase::init_formatters(data_.fmt_factory(), req, resp);
+		connection_base_type::init_formatters(data_.fmt_factory(), req, resp);
 		disable_ping_ =	single_message_ || data_.ping_interval() < MINIMAL_PING_INTERVAL ||
-				NULL == ConnectionBase::default_formatter();
+				NULL == connection_base_type::default_formatter();
 		write_headers(resp);
-		boost::intrusive_ptr<ConnectionBase> self(this);
+		boost::intrusive_ptr<connection_base_type> self(this);
 		ct_.manager().insert_connection(self);
 		managed_ = true;
 	}
@@ -201,8 +211,18 @@ connection_impl<ConnectionBase, ConnectionTraits>::handled(request_impl const &r
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_handshake(syst::error_code const &code) {
+	timer_.cancel();
+	if (code) {
+		handle_error(code);
+		return;
+	}
+	read();
+}
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_read(syst::error_code const &code) {
 	timer_.cancel();
 	if (code) {
 		handle_error(code);
@@ -230,9 +250,11 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		}
 
 		if (*begin == '<') {
-			if (sz < http_constants<char_type>::policy_file_request.size() ||
-				!std::equal(http_constants<char_type>::policy_file_request.begin(),
-					http_constants<char_type>::policy_file_request.end(), begin, ci_equal<char>())) {
+			enum { policy_file_request_ascz_size = sizeof("<policy-file-request/>") }; // 22 + 1 for '\0'
+			char const *policy_str = "<policy-file-request/>";
+
+			if (sz < static_cast<diff_type>(policy_file_request_ascz_size) ||
+				!std::equal(policy_str, policy_str + policy_file_request_ascz_size, begin, ci_equal<char>())) {
 				
 				throw std::runtime_error("invalid policy request");
 			}
@@ -242,11 +264,11 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 		else {
 			parsing_request = true;
 			request_impl req(begin, end);
-			ConnectionBase::init(req);
+			connection_base_type::init(req, ct_.secure());
 			parsing_request = false;
 			
 			response_impl resp;
-			boost::intrusive_ptr<ConnectionBase> self(this);
+			boost::intrusive_ptr<connection_base_type> self(this);
 			ct_.handler_invoker().invoke_handler(self, req, resp);
 		}
 	}
@@ -264,14 +286,14 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_read(syst::error_code 
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_write_headers(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_write_headers(syst::error_code const &code) {
 	timer_.cancel();
 	if (code) {
 		handle_error(code);
 		return;
 	}
-	if (socket_.is_open()) {
+	if (socket().raw_sock().is_open()) {
 		connected_ = true;
 		write_message();
 	}
@@ -280,8 +302,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_headers(syst::er
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_write_message(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_write_message(syst::error_code const &code) {
 	timer_.cancel();
 	writing_message_ = false;
 	if (code) {
@@ -296,8 +318,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_message(syst::er
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_write_ping_message(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_write_ping_message(syst::error_code const &code) {
 	timer_.cancel();
 	writing_message_ = false;
 	if (code) {
@@ -313,42 +335,60 @@ connection_impl<ConnectionBase, ConnectionTraits>::handle_write_ping_message(sys
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_ping(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_ping(syst::error_code const &code) {
 	assert(!disable_ping_);
 	if (!code) {
 		write_ping_message();
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_cleanup(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_cleanup(syst::error_code const &code) {
 	(void) code;
 	cleanup();
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_timeout(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_timeout(syst::error_code const &code) {
 	if (!code) {
-		data_.log()->info("timeout was reached with connection[%lu] from %s", ConnectionBase::id(), address());
+		data_.log()->info("timeout was reached with connection[%lu] from %s", connection_base_type::id(), address());
 		cleanup();
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_inactive_timeout(syst::error_code const &code) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_inactive_timeout(syst::error_code const &code) {
 	if (!code) {
-		data_.log()->info("inactive timeout was reached with connection[%lu] from %s", ConnectionBase::id(), address());
+		data_.log()->info("inactive timeout was reached with connection[%lu] from %s", connection_base_type::id(), address());
 		write_last_message();
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::read() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handshake() {
+
+	try {
+		if (ct_.secure()) {
+			connection_impl_ptr_type self(this);
+			socket().async_handshake(boost::bind(&type::handle_handshake, self, asio::placeholders::error));
+			setup_timeout(data_.read_timeout()); // let handshake_timeout be equal read_timeout
+		}
+		else {
+			read();
+		}
+	}
+	catch (std::exception const &e) {
+		handle_exception(e);
+	}
+}
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::read() {
 
 	try {
 		connection_impl_ptr_type self(this);
-		asio::async_read_until(socket_, in_, request_checker(data_.max_request_size()), 
+		asio::async_read_until(socket().native_sock(), in_, request_checker(data_.max_request_size()), 
 			boost::bind(&type::handle_read, self, asio::placeholders::error));
 		setup_timeout(data_.read_timeout());
 	}
@@ -357,18 +397,18 @@ connection_impl<ConnectionBase, ConnectionTraits>::read() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_static_content(response_impl const &resp, std::string const &content) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_static_content(response_impl const &resp, std::string const &content) {
 
 	try {
-		if (is_policy_ || !ConnectionBase::print_static_content(resp.content_type(), content, out_)) {
+		if (is_policy_ || !connection_base_type::print_static_content(resp.content_type(), content, out_)) {
 			cleanup();
 			return;
 		}
 
 		writing_message_ = true;
 		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+		asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_cleanup,
 			self, asio::placeholders::error));
 		setup_timeout(data_.write_timeout()); // static_content_write_timeout ?
 	}
@@ -377,22 +417,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_static_content(response
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_headers(response_impl const &resp) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_headers(response_impl const &resp) {
 
-	if (is_policy_ || !ConnectionBase::print_headers(resp.content_type(), out_)) {
+	if (is_policy_ || !connection_base_type::print_headers(resp.content_type(), out_)) {
 		cleanup();
 		return;
 	}
 
 	connection_impl_ptr_type self(this);
-	asio::async_write(socket_, out_, boost::bind(&type::handle_write_headers, self,
+	asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_write_headers, self,
 		asio::placeholders::error));
 	setup_timeout(data_.write_timeout());
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_message() {
 
 	try {
 		while (connected_) {
@@ -409,22 +449,22 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 
 			std::string const &content = msg->content();
 			bool printed = false;
-			formatter const *fmt_ptr = ConnectionBase::find_formatter(*msg);
+			formatter const *fmt_ptr = connection_base_type::find_formatter(*msg);
 			if (NULL != fmt_ptr) {
-				printed = ConnectionBase::print_message_content(fmt_ptr->wrap_message(content), out_);
+				printed = connection_base_type::print_message_content(fmt_ptr->wrap_message(content), out_);
 			}
 			else {
-				printed = ConnectionBase::print_message_content(content, out_);
+				printed = connection_base_type::print_message_content(content, out_);
 			}
 			if (printed) {
-				ConnectionBase::notify_message_printed(*msg);
+				connection_base_type::notify_message_printed(*msg);
 			}
 			messages_.pop_front();
 
 			if (printed) {
 				writing_message_ = true;
 				connection_impl_ptr_type self(this);
-				asio::async_write(socket_, out_, boost::bind(&type::handle_write_message,
+				asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_write_message,
 					self, asio::placeholders::error));
 				setup_timeout(data_.write_timeout());
 				return;
@@ -437,17 +477,17 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_message() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_ping_message() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_ping_message() {
 
 	try {
 		assert(!disable_ping_);
-		formatter const *fmt_ptr = ConnectionBase::default_formatter();
+		formatter const *fmt_ptr = connection_base_type::default_formatter();
 		assert(fmt_ptr);
-		if (ConnectionBase::print_message_content(fmt_ptr->ping_message(), out_)) {
+		if (connection_base_type::print_message_content(fmt_ptr->ping_message(), out_)) {
 			writing_message_ = true;
 			connection_impl_ptr_type self(this);
-			asio::async_write(socket_, out_, boost::bind(&type::handle_write_ping_message,
+			asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_write_ping_message,
 				self, asio::placeholders::error));
 			setup_timeout(data_.write_timeout());
 		}
@@ -461,18 +501,18 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_ping_message() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_last_message() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_last_message() {
 
 	try {
-		if (is_policy_ || !ConnectionBase::print_last_message(out_)) {
+		if (is_policy_ || !connection_base_type::print_last_message(out_)) {
 			cleanup();
 			return;
 		}
 
 		writing_message_ = true;
 		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+		asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_cleanup,
 			self, asio::placeholders::error));
 		setup_timeout(data_.write_timeout());
 	}
@@ -481,21 +521,21 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_last_message() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_policy_data() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_policy_data() {
 
 	try {
-		if (!ConnectionBase::print_policy_data(data_.policy_data(), out_)) {
-			data_.log()->error("can not answer policy data for connection[%lu] from %s", ConnectionBase::id(), address());
+		if (!connection_base_type::print_policy_data(data_.policy_data(), out_)) {
+			data_.log()->error("can not answer policy data for connection[%lu] from %s", connection_base_type::id(), address());
 			cleanup();
 			return;
 		}
 
-		data_.log()->debug("policy request for connection[%lu] from %s", ConnectionBase::id(), address());
+		data_.log()->debug("policy request for connection[%lu] from %s", connection_base_type::id(), address());
 
 		writing_message_ = true;
 		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+		asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_cleanup,
 			self, asio::placeholders::error));
 		setup_timeout(data_.write_timeout());
 	}
@@ -504,19 +544,19 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_policy_data() {
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error const &http, char const *error_msg) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::write_http_error(http_error const &http, char const *error_msg) {
 
 	data_.log()->error("http error %u occured with connection[%lu] from %s: %s",
-		(unsigned int)http.code(), ConnectionBase::id(), address(), error_msg ? error_msg : http.what());
+		(unsigned int)http.code(), connection_base_type::id(), address(), error_msg ? error_msg : http.what());
 	try {
-		if (is_policy_ || !ConnectionBase::print_error(out_, http)) {
+		if (is_policy_ || !connection_base_type::print_error(out_, http)) {
 			cleanup();
 			return;
 		}
 
 		connection_impl_ptr_type self(this);
-		asio::async_write(socket_, out_, boost::bind(&type::handle_cleanup,
+		asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_cleanup,
 			self, asio::placeholders::error));
 		setup_timeout(data_.write_timeout());
 	}
@@ -525,23 +565,32 @@ connection_impl<ConnectionBase, ConnectionTraits>::write_http_error(http_error c
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::cleanup() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::cleanup() {
 	timer_.cancel();
 	connected_ = false;
-	if (managed_ && !ConnectionBase::name().empty()) {
+	if (managed_ && !connection_base_type::name().empty()) {
 		managed_ = false;
-		boost::intrusive_ptr<ConnectionBase> self(this);
+		boost::intrusive_ptr<connection_base_type> self(this);
 		ct_.manager().remove_connection(self);
 	}
-	if (socket_.is_open()) {
-		socket_.close();
-		data_.log()->info("connection[%lu] from %s is closed", ConnectionBase::id(), address());
+	close();
+}
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::close() {
+	timer_.cancel();
+	connected_ = false;
+	managed_ = false;
+	if (socket().raw_sock().is_open()) {
+		socket().raw_sock().close();
+		data_.log()->info("connection[%lu] from %s is closed", connection_base_type::id(), address());
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::setup_timeout(unsigned int timeout) {
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::setup_timeout(unsigned int timeout) {
 
 	connection_impl_ptr_type self(this);
 	timer_.expires_from_now(boost::posix_time::milliseconds(timeout));
@@ -549,8 +598,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::setup_timeout(unsigned int ti
 		asio::placeholders::error));
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::setup_ping_or_inactive_timeout() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::setup_ping_or_inactive_timeout() {
 
 	boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
 	if (inactive_expires_ <= now) {
@@ -581,8 +630,8 @@ connection_impl<ConnectionBase, ConnectionTraits>::setup_ping_or_inactive_timeou
 	}
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::setup_inactive_timeout() {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::setup_inactive_timeout() {
 
 	boost::posix_time::time_duration td = boost::posix_time::milliseconds(data_.inactive_timeout());
 	inactive_expires_ = boost::posix_time::microsec_clock::universal_time() + td;
@@ -590,16 +639,16 @@ connection_impl<ConnectionBase, ConnectionTraits>::setup_inactive_timeout() {
 	setup_ping_or_inactive_timeout();
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_error(syst::error_code const &code) {
-	data_.log()->error("error occured with connection[%lu] from %s: %s", ConnectionBase::id(), address(), code.message().c_str());
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_error(syst::error_code const &code) {
+	data_.log()->error("error occured with connection[%lu] from %s: %s", connection_base_type::id(), address(), code.message().c_str());
 	cleanup();
 }
 
-template <typename ConnectionBase, typename ConnectionTraits> void
-connection_impl<ConnectionBase, ConnectionTraits>::handle_exception(std::exception const &exc) {
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_exception(std::exception const &exc) {
 	if (!addr_.empty()) {
-		data_.log()->error("exception caught with connection[%lu] from %s: %s", ConnectionBase::id(), address(), exc.what());
+		data_.log()->error("exception caught with connection[%lu] from %s: %s", connection_base_type::id(), address(), exc.what());
 	}
 	cleanup();
 }

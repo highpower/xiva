@@ -23,6 +23,8 @@
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 
+#include <boost/asio/ssl.hpp>
+
 namespace asio = boost::asio;
 namespace syst = boost::system;
 
@@ -32,6 +34,7 @@ namespace syst = boost::system;
 #else // XIVA_HAVE_BOOST_ASIO
 
 #include <asio.hpp>
+#include <asio/ssl.hpp>
 
 namespace syst = asio;
 

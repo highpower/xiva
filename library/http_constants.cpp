@@ -28,9 +28,6 @@ range<char const*> const
 http_constants_char::protocol_version = make_range("http/1.1");
 
 range<char const*> const
-http_constants_char::policy_file_request = make_range("<policy-file-request/>");
-
-range<char const*> const
 http_constants_char::sec_websocket_key1 = make_range("sec-websocket-key1");
 
 range<char const*> const

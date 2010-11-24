@@ -24,21 +24,28 @@
 #include "xiva/forward.hpp"
 #include "xiva/logger.hpp"
 
+#include "details/asio.hpp"
 #include "details/connection_manager.hpp"
 #include "details/connection_traits_base.hpp"
+#include "details/connection_socket.hpp"
 
 namespace xiva { namespace details {
 
-template <typename ConnectionBase, typename HandlerInvoker>
+template <typename HandlerInvoker>
 class connection_traits : public connection_traits_base {
 
 public:
-	typedef connection_manager<ConnectionBase> connection_manager_type;
+	typedef connection_socket socket_type;
+	typedef typename HandlerInvoker::connection_type connection_type;
+	typedef connection_manager<connection_type> connection_manager_type;
 	typedef boost::intrusive_ptr<HandlerInvoker> handler_invoker_ptr_type;
 	typedef boost::intrusive_ptr<connection_manager_type> connection_manager_ptr_type;
 	
 	connection_traits(connection_manager_ptr_type cm, handler_invoker_ptr_type cv);
 	virtual ~connection_traits();
+
+	static bool secure();
+	static std::auto_ptr<connection_socket> create_socket(asio::io_service &io);
 
 	HandlerInvoker& handler_invoker();
 	connection_manager_type& manager();
@@ -56,42 +63,52 @@ private:
 	connection_manager_ptr_type cm_;
 };
 
-template <typename ConnectionBase, typename HandlerInvoker> inline
-connection_traits<ConnectionBase, HandlerInvoker>::connection_traits(typename connection_traits<ConnectionBase, HandlerInvoker>::connection_manager_ptr_type cm, connection_traits<ConnectionBase, HandlerInvoker>::handler_invoker_ptr_type hi) :
+template <typename HandlerInvoker> inline
+connection_traits<HandlerInvoker>::connection_traits(connection_manager_ptr_type  cm, handler_invoker_ptr_type hi) :
 	hi_(hi), cm_(cm)
 {
 	assert(hi_);
 	assert(cm_);
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline
-connection_traits<ConnectionBase, HandlerInvoker>::~connection_traits() {
+template <typename HandlerInvoker> inline
+connection_traits<HandlerInvoker>::~connection_traits() {
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline HandlerInvoker&
-connection_traits<ConnectionBase, HandlerInvoker>::handler_invoker() {
+template <typename HandlerInvoker> inline bool
+connection_traits<HandlerInvoker>::secure() {
+	return false;
+}
+
+template <typename HandlerInvoker> std::auto_ptr<connection_socket>
+connection_traits<HandlerInvoker>::create_socket(asio::io_service &io) {
+	return std::auto_ptr<socket_type>(new connection_socket(io));
+}
+
+template <typename HandlerInvoker> inline HandlerInvoker&
+connection_traits<HandlerInvoker>::handler_invoker() {
 	return *hi_;
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline connection_manager<ConnectionBase>&
-connection_traits<ConnectionBase, HandlerInvoker>::manager() {
+template <typename HandlerInvoker> inline connection_manager< typename HandlerInvoker::connection_type >&
+connection_traits<HandlerInvoker>::manager() {
 	return *cm_;
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline void
-connection_traits<ConnectionBase, HandlerInvoker>::finish() {
+template <typename HandlerInvoker> inline void
+connection_traits<HandlerInvoker>::finish() {
 	hi_->finish();
 	cm_->finish();
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline void
-connection_traits<ConnectionBase, HandlerInvoker>::init(settings const &s) {
+template <typename HandlerInvoker> inline void
+connection_traits<HandlerInvoker>::init(settings const &s) {
 	hi_->init(s);
 	cm_->init(s);
 }
 
-template <typename ConnectionBase, typename HandlerInvoker> inline void
-connection_traits<ConnectionBase, HandlerInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
+template <typename HandlerInvoker> inline void
+connection_traits<HandlerInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	hi_->attach_logger(log);
 	cm_->attach_logger(log);
 }

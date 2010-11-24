@@ -11,8 +11,13 @@ LOG_DIR="/var/log/$THIS"
 XIVA_STARTER_PID="$PID_DIR/xivadaemonstart.pid"
 XIVA_DAEMON_PID="$PID_DIR/xivadaemon.pid"
 XIVA_STARTER="/usr/bin/xivadaemonstart.sh"
+XIVA_INIT_CUSTOM_CONFIG="/etc/$THIS/xiva.init.conf"
 
 RETVAL=0
+
+if [ -r $XIVA_INIT_CUSTOM_CONFIG ]; then
+    . $XIVA_INIT_CUSTOM_CONFIG
+fi
 
 case "$1" in
   start)
@@ -89,14 +94,14 @@ case "$1" in
 	rm -f $XIVA_STARTER_PID
         ;;
     restart)
-	$0 stop $@
-	$0 start $@
+	PRG=$0
+	$PRG stop $@
+	$PRG start $@
 	exit $?
 	;;
 
     *)
-        N=/etc/init.d/$THIS
-        echo "Usage: $N {start|stop|restart}" >&2
+        echo "Usage: $0 {start|stop|restart}" >&2
         exit 1
         ;;
 esac

@@ -66,33 +66,16 @@ http_request_checker::operator () (Iter first, Iter last) const {
 			Iter break_ptr;
 			if (helper.find_headers_break(end_line, break_ptr)) {
 				if (!read_body_ahead) {
-					return std::make_pair(end_line.begin(), true);
+					return std::make_pair(end_line.begin(), true); // ok, without body
 				}
 				if (std::distance(break_ptr, last) >= read_body_ahead) {
-					return std::make_pair(last, true);
+					return std::make_pair(last, true); // ok, with ahead body
 				}
 			}
 		}
 	}
 
-	return std::make_pair(last, false);
-}
-
-template <typename Iter> inline std::pair<Iter, bool>
-request_policy_checker::operator () (Iter first, Iter last) const {
-
-	typedef std::reverse_iterator<Iter> iterator_type;
-	typedef typename std::iterator_traits<Iter>::value_type char_type;
-	BOOST_STATIC_ASSERT(sizeof(char_type) == sizeof(char));
-
-	iterator_checker<Iter> iter_check;
-	(void) iter_check;
-
-	iterator_type begin(last), end(first);
-	if (static_cast<char_type>('<') == *first) {
-		return std::make_pair(last, (static_cast<char_type>(0) == *begin));
-	}
-	return std::make_pair(last, false);
+	return std::make_pair(first, false); // continue, cannot find end of headers or ahead body
 }
 
 class request_checker {
@@ -103,7 +86,6 @@ public:
 
 private:
 	http_request_checker http_checker_;
-	request_policy_checker policy_checker_;
 	int max_size_;
 };
 
@@ -114,24 +96,37 @@ request_checker::request_checker(int max_size) : max_size_(max_size)
 template <typename Iter> inline std::pair<Iter, bool>
 request_checker::operator () (Iter first, Iter last) const {
 
+	iterator_checker<Iter> iter_check;
+	(void) iter_check;
+
 	typedef typename std::iterator_traits<Iter>::difference_type diff_type;
 	diff_type size = std::distance(first, last);
 
-	enum { min_size = sizeof("get / http/1.1\n\n") - 1 };
-	// sizeof ("<policy-file-request/>\0") - 1 > min_size
+	enum {
+		min_size = sizeof("get / http/1.1\n\n") - 1,
+		policy_request_ascz_size = sizeof("<policy-file-request/>"),
+	};
 
 	if (size < min_size) {
-		return std::make_pair(last, false);
+		return std::make_pair(first, false); // continue, too little data
 	}
 	if (size > (diff_type)max_size_) {
-		return std::make_pair(last, true); // will be handled in connection_impl
+		return std::make_pair(last, true); // fail, this case will be handled in connection_impl
 	}
 	try {
-		std::pair<Iter, bool> result = policy_checker_(first, last);
-		return (result.second) ? result : http_checker_(first, last);
+		typedef typename std::iterator_traits<Iter>::value_type char_type;
+		BOOST_STATIC_ASSERT(sizeof(char_type) == sizeof(char));
+
+		if (static_cast<char_type>('<') == *first) {
+			if (size < static_cast<diff_type>(policy_request_ascz_size)) {
+				return std::make_pair(first, false); // continue, too little policy request data
+			}
+			return std::make_pair(last, true); // ok, match policy request data in connection_impl
+		}
+		return http_checker_(first, last);
 	}
 	catch (...) {
-		return std::make_pair(last, true); // will be handled in request_impl
+		return std::make_pair(last, true); // break match, this case will be handled in request_impl
 	}
 }
 

@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <string>
+#include <deque>
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -58,6 +59,8 @@ public:
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
+
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
@@ -75,21 +78,34 @@ private:
 	void start_provider_thread(thread_param_type const &tp);
 	void provider_thread_func(boost::function<globals::provider_type> f);
 
+	typedef std::pair<std::string, globals::connection_id> queue_item_type;
+
+	void process_failure(std::string const &to, globals::connection_id id);
+	void process_failures();
+
+	template <typename invoker_type>
+	void init_data(bool ssl);
+
 private:
 	asio::io_service io_;
 	asio::io_service::strand strand_;
+
+	mutable boost::mutex mutex_;
+	std::deque<queue_item_type> failures_;
 
 	std::auto_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
 
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<message_filter> message_filter_;
+	boost::intrusive_ptr<connection_traits_base> ssl_connection_traits_;
+	boost::intrusive_ptr<connection_traits_base> connection_traits_;
+	boost::intrusive_ptr<acceptor_base> ssl_acceptor_;
 	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<response_handler> handler_;
 	boost::intrusive_ptr<threaded_listener> listener_;
 	boost::intrusive_ptr<message_queue> message_queue_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
-	boost::intrusive_ptr<connection_traits_base> connection_traits_;
 	bool started_;
 };
 

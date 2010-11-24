@@ -10,12 +10,14 @@
 #include "xiva/logger.hpp"
 
 #include "details/formatters_factory.hpp"
+#include "details/server_impl.hpp"
 
 namespace xiva { namespace details {
 
 static const int MAX_REQUEST_SIZE_DEFAULT = 16 * 1024;
 
-connection_data::connection_data() :
+connection_data::connection_data(server_impl &server) :
+	server_(server),
 	read_timeout_(0), write_timeout_(0), inactive_timeout_(0), ping_interval_(0),
 	max_request_size_(MAX_REQUEST_SIZE_DEFAULT), stopping_(false)
 {
@@ -98,6 +100,18 @@ connection_data::stopping() const {
 void
 connection_data::stop() {
 	stopping_ = true;
+}
+
+void
+connection_data::notify_connection_opened_failed(std::string const &to, globals::connection_id id) const {
+	if (!stopping_) {
+		try {
+			server_.notify_connection_opened_failed(to, id);
+		}
+		catch (...) {
+			// no more exceptions
+		}
+	}
 }
 
 }} // namespaces

@@ -47,6 +47,8 @@ public:
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m) = 0;
 	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m) = 0;
 
+	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id) = 0;
+
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	virtual void add_connection_listener(listener_ptr_type const &l);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);

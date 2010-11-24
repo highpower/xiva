@@ -4,13 +4,13 @@
 #include <cassert>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
 #include "xiva/message_filter.hpp"
 
 #include "details/connection_data.hpp"
-#include "details/acceptor.hpp"
 #include "details/connection.hpp"
 #include "details/threaded_connection.hpp"
 
@@ -23,7 +23,11 @@
 #include "details/threaded_handler_invoker.hpp"
 
 #include "details/connection_traits.hpp"
+#include "details/ssl_connection_traits.hpp"
+
 #include "details/connection_manager.hpp"
+#include "details/acceptor.hpp"
+
 #include "details/url_response_handler.hpp"
 
 namespace xiva { namespace details {
@@ -31,8 +35,8 @@ namespace xiva { namespace details {
 server_impl::server_impl() :
 	io_(), strand_(io_), started_(false)
 {
-	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener());
-	data_.reset(new connection_data());
+	data_.reset(new connection_data(*this));
+	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener(*data_));
 }
 
 server_impl::~server_impl() {
@@ -44,6 +48,9 @@ server_impl::stop() {
 	if (acceptor_) {
 		acceptor_->stop();
 	}
+	if (ssl_acceptor_) {
+		ssl_acceptor_->stop();
+	}
 	listener_->finish();
 	if (message_queue_) {
 		message_queue_->finish();
@@ -54,6 +61,31 @@ server_impl::stop() {
 		connection_manager_->wait_for_complete();
 	}
 	io_.stop();
+}
+
+template <typename invoker_type>
+void server_impl::init_data(bool ssl) {
+
+	typedef typename invoker_type::connection_type connection_type;
+	typedef connection_manager<connection_type> manager_type;
+	typedef connection_traits<invoker_type> traits_type;
+	typedef acceptor<traits_type> acceptor_type;
+
+	boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
+	boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, *data_));
+	boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
+	acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
+	connection_manager_ = cm;
+	connection_traits_ = ct;
+
+	if (ssl) {
+		typedef ssl_connection_traits<invoker_type> ssl_traits_type;
+		typedef acceptor<ssl_traits_type> ssl_acceptor_type;
+
+		boost::intrusive_ptr<ssl_traits_type> ct(new ssl_traits_type(io_, cm, cv));
+		ssl_acceptor_ = boost::intrusive_ptr<acceptor_base>(new ssl_acceptor_type(io_, *data_, *ct));
+		ssl_connection_traits_ = ct;
+	}
 }
 
 void
@@ -69,46 +101,42 @@ server_impl::init(settings const &s) {
 		attach_response_handler(boost::intrusive_ptr<response_handler>(new url_response_handler()));
 	}
 
+	unsigned short ssl_port = s.ssl_port();
 	if (data_->handler()->threaded()) {
-		typedef threaded_handler_invoker invoker_type;
-		typedef invoker_type::connection_type connection_type;
-		typedef connection_manager<connection_type> manager_type;
-		typedef connection_traits<connection_type, invoker_type> traits_type;
-		typedef acceptor<connection_type, traits_type> acceptor_type;
-
-		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
-		boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, *data_));
-		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
-		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
-		connection_manager_ = cm;
-		connection_traits_ = ct;
+		init_data<threaded_handler_invoker>(0 != ssl_port);
 	}
 	else {
-		typedef handler_invoker invoker_type;
-		typedef invoker_type::connection_type connection_type;
-		typedef connection_manager<connection_type> manager_type;
-		typedef connection_traits<connection_type, invoker_type> traits_type;
-		typedef acceptor<connection_type, traits_type> acceptor_type;
-
-		boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
-		boost::intrusive_ptr<invoker_type> cv(new invoker_type(*data_));
-		boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
-		acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
-		connection_manager_ = cm;
-		connection_traits_ = ct;
+		init_data<handler_invoker>(0 != ssl_port);
 	}
 
 	connection_manager_->attach_message_filter(message_filter_);
 	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));
-	acceptor_->attach_logger(logger_);
 	message_queue_->attach_logger(logger_);
+
+	acceptor_->attach_logger(logger_);
+	if (ssl_acceptor_) {
+		ssl_acceptor_->attach_logger(logger_);
+	}
 	connection_traits_->attach_logger(logger_);
 	connection_traits_->init(s);
+	if (ssl_connection_traits_) {
+		ssl_connection_traits_->attach_logger(logger_);
+		ssl_connection_traits_->init(s);
+	}
 
 	acceptor_->bind(s.address(), s.port(), s.backlog());
-	acceptor_->accept();
+	if (ssl_acceptor_) {
+		ssl_acceptor_->bind(s.ssl_address(), ssl_port, s.ssl_backlog());
+	}
+
+
 	for (std::vector<thread_param_type>::const_iterator i = providers_.begin(), end = providers_.end(); i != end; ++i) {
 		start_provider_thread(*i);
+	}
+
+	acceptor_->accept();
+	if (ssl_acceptor_) {
+		ssl_acceptor_->accept();
 	}
 }
 
@@ -152,6 +180,68 @@ server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m
 }
 
 void
+server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+	{
+		boost::mutex::scoped_lock sl(mutex_);
+		failures_.push_back(std::make_pair(to, id));
+	}
+	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
+}
+
+void
+server_impl::process_failure(std::string const &to, globals::connection_id id) {
+
+	std::string id_str = boost::lexical_cast<std::string>(id);
+	if (logger_) {
+		logger_->info("try close connection name:%s, id:%s", to.c_str(), id_str.c_str());
+	}
+
+	try {
+		connection_manager_->notify_connection_opened_failed(to, id);
+	}
+	catch (std::exception const &e) {
+		if (logger_) {
+			logger_->error("exception was caught on process failure name:%s, id:%s: %s",
+				to.c_str(), id_str.c_str(), e.what());
+		}
+	}
+	catch (...) {
+		if (logger_) {
+			logger_->error("unknown exception was caught on process failure name:%s, id:%s",
+				to.c_str(), id_str.c_str());
+		}
+	}
+}
+
+void
+server_impl::process_failures() {
+
+	try {
+		std::deque<queue_item_type> l;
+		boost::mutex::scoped_lock sl(mutex_);
+		l.swap(failures_);
+		sl.unlock();
+		if (data_->stopping() || !connection_manager_) {
+			return;
+		}
+
+		for (std::deque<queue_item_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
+			process_failure(i->first, i->second);
+		}
+	}
+	catch (std::exception const &e) {
+		if (logger_) {
+			logger_->error("exception was caught on process failures: %s", e.what());
+		}
+	}
+	catch (...) {
+		if (logger_) {
+			logger_->error("unknown exception was caught on process failures");
+		}
+	}
+}
+
+void
 server_impl::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	assert(log);
 	logger_ = log;
@@ -191,8 +281,14 @@ server_impl::stop_service() {
 	if (acceptor_) {
 		acceptor_->stop();
 	}
+	if (ssl_acceptor_) {
+		ssl_acceptor_->stop();
+	}
 	if (connection_traits_) {
 		connection_traits_->finish();
+	}
+	if (ssl_connection_traits_) {
+		ssl_connection_traits_->finish();
 	}
 }
 
@@ -211,6 +307,9 @@ server_impl::provider_thread_func(boost::function<globals::provider_type> f) {
 	}
 	catch (std::exception const &e) {
 		logger_->error("caught exception in provider function: %s", e.what());
+	}
+	catch (...) {
+		logger_->error("caught unknown exception in provider function");
 	}
 }
 

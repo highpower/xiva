@@ -1,0 +1,91 @@
+#!/bin/sh
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+THIS=`basename $0 | sed 's/-perl$//g' | sed 's/^[SK][0123456789]*\([a-z]\)/\1/'`
+
+XIVA_FCGI_USER="www-data"
+XIVA_FCGI_PORT=18881
+
+PID_DIR="/var/run/$THIS"
+LOG_DIR="/var/log/$THIS"
+XIVA_FCGI_DAEMON="/usr/share/xiva/xiva.pl"
+XIVA_FCGI_DAEMON_PID="$PID_DIR/$THIS.pid"
+XIVA_FCGI_INIT_CUSTOM_CONFIG="/etc/$THIS/xiva.fcgi.init.conf"
+
+if [ -r $XIVA_FCGI_INIT_CUSTOM_CONFIG ]; then
+    . $XIVA_FCGI_INIT_CUSTOM_CONFIG
+fi
+
+case "$1" in
+    start)
+	#Create & chown directories for dummy packages makers
+	mkdir -p $PID_DIR
+	mkdir -p $LOG_DIR
+	chown $XIVA_FCGI_USER $PID_DIR
+	chown $XIVA_FCGI_USER $LOG_DIR
+	
+	echo "Starting $THIS:"
+	if /sbin/start-stop-daemon --quiet --stop --signal 0 --pidfile $XIVA_FCGI_DAEMON_PID 2>/dev/null 1>/dev/null
+	then
+		echo "$THIS already running."
+		exit 1
+	fi
+
+	OUT=`su $XIVA_FCGI_USER -c "spawn-fcgi -p $XIVA_FCGI_PORT -P $XIVA_FCGI_DAEMON_PID $XIVA_FCGI_DAEMON 2>&1"`
+	if [ $? -eq 0 ]
+	then
+		exit 0
+	fi
+	echo $OUT >>$LOG_DIR/$THIS.log
+	echo "$THIS not started. See logs in $LOG_DIR"
+	exit 1
+        ;;
+    stop)
+        echo "Stopping $THIS: "
+	if ! [ -s $XIVA_FCGI_DAEMON_PID ]
+	then
+		echo Warning: $XIVA_FCGI_DAEMON_PID not found
+		start_pid=`ps ax |egrep 'perl '$XIVA_FCGI_DAEMON'$' 2>/dev/null |grep -v grep |awk '{ print  $1 }'`
+		if [ "$start_pid" != "" ]; then
+			echo Warning: Process $start_pid will be killed
+			kill -9 $start_pid
+		fi
+		exit
+	fi
+	
+	#Kill daemon
+	/sbin/start-stop-daemon --quiet --stop --signal 0 --pidfile $XIVA_FCGI_DAEMON_PID 2>&1 >/dev/null
+	/sbin/start-stop-daemon --quiet --signal 15 --stop --pidfile $XIVA_FCGI_DAEMON_PID 2>&1 >/dev/null
+	/sbin/start-stop-daemon --quiet --signal 2 --stop --pidfile $XIVA_FCGI_DAEMON_PID 2>&1 >/dev/null
+
+	for C in `seq 10 -1 1`; do
+		ps `cat $XIVA_FCGI_DAEMON_PID` >>/dev/null 2>&1 || break
+		sleep 1
+		ps `cat $XIVA_FCGI_DAEMON_PID` >>/dev/null 2>&1 || break
+		echo -n "$C "
+		/sbin/start-stop-daemon --quiet --signal 9 --stop --pidfile $XIVA_FCGI_DAEMON_PID 2>&1 >/dev/null
+		if [ $C -eq 1 ]; then
+			echo " Cannot stop $THIS"
+			rm $XIVA_FCGI_DAEMON_PID >/dev/null
+			exit 1
+		fi
+	done
+	
+	#Rm pid file
+	rm -f $XIVA_FCGI_DAEMON_PID
+        ;;
+    restart)
+	PRG=$0
+	$PRG stop $@
+	$PRG start $@
+	exit $?
+	;;
+
+    *)
+        echo "Usage: $0 {start|stop|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
