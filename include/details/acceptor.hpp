@@ -38,7 +38,7 @@ template <typename ConnectionTraits>
 class acceptor : public acceptor_base {
 
 public:
-	acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct);
+	acceptor(asio::io_service &io, asio::io_service::strand &st, connection_data const &data, ConnectionTraits &ct);
 	virtual ~acceptor();
 
 	typedef typename ConnectionTraits::connection_type connection_type;
@@ -61,6 +61,7 @@ public:
 
 private:
 	asio::io_service &io_;
+	asio::io_service::strand &strand_;
 	connection_data const &data_;
 	ConnectionTraits &ct_;
 	asio::ip::tcp::acceptor acceptor_;
@@ -69,8 +70,8 @@ private:
 
 
 template <typename ConnectionTraits>
-acceptor<ConnectionTraits>::acceptor(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), acceptor_(io_)
+acceptor<ConnectionTraits>::acceptor(asio::io_service &io, asio::io_service::strand &st, connection_data const &data, ConnectionTraits &ct) :
+	io_(io), strand_(st), data_(data), ct_(ct), acceptor_(io_)
 {
 }
 
@@ -112,7 +113,10 @@ acceptor<ConnectionTraits>::handle_accept_first(connection_ptr_type conn, syst::
 		throw error("network error occured while first accepting connection: %s",
 		            code.message().c_str());
 	}
-	process_connection(conn);
+	//process_connection(conn);
+	acceptor_ptr_type self(this);
+	strand_.dispatch(boost::bind(&acceptor<ConnectionTraits>::process_connection, self, conn));
+	accept_again();
 }
 
 template <typename ConnectionTraits> void
@@ -123,11 +127,13 @@ acceptor<ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::
 	if (code) {
 		logger_->error("network error occured while accepting connection: %s",
 		               code.message().c_str());
-		accept_again();
 	}
 	else {
-		process_connection(conn);
+		//process_connection(conn);
+		acceptor_ptr_type self(this);
+		strand_.dispatch(boost::bind(&acceptor<ConnectionTraits>::process_connection, self, conn));
 	}
+	accept_again();
 }
 
 template <typename ConnectionTraits> void
@@ -135,7 +141,7 @@ acceptor<ConnectionTraits>::process_connection(connection_ptr_type conn) {
 	conn->start();
 	logger_->info("%s with id %lu accepted from %s",
 		ct_.secure() ? "ssl connection" : "connection", conn->id(), conn->address());
-	accept_again();
+	//accept_again();
 }
 
 template <typename ConnectionTraits> void

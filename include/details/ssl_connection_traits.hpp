@@ -45,7 +45,7 @@ public:
 	static bool secure();
 	std::auto_ptr<ssl_connection_socket> create_socket(asio::io_service &io);
 
-	virtual void init(settings const &s);
+	void init(settings const &s);
 
 private:
 	ssl_connection_traits(ssl_connection_traits const &);
@@ -77,7 +77,6 @@ ssl_connection_traits<HandlerInvoker>::create_socket(asio::io_service &io) {
 
 template <typename HandlerInvoker> void
 ssl_connection_traits<HandlerInvoker>::init(settings const &s) {
-	connection_traits<HandlerInvoker>::init(s);
 	context_.init(s);
 }
 

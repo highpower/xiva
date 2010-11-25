@@ -25,6 +25,7 @@
 #include "xiva/shared.hpp"
 #include "xiva/forward.hpp"
 #include "details/asio.hpp"
+#include "details/handler_invoker_base.hpp"
 
 namespace xiva { namespace details {
 
@@ -32,18 +33,18 @@ class connection;
 class request_impl;
 class connection_data;
 
-class handler_invoker : public shared {
+class handler_invoker : public handler_invoker_base {
 
 public:
-	handler_invoker(asio::io_service &io, connection_data const &data);
+	handler_invoker(asio::io_service::strand &st, connection_data const &data);
 	virtual ~handler_invoker();
 
 	typedef connection connection_type;
 	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
 
-	void finish();
-	void init(settings const &s);
-	void attach_logger(boost::intrusive_ptr<logger> const &log);
+	virtual void finish();
+	virtual void init(settings const &s);
+	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &resp);
 
 private:

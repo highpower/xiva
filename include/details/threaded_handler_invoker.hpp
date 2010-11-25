@@ -29,6 +29,7 @@
 
 #include "details/asio.hpp"
 #include "details/threaded_queue.hpp"
+#include "details/handler_invoker_base.hpp"
 
 namespace xiva { namespace details {
 
@@ -37,10 +38,10 @@ class request_holder;
 class connection_data;
 class threaded_connection;
 
-class threaded_handler_invoker : public shared, private boost::thread_group {
+class threaded_handler_invoker : public handler_invoker_base, private boost::thread_group {
 
 public:
-	threaded_handler_invoker(asio::io_service &io, connection_data const &data);
+	threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data);
 	virtual ~threaded_handler_invoker();
 
 	typedef threaded_connection connection_type;
@@ -49,9 +50,9 @@ public:
 	void pop();
 	void thread_func();
 
-	void finish();
-	void init(settings const &s);
-	void attach_logger(boost::intrusive_ptr<logger> const &log);
+	virtual void finish();
+	virtual void init(settings const &s);
+	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &impl);
 
 private:
@@ -65,8 +66,7 @@ private:
 	void pop_handled(std::deque<item_type> &items);
 
 private:
-	asio::io_service &io_;
-	asio::io_service::strand strand_;
+	asio::io_service::strand &strand_;
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;
 

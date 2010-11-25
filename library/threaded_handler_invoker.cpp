@@ -36,8 +36,8 @@ private:
 	response_impl resp_;
 };
 
-threaded_handler_invoker::threaded_handler_invoker(asio::io_service &io, connection_data const &data) : 
-	io_(io), strand_(io)
+threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data) : 
+	strand_(st)
 {
 	boost::intrusive_ptr<response_handler> handler = data.handler();
 	assert(handler);

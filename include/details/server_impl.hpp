@@ -42,6 +42,7 @@ class message_queue;
 class threaded_listener;
 class connection_traits_base;
 class connection_manager_base;
+class handler_invoker_base;
 
 class server_impl : public component_set, private boost::thread_group {
 
@@ -80,11 +81,12 @@ private:
 
 	typedef std::pair<std::string, globals::connection_id> queue_item_type;
 
+	void run_io();
 	void process_failure(std::string const &to, globals::connection_id id);
 	void process_failures();
 
 	template <typename invoker_type>
-	void init_data(bool ssl);
+	void init_data(settings const &s, bool ssl);
 
 private:
 	asio::io_service io_;
@@ -98,6 +100,7 @@ private:
 
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<message_filter> message_filter_;
+	boost::intrusive_ptr<handler_invoker_base> handler_invoker_;
 	boost::intrusive_ptr<connection_traits_base> ssl_connection_traits_;
 	boost::intrusive_ptr<connection_traits_base> connection_traits_;
 	boost::intrusive_ptr<acceptor_base> ssl_acceptor_;

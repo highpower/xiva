@@ -39,7 +39,7 @@ class connection_manager_base;
 class message_queue : public message_sender, public shared {
 
 public:
-	message_queue(asio::io_service &io, boost::intrusive_ptr<connection_manager_base> const &cm);
+	message_queue(asio::io_service::strand &st, boost::intrusive_ptr<connection_manager_base> const &cm);
 	virtual ~message_queue();
 
 	void pop_by_name();
@@ -63,8 +63,7 @@ private:
 	void push_message(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 private:
-	asio::io_service &io_;
-	asio::io_service::strand strand_;
+	asio::io_service::strand &strand_;
 	std::deque<queue_item_name_type> messages_by_name_;
 	std::deque<queue_item_id_type> messages_by_id_;
 

@@ -40,6 +40,7 @@ server_impl::server_impl() :
 }
 
 server_impl::~server_impl() {
+	join_all();
 }
 
 void
@@ -56,7 +57,6 @@ server_impl::stop() {
 		message_queue_->finish();
 	}
 	strand_.dispatch(boost::bind(&server_impl::stop_service, this));
-	join_all();
 	if (connection_manager_) {
 		connection_manager_->wait_for_complete();
 	}
@@ -64,7 +64,7 @@ server_impl::stop() {
 }
 
 template <typename invoker_type>
-void server_impl::init_data(bool ssl) {
+void server_impl::init_data(settings const &s, bool ssl) {
 
 	typedef typename invoker_type::connection_type connection_type;
 	typedef connection_manager<connection_type> manager_type;
@@ -72,25 +72,29 @@ void server_impl::init_data(bool ssl) {
 	typedef acceptor<traits_type> acceptor_type;
 
 	boost::intrusive_ptr<manager_type> cm(new manager_type(listener_));
-	boost::intrusive_ptr<invoker_type> cv(new invoker_type(io_, *data_));
-	boost::intrusive_ptr<traits_type> ct(new traits_type(cm, cv));
-	acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, *data_, *ct));
+	boost::intrusive_ptr<invoker_type> inv(new invoker_type(strand_, *data_));
+	handler_invoker_ = inv;
 	connection_manager_ = cm;
+
+	boost::intrusive_ptr<traits_type> ct(new traits_type(cm, inv));
 	connection_traits_ = ct;
+	acceptor_ = boost::intrusive_ptr<acceptor_base>(new acceptor_type(io_, strand_, *data_, *ct));
 
 	if (ssl) {
 		typedef ssl_connection_traits<invoker_type> ssl_traits_type;
 		typedef acceptor<ssl_traits_type> ssl_acceptor_type;
 
-		boost::intrusive_ptr<ssl_traits_type> ct(new ssl_traits_type(io_, cm, cv));
-		ssl_acceptor_ = boost::intrusive_ptr<acceptor_base>(new ssl_acceptor_type(io_, *data_, *ct));
-		ssl_connection_traits_ = ct;
+		boost::intrusive_ptr<ssl_traits_type> ssl_ct(new ssl_traits_type(io_, cm, inv));
+		ssl_acceptor_ = boost::intrusive_ptr<acceptor_base>(new ssl_acceptor_type(io_, strand_, *data_, *ssl_ct));
+		ssl_connection_traits_ = ssl_ct;
+		ssl_ct->init(s);
 	}
 }
 
 void
 server_impl::init(settings const &s) {
 
+	assert(!message_queue_);
 	if (!logger_) {
 		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
 	}
@@ -103,32 +107,31 @@ server_impl::init(settings const &s) {
 
 	unsigned short ssl_port = s.ssl_port();
 	if (data_->handler()->threaded()) {
-		init_data<threaded_handler_invoker>(0 != ssl_port);
+		init_data<threaded_handler_invoker>(s, 0 != ssl_port);
 	}
 	else {
-		init_data<handler_invoker>(0 != ssl_port);
+		init_data<handler_invoker>(s, 0 != ssl_port);
 	}
 
+	handler_invoker_->attach_logger(logger_);
+	handler_invoker_->init(s);
+
 	connection_manager_->attach_message_filter(message_filter_);
-	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(io_, connection_manager_));
+	message_queue_ = boost::intrusive_ptr<message_queue>(new message_queue(strand_, connection_manager_));
 	message_queue_->attach_logger(logger_);
 
 	acceptor_->attach_logger(logger_);
 	if (ssl_acceptor_) {
 		ssl_acceptor_->attach_logger(logger_);
 	}
-	connection_traits_->attach_logger(logger_);
-	connection_traits_->init(s);
-	if (ssl_connection_traits_) {
-		ssl_connection_traits_->attach_logger(logger_);
-		ssl_connection_traits_->init(s);
-	}
+
+	connection_manager_->attach_logger(logger_);
+	connection_manager_->init(s);
 
 	acceptor_->bind(s.address(), s.port(), s.backlog());
 	if (ssl_acceptor_) {
 		ssl_acceptor_->bind(s.ssl_address(), ssl_port, s.ssl_backlog());
 	}
-
 
 	for (std::vector<thread_param_type>::const_iterator i = providers_.begin(), end = providers_.end(); i != end; ++i) {
 		start_provider_thread(*i);
@@ -149,7 +152,37 @@ server_impl::init_channels_stat() {
 
 void
 server_impl::start() {
+	assert(!started_);
 	started_ = true;
+
+	run_io();
+}
+
+void
+server_impl::send(std::string const &to, boost::shared_ptr<message> const &m) {
+	if (message_queue_ && !data_->stopping()) {
+		message_queue_->send(to, m);
+	}
+}
+
+void
+server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
+	if (message_queue_ && !data_->stopping()) {
+		message_queue_->send(to, m);
+	}
+}
+
+void
+server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+	{
+		boost::mutex::scoped_lock sl(mutex_);
+		failures_.push_back(std::make_pair(to, id));
+	}
+	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
+}
+
+void
+server_impl::run_io() {
 	try {
 		io_.run();
 	}
@@ -163,29 +196,6 @@ server_impl::start() {
 			logger_->error("server_impl::start failed, unknown exception");
 		}
 	}
-}
-
-void
-server_impl::send(std::string const &to, boost::shared_ptr<message> const &m) {
-	if (message_queue_) {
-		message_queue_->send(to, m);
-	}
-}
-
-void
-server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
-	if (message_queue_) {
-		message_queue_->send(to, m);
-	}
-}
-
-void
-server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
-	{
-		boost::mutex::scoped_lock sl(mutex_);
-		failures_.push_back(std::make_pair(to, id));
-	}
-	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
 }
 
 void
@@ -284,11 +294,11 @@ server_impl::stop_service() {
 	if (ssl_acceptor_) {
 		ssl_acceptor_->stop();
 	}
-	if (connection_traits_) {
-		connection_traits_->finish();
+	if (connection_manager_) {
+		connection_manager_->finish();
 	}
-	if (ssl_connection_traits_) {
-		ssl_connection_traits_->finish();
+	if (handler_invoker_) {
+		handler_invoker_->finish();
 	}
 }
 

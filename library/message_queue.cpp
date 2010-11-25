@@ -13,8 +13,8 @@
 
 namespace xiva { namespace details {
 
-message_queue::message_queue(asio::io_service &io, boost::intrusive_ptr<connection_manager_base> const &cm) :
-	io_(io), strand_(io), accepting_messages_(true), manager_(cm)
+message_queue::message_queue(asio::io_service::strand &st, boost::intrusive_ptr<connection_manager_base> const &cm) :
+	strand_(st), accepting_messages_(true), manager_(cm)
 {
 }
 

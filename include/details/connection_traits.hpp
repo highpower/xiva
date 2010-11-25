@@ -49,10 +49,6 @@ public:
 
 	HandlerInvoker& handler_invoker();
 	connection_manager_type& manager();
-
-	virtual void finish();	
-	virtual void init(settings const &s);
-	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	
 private:
 	connection_traits(connection_traits const &);
@@ -93,24 +89,6 @@ connection_traits<HandlerInvoker>::handler_invoker() {
 template <typename HandlerInvoker> inline connection_manager< typename HandlerInvoker::connection_type >&
 connection_traits<HandlerInvoker>::manager() {
 	return *cm_;
-}
-
-template <typename HandlerInvoker> inline void
-connection_traits<HandlerInvoker>::finish() {
-	hi_->finish();
-	cm_->finish();
-}
-
-template <typename HandlerInvoker> inline void
-connection_traits<HandlerInvoker>::init(settings const &s) {
-	hi_->init(s);
-	cm_->init(s);
-}
-
-template <typename HandlerInvoker> inline void
-connection_traits<HandlerInvoker>::attach_logger(boost::intrusive_ptr<logger> const &log) {
-	hi_->attach_logger(log);
-	cm_->attach_logger(log);
 }
 
 }} // namespaces

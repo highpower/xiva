@@ -31,10 +31,6 @@ public:
 	connection_traits_base();
 	virtual ~connection_traits_base();
 
-	virtual void finish() = 0;
-	virtual void init(settings const &s) = 0;
-	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
-
 private:
 	connection_traits_base(connection_traits_base const &);
 	connection_traits_base& operator = (connection_traits_base const &);
