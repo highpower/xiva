@@ -117,6 +117,9 @@ Xiva.Transport.prototype = {
     }
 
     return decodedStr.replace(/^[0]+}/, '');
+  },
+
+  escapeHTML: function(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
-  
 };
