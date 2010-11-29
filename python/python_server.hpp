@@ -65,7 +65,7 @@ private:
 	//details::dynamic_loader loader_;
 	boost::shared_ptr<details::server_impl> impl_;
 	boost::intrusive_ptr<python_logger> logger_;
-	boost::shared_ptr<channels_stat> channels_stat_;
+	boost::shared_ptr<details::channels_stat_impl> channels_stat_;
 };
 
 }} // namespaces

@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libxiva.la
 
 libxiva_la_LDFLAGS = @BOOST_THREAD_LDFLAGS@ @BOOST_SYSTEM_LDFLAGS@
-libxiva_la_SOURCES = acceptor_base.cpp channels_stat_impl.cpp channels_stat.cpp \
+libxiva_la_SOURCES = acceptor_base.cpp channels_stat_impl.cpp \
 	component_set.cpp compound_listener.cpp connection.cpp connection_base.cpp \
 	connection_socket.cpp connection_data.cpp connection_listener.cpp connection_manager_base.cpp \
 	connection_traits_base.cpp error.cpp formatter.cpp formatter_creator.cpp \

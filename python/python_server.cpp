@@ -6,8 +6,8 @@
 #include <boost/python/errors.hpp>
 
 #include "xiva/message.hpp"
-#include "xiva/channels_stat.hpp"
 
+#include "details/channels_stat_impl.hpp"
 #include "details/server_impl.hpp"
 
 #include "server_class.hpp"

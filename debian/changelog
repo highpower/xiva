@@ -1,3 +1,9 @@
+xiva (1.4.4-2) unstable; urgency=low
+
+  * remove unnecessary class channel_stat
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 29 Nov 2010 20:10:09 +0300
+
 xiva (1.4.4-1) unstable; urgency=low
 
   * listen connection for reading some data or FIN to close self

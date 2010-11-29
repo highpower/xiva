@@ -143,7 +143,7 @@ server_impl::init(settings const &s) {
 	}
 }
 
-boost::shared_ptr<channels_stat> const&
+boost::shared_ptr<channels_stat_impl> const&
 server_impl::init_channels_stat() {
 	assert(!started_);
 	assert(connection_manager_);

@@ -1,4 +1,4 @@
-pkginclude_HEADERS = channel_id.hpp channel_info.hpp channels_stat.hpp \
+pkginclude_HEADERS = channel_id.hpp channel_info.hpp \
 	component_set.hpp config.hpp connection_listener.hpp \
 	enumeration.hpp error.hpp formatter.hpp formatter_creator.hpp \
 	forward.hpp globals.hpp http_error.hpp logger.hpp \

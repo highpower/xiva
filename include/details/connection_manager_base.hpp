@@ -53,7 +53,7 @@ public:
 	virtual void add_connection_listener(listener_ptr_type const &l);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
 
-	boost::shared_ptr<channels_stat> const& init_channels_stat();
+	boost::shared_ptr<channels_stat_impl> const& init_channels_stat();
 
 protected:	
 	message_filter const* msg_filter() const;
@@ -69,7 +69,6 @@ private:
 	boost::intrusive_ptr<compound_listener> listener_;
 	boost::intrusive_ptr<message_filter> message_filter_;
 	boost::shared_ptr<channels_stat_impl> channels_stat_impl_;
-	boost::shared_ptr<channels_stat> channels_stat_;
 };
 
 }} // namespaces

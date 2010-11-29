@@ -46,13 +46,12 @@ connection_manager_base::attach_message_filter(boost::intrusive_ptr<message_filt
 	message_filter_ = filter;
 }
 
-boost::shared_ptr<channels_stat> const&
+boost::shared_ptr<channels_stat_impl> const&
 connection_manager_base::init_channels_stat() {
 	if (NULL == channels_stat_impl_.get()) {
 		channels_stat_impl_ = boost::shared_ptr<channels_stat_impl>(new channels_stat_impl());
-		channels_stat_ = boost::shared_ptr<channels_stat>(new channels_stat(channels_stat_impl_));
 	}
-	return channels_stat_;
+	return channels_stat_impl_;
 }
 
 void

@@ -54,7 +54,7 @@ public:
 
 	void stop();
 	void init(settings const &s);
-	boost::shared_ptr<channels_stat> const& init_channels_stat();
+	boost::shared_ptr<channels_stat_impl> const& init_channels_stat();
 	void start();
 
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
