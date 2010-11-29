@@ -69,7 +69,8 @@ public:
 	virtual void send(message_ptr_type const &message);
 
 	void handle_handshake(syst::error_code const &code);
-	void handle_read(syst::error_code const &code);
+	void handle_read_request(syst::error_code const &code);
+	void handle_read_some(syst::error_code const &code);
 	void handle_write_headers(syst::error_code const &code);
 	void handle_write_message(syst::error_code const &code);
 	void handle_write_ping_message(syst::error_code const &code);
@@ -87,7 +88,8 @@ private:
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
 
 	void handshake();
-	void read();
+	void read_request();
+	void read_some();
 	void write_static_content(response_impl const &resp, std::string const &content);
 	void write_headers(response_impl const &resp);
 	void write_message();
@@ -109,7 +111,8 @@ private:
 	ConnectionTraits &ct_;
 
 	std::string addr_;
-	streambuf_type in_, out_;
+	std::auto_ptr<streambuf_type> in_;
+	streambuf_type out_;
 
 	asio::deadline_timer timer_;
 	boost::posix_time::ptime inactive_expires_;
@@ -129,7 +132,7 @@ private:
 
 template <typename ConnectionTraits>
 connection_impl<ConnectionTraits>::connection_impl(asio::io_service &io, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), data_(data), ct_(ct), timer_(io_), socket_(ct.create_socket(io)),
+	io_(io), data_(data), ct_(ct), in_(new streambuf_type()), timer_(io_), socket_(ct.create_socket(io)),
 	writing_message_(false), connected_(false), is_policy_(false), single_message_(false), disable_ping_(false), managed_(false)
 {
 }
@@ -218,11 +221,11 @@ connection_impl<ConnectionTraits>::handle_handshake(syst::error_code const &code
 		handle_error(code);
 		return;
 	}
-	read();
+	read_request();
 }
 
 template <typename ConnectionTraits> void
-connection_impl<ConnectionTraits>::handle_read(syst::error_code const &code) {
+connection_impl<ConnectionTraits>::handle_read_request(syst::error_code const &code) {
 	timer_.cancel();
 	if (code) {
 		handle_error(code);
@@ -233,27 +236,25 @@ connection_impl<ConnectionTraits>::handle_read(syst::error_code const &code) {
 	try {
 		typedef streambuf_type::const_buffers_type buffers_type;
 		typedef asio::buffers_iterator<buffers_type> iterator_type;
-		typedef typename iterator_type::difference_type diff_type;
 		typedef typename iterator_type::value_type char_type;
 
-		buffers_type data = in_.data();
-		iterator_type begin = iterator_type::begin(data);
-		iterator_type end = iterator_type::end(data);
-
-		if (begin == end) {
+		std::size_t sz = in_->size();
+		if (!sz) {
 			throw std::runtime_error("empty request");
 		}
-
-		diff_type sz = std::distance(begin, end);
-		if (sz > (diff_type)data_.max_request_size()) {
+		if (sz > static_cast<std::size_t>(data_.max_request_size())) {
 			throw http_error(http_error::entity_too_large);
 		}
+
+		buffers_type data = in_->data();
+		iterator_type begin = iterator_type::begin(data);
+		iterator_type end = iterator_type::end(data);
 
 		if (*begin == '<') {
 			enum { policy_file_request_ascz_size = sizeof("<policy-file-request/>") }; // 22 + 1 for '\0'
 			char const *policy_str = "<policy-file-request/>";
 
-			if (sz < static_cast<diff_type>(policy_file_request_ascz_size) ||
+			if (sz < static_cast<std::size_t>(policy_file_request_ascz_size) ||
 				!std::equal(policy_str, policy_str + policy_file_request_ascz_size, begin, ci_equal<char>())) {
 				
 				throw std::runtime_error("invalid policy request");
@@ -287,6 +288,25 @@ connection_impl<ConnectionTraits>::handle_read(syst::error_code const &code) {
 }
 
 template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handle_read_some(syst::error_code const &code) {
+	timer_.cancel();
+	if (code) {
+		handle_error(code);
+		return;
+	}
+
+	std::size_t sz = in_->size();
+	data_.log()->info("some data was read from connection[%lu], addess %s, size %lu",
+		connection_base_type::id(), address(), (unsigned long)sz);
+	if (sz) {
+		read_some();
+	}
+	else {
+		cleanup();
+	}
+}
+
+template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_write_headers(syst::error_code const &code) {
 	timer_.cancel();
 	if (code) {
@@ -295,6 +315,7 @@ connection_impl<ConnectionTraits>::handle_write_headers(syst::error_code const &
 	}
 	if (socket().raw_sock().is_open()) {
 		connected_ = true;
+		read_some();
 		write_message();
 	}
 	else {
@@ -375,7 +396,7 @@ connection_impl<ConnectionTraits>::handshake() {
 			setup_timeout(data_.read_timeout()); // let handshake_timeout be equal read_timeout
 		}
 		else {
-			read();
+			read_request();
 		}
 	}
 	catch (std::exception const &e) {
@@ -384,13 +405,27 @@ connection_impl<ConnectionTraits>::handshake() {
 }
 
 template <typename ConnectionTraits> void
-connection_impl<ConnectionTraits>::read() {
+connection_impl<ConnectionTraits>::read_request() {
 
 	try {
 		connection_impl_ptr_type self(this);
-		asio::async_read_until(socket().native_sock(), in_, request_checker(data_.max_request_size()), 
-			boost::bind(&type::handle_read, self, asio::placeholders::error));
+		asio::async_read_until(socket().native_sock(), *in_, request_checker(data_.max_request_size()), 
+			boost::bind(&type::handle_read_request, self, asio::placeholders::error));
 		setup_timeout(data_.read_timeout());
+	}
+	catch (std::exception const &e) {
+		handle_exception(e);
+	}
+}
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::read_some() {
+
+	try {
+		in_.reset(new streambuf_type());
+
+		connection_impl_ptr_type self(this);
+		asio::async_read(socket().native_sock(), *in_, boost::bind(&type::handle_read_some, self, asio::placeholders::error));
 	}
 	catch (std::exception const &e) {
 		handle_exception(e);

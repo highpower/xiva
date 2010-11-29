@@ -1,3 +1,9 @@
+xiva (1.4.4-1) unstable; urgency=low
+
+  * listen connection for reading some data or FIN to close self
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 29 Nov 2010 17:33:05 +0300
+
 xiva (1.4.3-1) unstable; urgency=low
 
   * fixed race conditions by alone strand
