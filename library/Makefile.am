@@ -17,8 +17,9 @@ libxiva_la_SOURCES = acceptor_base.cpp channels_stat_impl.cpp \
 
 noinst_LTLIBRARIES = libxiva-loader.la
 
+top_build_prefix=../
 libxiva_loader_la_LIBADD = libxiva.la
-libxiva_loader_la_LDFLAGS = @LIBLTDL@
+libxiva_loader_la_LDFLAGS = @LIBLTDL@ @BOOST_LDFLAGS@
 libxiva_loader_la_SOURCES = dynamic_loader.cpp
 
 AM_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/config \
