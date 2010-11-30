@@ -1,3 +1,9 @@
+xiva (1.4.4-3) unstable; urgency=low
+
+  * pure code (no using class channels_stat)
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 30 Nov 2010 12:51:18 +0300
+
 xiva (1.4.4-2) unstable; urgency=low
 
   * remove unnecessary class channel_stat

@@ -22,7 +22,6 @@ namespace xiva {
 
 class channel_id;
 class channel_info;
-class channels_stat;
 class formatter;
 class formatter_creator;
 class logger;

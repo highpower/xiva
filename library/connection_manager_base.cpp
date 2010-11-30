@@ -4,7 +4,6 @@
 #include <cassert>
 
 #include "xiva/message_filter.hpp"
-#include "xiva/channels_stat.hpp"
 
 #include "details/connection_base.hpp"
 #include "details/compound_listener.hpp"
