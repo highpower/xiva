@@ -1,3 +1,9 @@
+xiva-daemon-python (1.4.4-1) unstable; urgency=low
+
+  * fixed control
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 03 Dec 2010 16:37:25 +0300
+
 xiva-daemon-python (1.4.1-1) unstable; urgency=low
 
   * update config examples
