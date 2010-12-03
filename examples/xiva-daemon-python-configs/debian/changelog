@@ -1,3 +1,9 @@
+xiva-daemon-python-configs (1.4.4-1) unstable; urgency=low
+
+  * up ping interval to 5 minutes
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 03 Dec 2010 16:35:07 +0300
+
 xiva-daemon-python-configs (1.4.1-1) unstable; urgency=low
 
   * Initial release
