@@ -41,6 +41,8 @@ public:
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
+
 	component_set& components();
 	void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
 

@@ -1,3 +1,9 @@
+xiva (1.4.5-1) unstable; urgency=low
+
+  * added callback notify_connection_opened_failed() into class server
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 06 Dec 2010 17:06:20 +0300
+
 xiva (1.4.4-3) unstable; urgency=low
 
   * pure code (no using class channels_stat)

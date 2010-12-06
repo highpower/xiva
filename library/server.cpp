@@ -33,6 +33,11 @@ server::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	impl_->send(to, m);
 }
 
+void
+server::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+	impl_->notify_connection_opened_failed(to, id);
+}
+
 component_set&
 server::components() {
 	return *impl_;
