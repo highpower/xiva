@@ -36,6 +36,8 @@ public:
 	template <typename HandshakeHandler>
 	void async_handshake(HandshakeHandler handler);
 
+	void close();
+
 private:
 	ssl_connection_socket(ssl_connection_socket const &);
 	ssl_connection_socket& operator = (ssl_connection_socket const &);
@@ -58,6 +60,13 @@ ssl_connection_socket::async_handshake(HandshakeHandler handler) {
 	socket_.async_handshake(asio::ssl::stream_base::server, handler);
 }
 
+inline void
+ssl_connection_socket::close() {
+	syst::error_code code;
+	socket_.shutdown(code);
+	socket_.lowest_layer().close();
+}
+			
 }} // namespaces
 
 #endif // XIVA_DETAILS_SSL_CONNECTION_SOCKET_HPP_INCLUDED

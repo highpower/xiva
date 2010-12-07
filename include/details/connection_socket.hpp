@@ -34,6 +34,8 @@ public:
 	template <typename HandshakeHandler>
 	void async_handshake(HandshakeHandler handler);
 
+	void close();
+
 private:
 	connection_socket(connection_socket const &);
 	connection_socket& operator = (connection_socket const &);
@@ -53,6 +55,13 @@ connection_socket::native_sock() {
 
 template <typename HandshakeHandler> inline void
 connection_socket::async_handshake(HandshakeHandler /* handler */ ) {
+}
+
+inline void
+connection_socket::close() {
+	syst::error_code code;
+	socket_.shutdown(asio::ip::tcp::socket::shutdown_both, code);
+	socket_.close();
 }
 
 }} // namespaces
