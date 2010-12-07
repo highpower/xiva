@@ -34,7 +34,8 @@ public:
 	virtual ~python_formatter();
 
 	virtual std::string wrap_message(std::string const &content) const;
-        virtual std::string ping_message() const;
+	virtual std::string ping_message() const;
+	virtual std::string ping_message_for_single() const;
 
 private:
 	python_formatter(python_formatter const &);

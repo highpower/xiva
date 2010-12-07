@@ -1,3 +1,9 @@
+xiva-daemon-python (1.5.1-1) unstable; urgency=low
+
+  * added formatter::ping_message_for_single ("" for disable, should be "\n")
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 07 Dec 2010 17:25:09 +0300
+
 xiva-daemon-python (1.4.4-1) unstable; urgency=low
 
   * fixed control

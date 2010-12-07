@@ -199,7 +199,7 @@ connection_impl<ConnectionTraits>::handled(request_impl const &req, response_imp
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), connection_base_type::id(), address());
 		single_message_ = resp.single_message();
 		connection_base_type::init_formatters(data_.fmt_factory(), req, resp);
-		disable_ping_ =	single_message_ || data_.ping_interval() < MINIMAL_PING_INTERVAL ||
+		disable_ping_ =	data_.ping_interval() < MINIMAL_PING_INTERVAL ||
 				NULL == connection_base_type::default_formatter();
 		write_headers(resp);
 		boost::intrusive_ptr<connection_base_type> self(this);
@@ -519,7 +519,8 @@ connection_impl<ConnectionTraits>::write_ping_message() {
 		assert(!disable_ping_);
 		formatter const *fmt_ptr = connection_base_type::default_formatter();
 		assert(fmt_ptr);
-		if (connection_base_type::print_message_content(fmt_ptr->ping_message(), out_)) {
+		if (connection_base_type::print_message_content(
+				single_message_ ? fmt_ptr->ping_message_for_single() : fmt_ptr->ping_message(), out_)) {
 			writing_message_ = true;
 			connection_impl_ptr_type self(this);
 			asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_write_ping_message,
@@ -618,7 +619,7 @@ connection_impl<ConnectionTraits>::close() {
 	connected_ = false;
 	managed_ = false;
 	if (socket().raw_sock().is_open()) {
-		socket().raw_sock().close();
+		socket().close();
 		data_.log()->info("connection[%lu] from %s is closed", connection_base_type::id(), address());
 	}
 }

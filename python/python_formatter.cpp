@@ -45,4 +45,19 @@ python_formatter::ping_message() const {
 	}
 }
 
+std::string
+python_formatter::ping_message_for_single() const {
+
+	try {
+		interpreter_lock lock;
+		return py::extract<std::string>(py::call_method<py::str>(impl_.ptr(), "ping_message_for_single"));
+	}
+	catch (std::exception const &) {
+		throw;
+	}
+	catch (...) {
+		throw std::runtime_error("caugth unknown exception in python_formatter::ping_message_for_single");
+	}
+}
+
 }} // namespaces

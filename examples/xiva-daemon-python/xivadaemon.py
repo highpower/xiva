@@ -124,6 +124,9 @@ class XivaFormatterSimple(object):
 	def ping_message(self):
 		return "ping\n"
 
+	def ping_message_for_single(self):
+		return "\n"
+
 
 class XivaMessageFilter(object):
 	def allow_message(self, prefix, key, msg_data, ch_data):

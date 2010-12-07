@@ -1,3 +1,10 @@
+xiva (1.5.1-1) unstable; urgency=low
+
+  * try shutdown socket before closing
+  * added formatter::ping_message_for_single ("" for disable, should be "\n")
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 07 Dec 2010 17:28:05 +0300
+
 xiva (1.4.5-1) unstable; urgency=low
 
   * added callback notify_connection_opened_failed() into class server
