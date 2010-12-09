@@ -1,3 +1,9 @@
+xiva (1.5.2-2) unstable; urgency=low
+
+  * fixed using namespace asio
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 09 Dec 2010 16:29:59 +0300
+
 xiva (1.5.2-1) unstable; urgency=low
 
   * process notify_connection_closed in reverse order

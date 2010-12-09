@@ -677,7 +677,7 @@ connection_impl<ConnectionTraits>::setup_inactive_timeout() {
 
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_error(syst::error_code const &code) {
-	if (code != syst::error::operation_aborted) {
+	if (code != asio::error::operation_aborted) {
 		data_.log()->error("error occured with connection[%lu] from %s: %s",
 			connection_base_type::id(), address(), code.message().c_str());
 	}
