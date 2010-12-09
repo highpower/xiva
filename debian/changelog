@@ -1,3 +1,13 @@
+xiva (1.5.2-1) unstable; urgency=low
+
+  * process notify_connection_closed in reverse order
+  * don't throw exception from compound_listener::notify_connection_closed() 
+  * pass notify_close=true flag from public server to connection_manager
+    while processing failure
+  * suppress info log messages when operation aborted
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 09 Dec 2010 16:03:50 +0300
+
 xiva (1.5.1-1) unstable; urgency=low
 
   * try shutdown socket before closing
