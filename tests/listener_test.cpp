@@ -44,9 +44,13 @@ BOOST_AUTO_TEST_CASE(test_listener) {
 		BOOST_CHECK_EQUAL(false, (*i)->available("highpower"));
 		BOOST_CHECK_EQUAL(true, (*i)->available("swan"));
 	}
-	BOOST_CHECK_THROW(compound.connection_closed("highpower", 2), xiva::error);
-	BOOST_CHECK_THROW(compound.connection_closed("highpower", 3), xiva::error);
-	BOOST_CHECK_THROW(compound.connection_closed("swan", 2), xiva::error);
+	BOOST_CHECK_THROW(listeners[0]->connection_closed("highpower", 2), xiva::error);
+	BOOST_CHECK_THROW(listeners[0]->connection_closed("highpower", 3), xiva::error);
+	BOOST_CHECK_THROW(listeners[0]->connection_closed("swan", 2), xiva::error);
+
+	compound.connection_closed("highpower", 2);
+	compound.connection_closed("highpower", 3);
+	compound.connection_closed("swan", 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
