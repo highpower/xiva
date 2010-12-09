@@ -43,4 +43,16 @@ mock_connection::handled(details::request_impl const &req, details::response_imp
 	(void) resp;
 }
 
+void
+mock_connection::handled_errors(
+	details::request_impl const &req, details::response_impl const &resp,
+	unsigned short http_code, std::string const &error_msg) {
+
+	(void) req;
+	(void) resp;
+	(void) http_code;
+	(void) error_msg;
+}
+				
+
 }} // namespaces

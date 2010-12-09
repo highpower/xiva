@@ -7,6 +7,7 @@
 #include <boost/current_function.hpp>
 #include <boost/function.hpp>
 
+#include "xiva/http_error.hpp"
 #include "xiva/logger.hpp"
 #include "xiva/request.hpp"
 #include "xiva/response.hpp"
@@ -30,10 +31,16 @@ public:
 	request_impl& request();
 	response_impl& response();
 	void attach(request_impl &req, response_impl &resp);
+	void set_error_msg(char const *msg);
+	void set_http_error_code(unsigned short code);
+	
+	void handled(connection_base &conn) const;
 
 private:
 	request_impl req_;
 	response_impl resp_;
+	std::string error_msg_;
+	unsigned short http_code_;
 };
 
 threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data) : 
@@ -61,9 +68,7 @@ threaded_handler_invoker::pop() {
 	pop_handled(handled);
 	try {
 		for (std::deque<item_type>::iterator i = handled.begin(), end = handled.end(); i != end; ++i) {
-			request_impl const &req = i->first->request();
-			response_impl const &resp = i->first->response();
-			i->second->handled(req, resp);
+			i->first->handled(*(i->second));
 		}
 	}
 	catch (std::exception const &e) {
@@ -81,15 +86,21 @@ threaded_handler_invoker::thread_func() {
 			item.second->name(receiver);
 			response response_adapter(item.first->response());
 			handler_->handle_response(request_adapter, response_adapter);
-			handled(item);
-			strand_.dispatch(boost::bind(&threaded_handler_invoker::pop, this));
+		}
+		catch (http_error const &e) {
+			logger_->error("http error was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+			item.first->set_http_error_code(e.code());
 		}
 		catch (std::exception const &e) {
 			logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+			item.first->set_error_msg(e.what());
 		}
 		catch (...) {
 			logger_->error("unknown exception was caught in %s", BOOST_CURRENT_FUNCTION);
+			item.first->set_error_msg("unknown exception while invoking handler");
 		}
+		handled(item);
+		strand_.dispatch(boost::bind(&threaded_handler_invoker::pop, this));
 	}
 }
 
@@ -138,7 +149,7 @@ threaded_handler_invoker::pop_handled(std::deque<threaded_handler_invoker::item_
 	items.swap(handled_);
 }
 
-request_holder::request_holder()
+request_holder::request_holder() : http_code_(0)
 {
 }
 
@@ -160,5 +171,27 @@ request_holder::attach(request_impl &req, response_impl &resp) {
 	req_.swap(req);
 	resp_.swap(resp);
 }
+
+void
+request_holder::set_error_msg(char const *msg) {
+	error_msg_.assign(msg);
+}
+
+
+void
+request_holder::set_http_error_code(unsigned short code) {
+	http_code_ = code;
+}
+
+void
+request_holder::handled(connection_base &conn) const {
+	if (!http_code_ && error_msg_.empty()) {
+		conn.handled(req_, resp_);
+	}
+	else {
+		conn.handled_errors(req_, resp_, http_code_, error_msg_);
+	}
+}
+
 
 }} // namespaces

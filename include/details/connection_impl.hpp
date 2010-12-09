@@ -82,6 +82,10 @@ public:
 	char const* address() const;
 	socket_type& socket();
 	virtual void handled(request_impl const &req, response_impl const &resp);
+	virtual void handled_errors(
+		request_impl const &req, response_impl const &resp,
+		unsigned short http_code, std::string const &error_msg);
+					
 
 private:
 	typedef std::allocator<char> allocator_type;
@@ -213,6 +217,33 @@ connection_impl<ConnectionTraits>::handled(request_impl const &req, response_imp
 		handle_exception(e);
 	}
 }
+
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::handled_errors(
+	request_impl const &req, response_impl const &resp,
+	unsigned short http_code, std::string const &error_msg) {
+
+	(void) req;
+	(void) resp;
+
+	timer_.cancel();
+	try {
+		if (http_code) {
+			throw http_error(http_code);
+		}
+		if (!error_msg.empty()) {
+			throw std::runtime_error(error_msg);
+		}
+		throw std::logic_error("strange error in connection_impl::handled_errors");
+	}
+	catch (http_error const &h) {
+		write_http_error(h);
+	}
+	catch (std::exception const &e) {
+		handle_exception(e);
+	}
+}
+
 
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_handshake(syst::error_code const &code) {
