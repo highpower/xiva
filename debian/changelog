@@ -1,3 +1,9 @@
+xiva (1.5.2-3) unstable; urgency=low
+
+  * fixed condition while handling asio errors in connection_impl
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 09 Dec 2010 16:56:13 +0300
+
 xiva (1.5.2-2) unstable; urgency=low
 
   * fixed using namespace asio
