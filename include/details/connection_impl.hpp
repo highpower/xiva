@@ -677,14 +677,18 @@ connection_impl<ConnectionTraits>::setup_inactive_timeout() {
 
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_error(syst::error_code const &code) {
-	data_.log()->error("error occured with connection[%lu] from %s: %s", connection_base_type::id(), address(), code.message().c_str());
+	if (code != syst::error::operation_aborted) {
+		data_.log()->error("error occured with connection[%lu] from %s: %s",
+			connection_base_type::id(), address(), code.message().c_str());
+	}
 	cleanup();
 }
 
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_exception(std::exception const &exc) {
 	if (!addr_.empty()) {
-		data_.log()->error("exception caught with connection[%lu] from %s: %s", connection_base_type::id(), address(), exc.what());
+		data_.log()->error("exception caught with connection[%lu] from %s: %s",
+			connection_base_type::id(), address(), exc.what());
 	}
 	cleanup();
 }
