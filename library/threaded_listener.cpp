@@ -41,7 +41,7 @@ threaded_listener::thread_func() {
 		}
 		catch (...) {
 			if (item.second) {
-			    data_.notify_connection_opened_failed(dt.first, dt.second);
+			    data_.notify_connection_opened_failed(dt.first, dt.second, false);
 			}
 		}
 	}

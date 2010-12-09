@@ -173,10 +173,12 @@ server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m
 }
 
 void
-server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
+server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close) {
+
+	failure_data fd(to, id, notify_close);
 	{
 		boost::mutex::scoped_lock sl(mutex_);
-		failures_.push_back(std::make_pair(to, id));
+		failures_.push_back(fd);
 	}
 	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
 }
@@ -199,26 +201,28 @@ server_impl::run_io() {
 }
 
 void
-server_impl::process_failure(std::string const &to, globals::connection_id id) {
+server_impl::process_failure(failure_data const &fd) {
 
-	std::string id_str = boost::lexical_cast<std::string>(id);
+	std::string id_str;
 	if (logger_) {
-		logger_->info("try close connection name:%s, id:%s", to.c_str(), id_str.c_str());
+		id_str = boost::lexical_cast<std::string>(fd.id);
+		logger_->info("try close connection name:%s, id:%s, notify close:%d",
+			fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0);
 	}
 
 	try {
-		connection_manager_->notify_connection_opened_failed(to, id);
+		connection_manager_->notify_connection_opened_failed(fd.to, fd.id, fd.notify_close);
 	}
 	catch (std::exception const &e) {
 		if (logger_) {
-			logger_->error("exception was caught on process failure name:%s, id:%s: %s",
-				to.c_str(), id_str.c_str(), e.what());
+			logger_->error("exception was caught on process failure name:%s, id:%s, notify close:%d: %s",
+				fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0, e.what());
 		}
 	}
 	catch (...) {
 		if (logger_) {
-			logger_->error("unknown exception was caught on process failure name:%s, id:%s",
-				to.c_str(), id_str.c_str());
+			logger_->error("unknown exception was caught on process failure name:%s, id:%s, notify close:%d",
+				fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0);
 		}
 	}
 }
@@ -227,7 +231,7 @@ void
 server_impl::process_failures() {
 
 	try {
-		std::deque<queue_item_type> l;
+		std::deque<failure_data> l;
 		boost::mutex::scoped_lock sl(mutex_);
 		l.swap(failures_);
 		sl.unlock();
@@ -235,8 +239,8 @@ server_impl::process_failures() {
 			return;
 		}
 
-		for (std::deque<queue_item_type>::iterator i = l.begin(), end = l.end(); i != end; ++i) {
-			process_failure(i->first, i->second);
+		for (std::deque<failure_data>::const_iterator i = l.begin(), end = l.end(); i != end; ++i) {
+			process_failure(*i);
 		}
 	}
 	catch (std::exception const &e) {

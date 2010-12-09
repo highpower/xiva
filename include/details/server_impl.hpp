@@ -60,7 +60,7 @@ public:
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
-	void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close);
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
@@ -79,10 +79,16 @@ private:
 	void start_provider_thread(thread_param_type const &tp);
 	void provider_thread_func(boost::function<globals::provider_type> f);
 
-	typedef std::pair<std::string, globals::connection_id> queue_item_type;
+	struct failure_data {
+		failure_data(std::string const &a_to, globals::connection_id an_id, bool a_notify_close);
+
+		std::string to;
+		globals::connection_id id;
+		bool notify_close;
+	};
 
 	void run_io();
-	void process_failure(std::string const &to, globals::connection_id id);
+	void process_failure(failure_data const &fd);
 	void process_failures();
 
 	template <typename invoker_type>
@@ -93,7 +99,7 @@ private:
 	asio::io_service::strand strand_;
 
 	mutable boost::mutex mutex_;
-	std::deque<queue_item_type> failures_;
+	std::deque<failure_data> failures_;
 
 	std::auto_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
@@ -111,6 +117,13 @@ private:
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	bool started_;
 };
+
+inline
+server_impl::failure_data::failure_data(std::string const &a_to, globals::connection_id an_id, bool a_notify_close) :
+	to(a_to), id(an_id), notify_close(a_notify_close)
+{
+}
+
 
 }} // namespaces
 

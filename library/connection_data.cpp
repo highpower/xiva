@@ -103,10 +103,10 @@ connection_data::stop() {
 }
 
 void
-connection_data::notify_connection_opened_failed(std::string const &to, globals::connection_id id) const {
+connection_data::notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close) const {
 	if (!stopping_) {
 		try {
-			server_.notify_connection_opened_failed(to, id);
+			server_.notify_connection_opened_failed(to, id, notify_close);
 		}
 		catch (...) {
 			// no more exceptions
