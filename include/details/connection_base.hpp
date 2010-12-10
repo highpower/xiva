@@ -27,6 +27,7 @@
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
 
+#include "details/guard.hpp"
 #include "details/websocket_info.hpp"
 
 namespace xiva { namespace details {
@@ -55,6 +56,8 @@ public:
 	bool allow_message(message const &msg, message_filter const *filter) const;
 	void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
 
+	boost::shared_ptr<guard> const& get_guard() const;
+
 protected:
 	void init(request_impl const &req, bool secure);
 	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
@@ -79,6 +82,7 @@ private:
 	std::auto_ptr<formatters_data> fmt_data_;
 	websocket_info ws_info_;
 	std::string name_;
+	boost::shared_ptr<guard> guard_;
 };
 
 inline std::string const&
@@ -90,6 +94,12 @@ inline void
 connection_base::name(std::string const &name) {
 	name_.assign(name);
 }
+
+inline boost::shared_ptr<guard> const&
+connection_base::get_guard() const {
+	return guard_;
+}
+
 			
 }} // namespaces
 

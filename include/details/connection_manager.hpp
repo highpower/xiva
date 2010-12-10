@@ -75,7 +75,7 @@ public:
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
 	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
 
-	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close);
+	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
 
 	virtual void finish();
 	virtual void wait_for_complete();
@@ -209,7 +209,7 @@ connection_manager<ConnectionBase>::send(globals::connection_id const &to, boost
 }
 
 template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close) {
+connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
 
 	(void) to;
 
@@ -221,11 +221,7 @@ connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string 
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(id);
 	if (p.first != p.second) {
 		connection_ptr_type conn = *p.first;
-		index.erase(id);
 		conn->close();
-		if (notify_close) {
-			fire_connection_closed(*conn);
-		}
 	}
 }
 

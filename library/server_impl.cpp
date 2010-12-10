@@ -173,9 +173,9 @@ server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m
 }
 
 void
-server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close) {
+server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
 
-	failure_data fd(to, id, notify_close);
+	failure_data fd(to, id);
 	{
 		boost::mutex::scoped_lock sl(mutex_);
 		failures_.push_back(fd);
@@ -206,23 +206,23 @@ server_impl::process_failure(failure_data const &fd) {
 	std::string id_str;
 	if (logger_) {
 		id_str = boost::lexical_cast<std::string>(fd.id);
-		logger_->info("try close connection name:%s, id:%s, notify close:%d",
-			fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0);
+		logger_->info("try close connection name:%s, id:%s",
+			fd.to.c_str(), id_str.c_str());
 	}
 
 	try {
-		connection_manager_->notify_connection_opened_failed(fd.to, fd.id, fd.notify_close);
+		connection_manager_->notify_connection_opened_failed(fd.to, fd.id);
 	}
 	catch (std::exception const &e) {
 		if (logger_) {
-			logger_->error("exception was caught on process failure name:%s, id:%s, notify close:%d: %s",
-				fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0, e.what());
+			logger_->error("exception was caught on process failure name:%s, id:%s: %s",
+				fd.to.c_str(), id_str.c_str(), e.what());
 		}
 	}
 	catch (...) {
 		if (logger_) {
-			logger_->error("unknown exception was caught on process failure name:%s, id:%s, notify close:%d",
-				fd.to.c_str(), id_str.c_str(), fd.notify_close ? 1 : 0);
+			logger_->error("unknown exception was caught on process failure name:%s, id:%s",
+				fd.to.c_str(), id_str.c_str());
 		}
 	}
 }

@@ -56,19 +56,21 @@ connection_manager_base::init_channels_stat() {
 void
 connection_manager_base::fire_connection_opened(connection_base const &conn) {
 
-	listener_->connection_opened(conn.name(), conn.id());
 	if (NULL != channels_stat_impl_.get()) {
 		conn.update_channels_stat(*channels_stat_impl_, true);
 	}
+
+	listener_->connection_opened_ex(conn.name(), conn.id(), conn.get_guard());
 }
 
 void
 connection_manager_base::fire_connection_closed(connection_base const &conn) {
 
-	listener_->connection_closed(conn.name(), conn.id());
 	if (NULL != channels_stat_impl_.get()) {
 		conn.update_channels_stat(*channels_stat_impl_, false);
 	}
+
+	listener_->connection_closed_ex(conn.name(), conn.id(), conn.get_guard());
 }
 
 void

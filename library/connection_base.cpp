@@ -14,7 +14,7 @@
 
 namespace xiva { namespace details {
 
-connection_base::connection_base()
+connection_base::connection_base() : guard_(new guard())
 {
 }
 

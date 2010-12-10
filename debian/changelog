@@ -1,3 +1,9 @@
+xiva (1.5.4-1) unstable; urgency=low
+
+  * synchronized stream of notify events
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 10 Dec 2010 18:59:15 +0300
+
 xiva (1.5.3-1) unstable; urgency=low
 
   * handle errors in threaded_invoke_handler and notify the connection

@@ -19,6 +19,24 @@ compound_listener::~compound_listener() {
 }
 
 void
+compound_listener::connection_opened_ex(
+	std::string const &to, globals::connection_id id,
+	boost::shared_ptr<guard> const &notify_guard) throw (std::exception) {
+
+	(void) notify_guard;
+	notify_connection_opened(to, id);
+}
+
+void
+compound_listener::connection_closed_ex(
+	std::string const &to, globals::connection_id id,
+	boost::shared_ptr<guard> const &notify_guard) throw (std::exception) {
+
+	(void) notify_guard;
+	notify_connection_closed(to, id);
+}
+
+void
 compound_listener::connection_opened(std::string const &to, globals::connection_id id) throw (std::exception) {
 	notify_connection_opened(to, id);
 }

@@ -60,7 +60,7 @@ public:
 	void send(std::string const &to, boost::shared_ptr<message> const &m);
 	void send(globals::connection_id to, boost::shared_ptr<message> const &m);
 
-	void notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close);
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
 
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
@@ -80,11 +80,10 @@ private:
 	void provider_thread_func(boost::function<globals::provider_type> f);
 
 	struct failure_data {
-		failure_data(std::string const &a_to, globals::connection_id an_id, bool a_notify_close);
+		failure_data(std::string const &a_to, globals::connection_id an_id);
 
 		std::string to;
 		globals::connection_id id;
-		bool notify_close;
 	};
 
 	void run_io();
@@ -119,8 +118,8 @@ private:
 };
 
 inline
-server_impl::failure_data::failure_data(std::string const &a_to, globals::connection_id an_id, bool a_notify_close) :
-	to(a_to), id(an_id), notify_close(a_notify_close)
+server_impl::failure_data::failure_data(std::string const &a_to, globals::connection_id an_id) :
+	to(a_to), id(an_id)
 {
 }
 

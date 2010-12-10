@@ -54,7 +54,7 @@ public:
 	bool stopping() const;
 	void stop();
 
-	void notify_connection_opened_failed(std::string const &to, globals::connection_id id, bool notify_close) const;
+	void notify_connection_opened_failed(std::string const &to, globals::connection_id id) const;
 
 private:
 	connection_data(connection_data const &);

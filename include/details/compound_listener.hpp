@@ -20,11 +20,15 @@
 
 #include <list>
 #include <string>
+
 #include <boost/intrusive_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
 #include "xiva/connection_listener.hpp"
+
+#include "details/guard.hpp"
 
 namespace xiva { namespace details {
 
@@ -35,6 +39,14 @@ public:
 	virtual ~compound_listener();
 
 	typedef boost::intrusive_ptr<connection_listener> listener_ptr_type;
+
+	virtual void connection_opened_ex(
+		std::string const &to, globals::connection_id id,
+		boost::shared_ptr<guard> const &notify_guard) throw (std::exception);
+
+	virtual void connection_closed_ex(
+		std::string const &to, globals::connection_id id,
+		boost::shared_ptr<guard> const &notify_guard) throw (std::exception);
 
 	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);

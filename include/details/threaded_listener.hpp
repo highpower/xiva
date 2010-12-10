@@ -19,11 +19,15 @@
 #define XIVA_DETAILS_THREADED_LISTENER_HPP_INCLUDED
 
 #include <list>
+#include <vector>
 #include <string>
 #include <utility>
+
 #include <boost/thread/thread.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "details/threaded_queue.hpp"
+#include "details/guard.hpp"
 #include "details/compound_listener.hpp"
 
 namespace xiva { namespace details {
@@ -36,10 +40,17 @@ public:
 	threaded_listener(connection_data const &data);
 	virtual ~threaded_listener();
 
-	void thread_func();
+	void thread_func(unsigned int index);
 	virtual void init(settings const &s);
 
 	void finish();
+
+	virtual void connection_opened_ex(
+		std::string const &to, globals::connection_id id,
+		boost::shared_ptr<guard> const &notify_guard) throw (std::exception);
+	virtual void connection_closed_ex(
+		std::string const &to, globals::connection_id id,
+		boost::shared_ptr<guard> const &notify_guard) throw (std::exception);
 
 	virtual void connection_opened(std::string const &to, globals::connection_id id) throw (std::exception);
 	virtual void connection_closed(std::string const &to, globals::connection_id id) throw (std::exception);
@@ -49,12 +60,19 @@ private:
 	threaded_listener(threaded_listener const &);
 	threaded_listener& operator = (threaded_listener const &);
 
-	typedef std::pair<std::string, globals::connection_id> data_type;
-	typedef std::pair<data_type, bool> queue_item_type;
+	unsigned int calc_index(std::string const &to) const;
+
+	struct queue_item_type {
+		boost::shared_ptr<guard> notify_guard;
+		std::string to;
+		globals::connection_id id;
+		bool for_open;
+	};
+	typedef threaded_queue<queue_item_type> queue_type;
 
 private:
 	connection_data const &data_;
-	threaded_queue<queue_item_type> items_;
+	std::vector< boost::shared_ptr<queue_type> > items_;
 };
 
 }} // namespaces

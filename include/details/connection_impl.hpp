@@ -64,8 +64,8 @@ public:
 	typedef boost::shared_ptr<message> message_ptr_type;
 
 	virtual void start();
-	virtual void finish();
 	virtual void close();
+	virtual void finish();
 	virtual void send(message_ptr_type const &message);
 
 	void handle_handshake(syst::error_code const &code);
@@ -86,7 +86,6 @@ public:
 		request_impl const &req, response_impl const &resp,
 		unsigned short http_code, std::string const &error_msg);
 					
-
 private:
 	typedef std::allocator<char> allocator_type;
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
@@ -641,20 +640,17 @@ connection_impl<ConnectionTraits>::cleanup() {
 		boost::intrusive_ptr<connection_base_type> self(this);
 		ct_.manager().remove_connection(self);
 	}
-	close();
-}
-
-template <typename ConnectionTraits> void
-connection_impl<ConnectionTraits>::close() {
-	timer_.cancel();
-	connected_ = false;
-	managed_ = false;
 	if (socket().raw_sock().is_open()) {
 		socket().close();
 		data_.log()->info("connection[%lu] from %s is closed", connection_base_type::id(), address());
 	}
 }
 
+template <typename ConnectionTraits> void
+connection_impl<ConnectionTraits>::close() {
+	// must be executed through strand
+	cleanup();
+}
 
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::setup_timeout(unsigned int timeout) {
