@@ -3,7 +3,8 @@ var Xiva = {};
 Xiva.Transport = function(onopen, onmessage, onclose) {
   this.ws = null;
   
-  this.ws_url = window.location.hostname.toString() + ':8881/?id=chat';
+  // this.ws_url = window.location.hostname.toString() + ':8881/?id=chat';
+  this.ws_url = 'xiva.opensource.yandex.net/?id=chat';
   
   this.onopen = onopen;
   this.onmessage = onmessage;
