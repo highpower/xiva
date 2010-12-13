@@ -18,8 +18,6 @@
 #ifndef XIVA_DETAILS_GUARD_HPP_INCLUDED
 #define XIVA_DETAILS_GUARD_HPP_INCLUDED
 
-#include <boost/thread/mutex.hpp>
-
 namespace xiva { namespace details {
 
 class guard {
@@ -38,7 +36,6 @@ private:
 	guard& operator = (guard const &);
 
 private:
-	boost::mutex mutex_;
 	int state_;
 };
 

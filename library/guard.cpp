@@ -20,7 +20,6 @@ guard::~guard() {
 
 bool
 guard::open() {
-	boost::mutex::scoped_lock sl(mutex_);
 	if (GUARD_NONE != state_) {
 		return false;
 	}
@@ -30,7 +29,6 @@ guard::open() {
 
 bool
 guard::commit() {
-	boost::mutex::scoped_lock sl(mutex_);
 	if (GUARD_OPENED != state_) {
 		return false;
 	}
@@ -40,7 +38,6 @@ guard::commit() {
 
 bool
 guard::cancel() {
-	boost::mutex::scoped_lock sl(mutex_);
 	if (GUARD_OPENED != state_) {
 		return false;
 	}
@@ -50,7 +47,6 @@ guard::cancel() {
 
 bool
 guard::close() {
-	boost::mutex::scoped_lock sl(mutex_);
 	if (GUARD_OK != state_) {
 		return false;
 	}
