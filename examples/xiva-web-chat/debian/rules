@@ -25,6 +25,7 @@ install/xiva-web-chat::
 	mkdir -p $(DEBDIR)
 	for d in $(PRJDIR)/*; do case $$d in */debian) ;; *) cp -r $$d $(DEBDIR) ;; esac; done
 	find $(DEBDIR) -name .git | xargs rm -Rf
+	find $(DEBDIR) -name '*-stamp' | xargs rm -Rf
 	find $(DEBDIR) -name .gitignore | xargs rm -f
 	rm -Rf $(DEBDIR)/web-socket-js/flash-src
 					
