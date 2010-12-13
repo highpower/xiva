@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case $1 in
+    configure)
+        echo "Enabling xiva-web-chat module; don't forget to restart lighttpd then" >&2
+        lighty-enable-mod xiva-web-chat
+        if ! lighttpd -t -f /etc/lighttpd/lighttpd.conf; then
+            echo "WARN: lighttpd config is not valid"
+        fi
+        ;;
+    
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    
+    *)
+        echo "postinst called with unknown argument '$1'" >&2
+        ;;
+esac
+    
+# vim: set ts=4 sw=4 et:

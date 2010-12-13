@@ -1,0 +1,11 @@
+Source: xiva-web-chat-lighttpd-config
+Priority: optional
+Maintainer: Alexey Ponomarev <ponomarev@yandex-team.ru>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+Package: xiva-web-chat-lighttpd-config
+Section: libs
+Architecture: all
+Depends: lighttpd | lighttpd1.5, xiva-web-chat
+Description: Lighttpd config for xiva-web-chat
