@@ -85,6 +85,10 @@ threaded_listener::calc_index(std::string const &to) const {
 	std::size_t size = items_.size();
 	assert(size);
 
+	if (1 == size) {
+		return 0;
+	}
+
 	boost::crc_32_type result;
 	result.process_bytes(to.c_str(), to.length());
 	return static_cast<unsigned int>(result.checksum() % size);
