@@ -1,3 +1,9 @@
+xiva (1.5.4-2) unstable; urgency=low
+
+  * small optimizations in threaded_listener
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 13 Dec 2010 11:03:10 +0300
+
 xiva (1.5.4-1) unstable; urgency=low
 
   * synchronized stream of notify events
