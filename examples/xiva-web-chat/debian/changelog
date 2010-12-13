@@ -1,3 +1,10 @@
+xiva-web-chat (1.0) unstable; urgency=low
+
+  * fixed control and rules
+  * set this.ws_url to 'xiva.opensource.yandex.net/?id=chat'
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 03 Dec 2010 16:53:43 +0300
+
 xiva-web-chat (0.1) unstable; urgency=low
 
   * Initial Release 

@@ -8,5 +8,5 @@ Section: libs
 Package: xiva-daemon-python-configs
 Section: libs
 Architecture: all
-Depends: xiva-daemon-python
+Depends: xiva-daemon-python, xiva-python (>= 1.4.4)
 Description: Configs for sample xiva-server on python
