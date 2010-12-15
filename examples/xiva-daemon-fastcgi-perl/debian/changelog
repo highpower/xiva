@@ -1,3 +1,10 @@
+xiva-daemon-fastcgi-perl (1.5.1-1) unstable; urgency=low
+
+  * support history files for rooms of xiva-web-chat
+  * added logrotate script for main and history logs
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 15 Dec 2010 15:41:51 +0300
+
 xiva-daemon-fastcgi-perl (1.4.1-1) unstable; urgency=low
 
   * init script added

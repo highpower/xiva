@@ -20,6 +20,7 @@ binary: build install
 	dh_testroot
 	dh_installchangelogs
 	dh_installinit --no-start
+	dh_installlogrotate
 	dh_compress
 	dh_fixperms
 	dh_installdeb

@@ -1,0 +1,6 @@
+/var/log/xiva-daemon-fastcgi/*.log {
+        daily
+        rotate 7
+        missingok
+        create 666 www-data www-data
+}
