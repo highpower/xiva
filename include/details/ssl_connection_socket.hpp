@@ -63,7 +63,7 @@ ssl_connection_socket::async_handshake(HandshakeHandler handler) {
 inline void
 ssl_connection_socket::close() {
 	syst::error_code code;
-	socket_.shutdown(code);
+	socket_.lowest_layer().shutdown(asio::ip::tcp::socket::shutdown_both, code);
 	socket_.lowest_layer().close();
 }
 			
