@@ -27,7 +27,7 @@ namespace xiva {
 /** 
  * This is the xiva-specific exception.
  */
-class error : public std::exception {
+class XIVA_API error : public std::exception {
 
 public:
 	/** */
