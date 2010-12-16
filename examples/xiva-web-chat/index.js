@@ -50,12 +50,12 @@ $(document).ready(function() {
   var createTextareaListener = function() {
     messageArea = $('.b-writemessage__area', bMessageArea);
 
+    messageArea.focus();
+
     messageArea.keypress(function(e) {
       var target = $(this);
 
       if (e.keyCode == 13) {
-        e.preventDefault();
-
         if (target.val() != '') {
           postMessage("message", {});
           target.val('');
@@ -66,6 +66,7 @@ $(document).ready(function() {
             createTextareaListener();
           }
         }
+        return false;
       }
     });
   };
@@ -74,14 +75,13 @@ $(document).ready(function() {
   userLinks.live('click', function(e) {
     var target = $(this);
 
-    e.preventDefault();
     messageArea.val('@' + target.html() + ' ');
     messageArea.focus();
+
+    return false;
   });
 
   roomLinks.live('click', function(e) {
-    e.preventDefault();
-    
     var newRoom = this.id;
     
     $('#messages_' + currentRoom).addClass('g-hidden');
@@ -109,11 +109,13 @@ $(document).ready(function() {
     switchUserRoom(currentName, currentRoom);
     currentRoom = newRoom;
     postMessage("switch", {oldRoom: _currentRoom, newRoom: _newRoom});
+
+    return false;
   });
   
   function login(e) {
-    e.preventDefault();
-    
+    if (inited === false) return false;
+
     var loginName = $('#username');
     var loginRoom = $('#roomname :selected');
     
@@ -129,7 +131,8 @@ $(document).ready(function() {
         loginErrorContainer.removeClass('g-hidden');
         loginName.focus();
       });
-      return;
+
+      return false;
     }
 
     currentName = transport.escapeHTML(loginName.val());
@@ -158,6 +161,8 @@ $(document).ready(function() {
     postMessage("login", {});
     
     messageArea.focus();
+
+    return false;
   }
   
   function postMessage(type, params) {
@@ -204,7 +209,7 @@ $(document).ready(function() {
 
       // Animate new message
       message.animate({ opacity: 1 }, 1000);
-      bMessages.scrollTop(10000);
+      bMessages.scrollTop(bMessages.attr("scrollHeight"));
     
       // Update unread count if the user is not in the current room
       if (room != currentRoom) {
