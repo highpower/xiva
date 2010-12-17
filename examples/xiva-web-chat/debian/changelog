@@ -1,3 +1,9 @@
+xiva-web-chat (1.1) unstable; urgency=low
+
+  * fixed v-scrolling by leonya@
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 17 Dec 2010 13:30:15 +0300
+
 xiva-web-chat (1.0) unstable; urgency=low
 
   * fixed control and rules
