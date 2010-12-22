@@ -60,7 +60,6 @@ server_impl::stop() {
 	if (connection_manager_) {
 		connection_manager_->wait_for_complete();
 	}
-	io_.stop();
 }
 
 template <typename invoker_type>
@@ -304,6 +303,7 @@ server_impl::stop_service() {
 	if (handler_invoker_) {
 		handler_invoker_->finish();
 	}
+	io_.stop();
 }
 
 void
