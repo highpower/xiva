@@ -18,7 +18,10 @@
 #ifndef XIVA_PYTHON_PYTHON_FORMATTER_HPP_INCLUDED
 #define XIVA_PYTHON_PYTHON_FORMATTER_HPP_INCLUDED
 
+#include <string>
+
 #include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/formatter.hpp"
@@ -27,10 +30,12 @@ namespace py = boost::python;
 
 namespace xiva { namespace python {
 
+class cleanup_list;
+
 class python_formatter : public xiva::formatter {
 
 public:
-	python_formatter(py::object const &impl);
+	python_formatter(py::object const &impl, cleanup_list &cleanup);
 	virtual ~python_formatter();
 
 	virtual std::string wrap_message(std::string const &content) const;
@@ -41,7 +46,8 @@ private:
 	python_formatter(python_formatter const &);
 	python_formatter& operator = (python_formatter const &);
 
-	py::object impl_;
+	boost::shared_ptr<py::object> impl_;
+	cleanup_list &cleanup_;
 };
 
 }} // namespaces

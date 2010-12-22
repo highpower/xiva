@@ -19,6 +19,7 @@
 #define XIVA_PYTHON_PYTHON_FORMATTER_CREATOR_HPP_INCLUDED
 
 #include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/formatter.hpp"
@@ -28,10 +29,12 @@ namespace py = boost::python;
 
 namespace xiva { namespace python {
 
+class cleanup_list;
+
 class python_formatter_creator : public xiva::formatter_creator {
 
 public:
-	python_formatter_creator(py::object const &impl);
+	python_formatter_creator(py::object const &impl, cleanup_list &cleanup);
 	virtual ~python_formatter_creator();
 
 	virtual std::auto_ptr<formatter> create(request const &req) const;
@@ -40,7 +43,8 @@ private:
 	python_formatter_creator(python_formatter_creator const &);
 	python_formatter_creator& operator = (python_formatter_creator const &);
 
-	py::object impl_;
+	boost::shared_ptr<py::object> impl_;
+	cleanup_list &cleanup_;
 };
 
 }} // namespaces
