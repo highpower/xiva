@@ -19,7 +19,6 @@
 #define XIVA_PYTHON_PYTHON_SETTINGS_HPP_INCLUDED
 
 #include <string>
-#include <stdexcept>
 #include <boost/python.hpp>
 
 #include "xiva/settings.hpp"

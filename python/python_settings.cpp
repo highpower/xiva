@@ -1,4 +1,7 @@
 #include "acsetup.hpp"
+
+#include <stdexcept>
+
 #include "python_settings.hpp"
 #include "python_enumeration.hpp"
 #include "interpreter_lock.hpp"
