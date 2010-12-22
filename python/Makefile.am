@@ -1,6 +1,7 @@
 pyexec_LTLIBRARIES = xiva.la
 
-xiva_la_SOURCES = interpreter_lock.cpp module.cpp python_formatter.cpp \
+xiva_la_SOURCES = cleanup_list.cpp \
+	interpreter_lock.cpp module.cpp python_formatter.cpp \
 	python_formatter_creator.cpp python_handler.cpp \
 	python_listener.cpp python_logger.cpp \
 	python_message_filter.cpp python_request.cpp \
@@ -15,7 +16,8 @@ AM_CXXFLAGS = -pthread
 AM_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/config \
 	@PYTHON_CPPFLAGS@ @BOOST_CPPFLAGS@ @INCLTDL@
 
-noinst_HEADERS = interpreter_lock.hpp python_enumeration.hpp \
+noinst_HEADERS = cleanup_list.hpp \
+	interpreter_lock.hpp python_enumeration.hpp \
 	python_formatter.hpp python_formatter_creator.hpp \
 	python_handler.hpp python_listener.hpp python_logger.hpp \
 	python_message_filter.hpp \
