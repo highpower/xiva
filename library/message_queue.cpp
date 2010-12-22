@@ -92,13 +92,17 @@ message_queue::attach_logger(boost::intrusive_ptr<logger> const &log) {
 void
 message_queue::push_message(std::string const &to, boost::shared_ptr<message> const &m) {
 	boost::mutex::scoped_lock sl(mutex_);
-	messages_by_name_.push_back(std::make_pair(to, m));
+	if (accepting_messages_) {
+		messages_by_name_.push_back(std::make_pair(to, m));
+	}
 }
 
 void
 message_queue::push_message(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	boost::mutex::scoped_lock sl(mutex_);
-	messages_by_id_.push_back(std::make_pair(to, m));
+	if (accepting_messages_) {
+		messages_by_id_.push_back(std::make_pair(to, m));
+	}
 }
 
 }} // namespaces
