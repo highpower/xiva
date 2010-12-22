@@ -25,6 +25,8 @@
 #include "xiva/forward.hpp"
 //#include "details/dynamic_loader.hpp"
 
+#include "cleanup_list.hpp"
+
 namespace py = boost::python;
 
 namespace xiva { namespace python {
@@ -61,8 +63,11 @@ private:
 	python_server(python_server const &);
 	python_server& operator = (python_server const &);
 
+	void check_server() const;
+
 private:
 	//details::dynamic_loader loader_;
+	cleanup_list cleanup_;
 	boost::shared_ptr<details::server_impl> impl_;
 	boost::intrusive_ptr<python_logger> logger_;
 	boost::shared_ptr<details::channels_stat_impl> channels_stat_;

@@ -34,9 +34,7 @@ python_server::~python_server() {
 void
 python_server::stop() {
 	try {
-		if (logger_) {
-			logger_->finish();
-		}
+		check_server();
 		impl_->stop();
 	}
 	catch (std::exception const &e) {
@@ -48,6 +46,7 @@ python_server::stop() {
 void
 python_server::init(py::object const &impl) {
 	try {
+		check_server();
 		python_settings settings(impl);
 		interpreter_thread_lock thread_lock;
 		impl_->init(settings);
@@ -61,6 +60,7 @@ python_server::init(py::object const &impl) {
 void
 python_server::list_channels_enable() {
 	try {
+		check_server();
 		channels_stat_ = impl_->init_channels_stat();
 	}
 	catch (std::exception const &e) {
@@ -72,8 +72,16 @@ python_server::list_channels_enable() {
 void
 python_server::start() {
 	try {
-		interpreter_thread_lock thread_lock;
-		impl_->start();
+		check_server();
+		{
+			interpreter_thread_lock thread_lock;
+			cleanup_list_auto cleanup_auto(cleanup_);
+			logger_->start();
+			impl_->start();
+		}
+		impl_.reset();
+		channels_stat_.reset();
+		logger_ = NULL;
 	}
 	catch (std::exception const &e) {
 		PyErr_SetString(PyExc_RuntimeError, e.what());
@@ -87,7 +95,7 @@ python_server::list_channels() const {
 	py::list result;
 	try {
 		if (channels_stat_) {
-			interpreter_unlock unlock;
+			//interpreter_unlock unlock;
 			enumeration<std::string>::ptr_type en = channels_stat_->load_names();
 			while (!en->empty()) {
 				result.append(en->next());
@@ -107,7 +115,7 @@ python_server::list_channel(std::string const &channel_name) const {
 	py::list result;
 	try {
 		if (channels_stat_) {
-			interpreter_unlock unlock;
+			//interpreter_unlock unlock;
 			enumeration<std::string>::ptr_type en = channels_stat_->load_keys(channel_name);
 			while (!en->empty()) {
 				result.append(en->next());
@@ -125,9 +133,11 @@ void
 python_server::send(std::string const &to, std::string const &msg) {
 
 	try {
-		interpreter_unlock unlock;
-		boost::shared_ptr<message> m(new message(msg));
-		impl_->send(to, m);
+		if (impl_) {
+			//interpreter_unlock unlock;
+			boost::shared_ptr<message> m(new message(msg));
+			impl_->send(to, m);
+		}
 	}
 	catch (std::exception const &e) {
 		PyErr_SetString(PyExc_RuntimeError, e.what());
@@ -141,12 +151,14 @@ python_server::send_to_channel(
 		std::string const &channel_name, std::string const &channel_key, std::string const &channel_data) {
 
 	try {
-		interpreter_unlock unlock;
-		boost::shared_ptr<message> m(new message(msg));
-		channel_info ch_info(channel_name, channel_key, channel_data);
-		if (!ch_info.empty()) {
-			m->set_channel_info(ch_info);
-			impl_->send(to, m);
+		if (impl_) {
+			//interpreter_unlock unlock;
+			boost::shared_ptr<message> m(new message(msg));
+			channel_info ch_info(channel_name, channel_key, channel_data);
+			if (!ch_info.empty()) {
+				m->set_channel_info(ch_info);
+				impl_->send(to, m);
+			}
 		}
 	}
 	catch (std::exception const &e) {
@@ -164,8 +176,8 @@ void
 python_server::attach_logger(py::object const &impl) {
 
 	try {
+		check_server();
 		boost::intrusive_ptr<python_logger> l(new python_logger(impl));
-		l->start();
 		impl_->attach_logger(l);
 		logger_ = l;
 	}
@@ -178,6 +190,7 @@ python_server::attach_logger(py::object const &impl) {
 void
 python_server::attach_response_handler(py::object const &impl) {
 	try {
+		check_server();
 		boost::intrusive_ptr<response_handler> m(new python_handler(impl));
 		impl_->attach_response_handler(m);
 	}
@@ -191,7 +204,8 @@ void
 python_server::attach_formatter_creator(std::string const &fmt_id, py::object const &impl) {
 
 	try {
-		boost::intrusive_ptr<formatter_creator> f(new python_formatter_creator(impl));
+		check_server();
+		boost::intrusive_ptr<formatter_creator> f(new python_formatter_creator(impl, cleanup_));
 		impl_->attach_formatter_creator(fmt_id, f);
 	}
 	catch (std::exception const &e) {
@@ -204,6 +218,7 @@ void
 python_server::add_connection_listener(py::object const &impl) {
 
 	try {
+		check_server();
 		boost::intrusive_ptr<connection_listener> l(new python_listener(impl));
 		impl_->add_connection_listener(l);
 	}
@@ -217,6 +232,7 @@ void
 python_server::attach_message_filter(py::object const &impl) {
 
 	try {
+		check_server();
 		boost::intrusive_ptr<message_filter> f(new python_message_filter(impl));
 		impl_->attach_message_filter(f);
 	}
@@ -225,6 +241,14 @@ python_server::attach_message_filter(py::object const &impl) {
 		boost::python::throw_error_already_set();
 	}
 }
+
+void
+python_server::check_server() const {
+	if (!impl_) {
+		throw std::runtime_error("server already stopped");
+	}
+}
+
 
 void
 register_server_class() throw () {
