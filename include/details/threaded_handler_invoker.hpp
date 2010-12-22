@@ -19,7 +19,6 @@
 #define XIVA_DETAILS_THREADED_HANDLER_INVOKER_HPP_INCLUDED
 
 #include <string>
-#include <exception>
 
 #include <boost/intrusive_ptr.hpp>
 #include <boost/thread/thread.hpp>
@@ -61,9 +60,13 @@ private:
 	
 	typedef boost::intrusive_ptr<request_holder> holder_ptr_type;
 	typedef std::pair<holder_ptr_type, connection_ptr_type> item_type;
-	
+	typedef threaded_queue<item_type> queue_type;
+	typedef queue_type::raw_items_type items_type;
+
+	void handle_items(items_type &items) const;
+
 	void handled(item_type const &item);
-	void pop_handled(std::deque<item_type> &items);
+	void pop_handled(items_type &items);
 
 private:
 	asio::io_service::strand &strand_;
@@ -71,8 +74,8 @@ private:
 	boost::intrusive_ptr<response_handler> handler_;
 
 	mutable boost::mutex mutex_;
-	std::deque<item_type> handled_;
-	threaded_queue<item_type> input_queue_;
+	items_type handled_;
+	queue_type input_queue_;
 };
 
 }} // namespaces

@@ -54,7 +54,7 @@ threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st,
 
 threaded_handler_invoker::~threaded_handler_invoker() {
 	try {
-		finish();
+		input_queue_.finish();
 		join_all();
 	}
 	catch (std::exception const &e) {
@@ -64,16 +64,9 @@ threaded_handler_invoker::~threaded_handler_invoker() {
 
 void
 threaded_handler_invoker::pop() {
-	std::deque<item_type> handled;
+	items_type handled;
 	pop_handled(handled);
-	try {
-		for (std::deque<item_type>::iterator i = handled.begin(), end = handled.end(); i != end; ++i) {
-			i->first->handled(*(i->second));
-		}
-	}
-	catch (std::exception const &e) {
-		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
-	}
+	handle_items(handled);
 }
 
 void
@@ -107,6 +100,15 @@ threaded_handler_invoker::thread_func() {
 void
 threaded_handler_invoker::finish() {
 	input_queue_.finish();
+	pop();
+
+	items_type unhandled;
+	input_queue_.swap_data(unhandled);
+
+	for (items_type::iterator i = unhandled.begin(), end = unhandled.end(); i != end; ++i) {
+		i->first->set_error_msg("finish");
+	}
+	handle_items(unhandled);
 }
 
 void
@@ -133,7 +135,21 @@ threaded_handler_invoker::invoke_handler(threaded_handler_invoker::connection_pt
 	
 	holder_ptr_type holder(new request_holder());
 	holder->attach(req, resp);
-	input_queue_.push(item_type(holder, conn));
+	if (!input_queue_.push(item_type(holder, conn))) {
+		throw std::runtime_error("finish");
+	}
+}
+
+void
+threaded_handler_invoker::handle_items(items_type &items) const {
+	try {
+		for (items_type::iterator i = items.begin(), end = items.end(); i != end; ++i) {
+			i->first->handled(*(i->second));
+		}
+	}
+	catch (std::exception const &e) {
+		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+	}
 }
 
 void
@@ -143,7 +159,7 @@ threaded_handler_invoker::handled(threaded_handler_invoker::item_type const &ite
 }
 
 void
-threaded_handler_invoker::pop_handled(std::deque<threaded_handler_invoker::item_type> &items) {
+threaded_handler_invoker::pop_handled(items_type &items) {
 	items.clear();
 	boost::mutex::scoped_lock sl(mutex_);
 	items.swap(handled_);
