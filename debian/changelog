@@ -1,3 +1,13 @@
+xiva (1.5.6-1) unstable; urgency=low
+
+  * bulk operations from read events in threaded_listener
+  * try finishing connections after stop() in threaded_handler_invoker
+  * skip pushing messages after stop()
+  * fixed python crashes (dec references of formatters on enabled gil)
+  * bulk operations in python logger 
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 22 Dec 2010 17:35:56 +0300
+
 xiva (1.5.5-2) unstable; urgency=low
 
   * fixed shutdowning for ssl connections
