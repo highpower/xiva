@@ -19,7 +19,7 @@ python_logger::python_logger(py::object const &impl) :
 
 python_logger::~python_logger() {
 	try {
-		finish();
+		items_.finish();
 		join_all();
 	}
 	catch (std::exception const &) {
@@ -32,36 +32,21 @@ python_logger::start() {
 }
 
 void
-python_logger::finish() {
-	items_.finish();
-}
-
-void
 python_logger::thread_func() {
 
 	try {
-		queue_item_type item;
-		while (items_.pop(item)) {
-			char level = item.first;
-			char const *method = DEBUG;
-			if (level == *INFO) {
-				method = INFO;
-			}
-			else if (level == *ERROR) {
-				method = ERROR;
-			}
-			/* else if (level == *DEBUG) {
-				method = DEBUG;
-			} else {
-				wtf? ;)
-			} */
+		items_type items;
+		while (items_.pop_all(items)) {
 
-			interpreter_lock lock;
-			py::call_method<void>(impl_.ptr(), method, item.second.c_str());
+			interpreter_try_lock lock;
+			if (!lock.acquired()) {
+				return;
+			}
+			process_items(items);
 		}
 	}
 	catch (...) {
-		finish(); // suppress all exceptions and stop logger
+		items_.finish(); // suppress all exceptions and stop logger
 	}
 }
 
@@ -93,6 +78,27 @@ python_logger::error(char const *format, ...) {
 
 	invoke(*ERROR, format, args);
 	va_end(args);
+}
+
+void
+python_logger::process_items(items_type const &items) const {
+
+	for (items_type::const_iterator i = items.begin(), end = items.end(); i != end; ++i) {
+		char level = i->first;
+		char const *method = DEBUG;
+		if (level == *INFO) {
+			method = INFO;
+		}
+		else if (level == *ERROR) {
+			method = ERROR;
+		}
+		/* else if (level == *DEBUG) {
+			method = DEBUG;
+		} else {
+			wtf? ;)
+		} */
+		py::call_method<void>(impl_.ptr(), method, i->second.c_str());
+	}
 }
 
 void

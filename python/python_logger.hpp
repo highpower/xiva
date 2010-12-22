@@ -40,7 +40,6 @@ public:
 
 	void start();
 	void thread_func();
-	void finish();
 
 	virtual void info(char const *format, ...);
 	virtual void debug(char const *format, ...);
@@ -50,13 +49,15 @@ private:
 	python_logger(python_logger const &);
 	python_logger& operator = (python_logger const &);
 
+	typedef std::pair<char, std::string> queue_item_type;
+	typedef details::threaded_queue<queue_item_type> queue_type;
+	typedef queue_type::raw_items_type items_type;
+	
+	void process_items(items_type const &items) const;
 	void invoke(char level, char const *format, va_list args);
 
-private:
 	py::object impl_;
-
-	typedef std::pair<char, std::string> queue_item_type;
-	details::threaded_queue<queue_item_type> items_;
+	queue_type items_;
 };
 
 }} // namespaces
