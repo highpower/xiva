@@ -24,7 +24,7 @@ class interpreter_init {
 
 public:
 	interpreter_init();
-	virtual ~interpreter_init();
+	~interpreter_init();
 
 private:
 	interpreter_init(interpreter_init const &);
@@ -40,7 +40,7 @@ class interpreter_thread_lock {
 
 public:
 	interpreter_thread_lock();
-	virtual ~interpreter_thread_lock();
+	~interpreter_thread_lock();
 
 private:
 	interpreter_thread_lock(interpreter_thread_lock const &);
@@ -51,7 +51,7 @@ class interpreter_lock {
 
 public:
 	interpreter_lock();
-	virtual ~interpreter_lock();
+	~interpreter_lock();
 
 private:
 	interpreter_lock(interpreter_lock const &);
@@ -62,7 +62,7 @@ class interpreter_unlock {
 
 public:
 	interpreter_unlock();
-	virtual ~interpreter_unlock();
+	~interpreter_unlock();
 
 private:
 	interpreter_unlock(interpreter_unlock const &);
@@ -70,6 +70,26 @@ private:
 
 	void *save_;
 };
+
+class interpreter_try_lock {
+
+public:
+	interpreter_try_lock();
+	~interpreter_try_lock();
+
+	bool acquired() const;
+
+private:
+	interpreter_try_lock(interpreter_try_lock const &);
+	interpreter_try_lock& operator = (interpreter_try_lock const &);
+
+	bool acquired_;
+};
+
+inline bool
+interpreter_try_lock::acquired() const {
+	return acquired_;
+}
 
 }} // namespaces
 
