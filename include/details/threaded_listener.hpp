@@ -70,6 +70,8 @@ private:
 	};
 	typedef threaded_queue<queue_item_type> queue_type;
 
+	void process_item(queue_item_type &item);
+
 private:
 	connection_data const &data_;
 	std::vector< boost::shared_ptr<queue_type> > items_;

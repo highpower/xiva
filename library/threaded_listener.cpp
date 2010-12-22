@@ -29,31 +29,41 @@ threaded_listener::~threaded_listener() {
 void
 threaded_listener::thread_func(unsigned int index) {
 
-	boost::shared_ptr<queue_type> items = items_[index];
-	queue_item_type item;
-	while (items->pop(item)) {
-		try {
-			if (!item.notify_guard) {
-				notify_disconnected(item.to);
-			}
-			else if (item.for_open) {
-				if (item.notify_guard->open()) { // open once
-					try {
-						notify_connection_opened(item.to, item.id);
-						item.notify_guard->commit(); // allow notify close for next event
-					}
-					catch (...) {
-						item.notify_guard->cancel(); // disallow notify close for next event
-						data_.notify_connection_opened_failed(item.to, item.id);
-					}
+	boost::shared_ptr<queue_type> items_by_index = items_[index];
+
+	typedef queue_type::raw_items_type items_type;
+	items_type items;
+
+	while (items_by_index->pop_all(items)) {
+		for (items_type::iterator i = items.begin(), end = items.end(); i != end; ++i) {
+			process_item(*i);
+		}
+	}
+}
+
+void
+threaded_listener::process_item(queue_item_type &item) {
+	try {
+		if (!item.notify_guard) {
+			notify_disconnected(item.to);
+		}
+		else if (item.for_open) {
+			if (item.notify_guard->open()) { // open once
+				try {
+					notify_connection_opened(item.to, item.id);
+					item.notify_guard->commit(); // allow notify close for next event
+				}
+				catch (...) {
+					item.notify_guard->cancel(); // disallow notify close for next event
+					data_.notify_connection_opened_failed(item.to, item.id);
 				}
 			}
-			else if (item.notify_guard->close()) { // close once (if not canceled)
-				notify_connection_closed(item.to, item.id);
-			}
 		}
-		catch (...) {
+		else if (item.notify_guard->close()) { // close once (if not canceled)
+			notify_connection_closed(item.to, item.id);
 		}
+	}
+	catch (...) {
 	}
 }
 
