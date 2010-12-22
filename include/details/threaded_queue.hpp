@@ -18,7 +18,7 @@
 #ifndef XIVA_DETAILS_THREADED_QUEUE_HPP_INCLUDED
 #define XIVA_DETAILS_THREADED_QUEUE_HPP_INCLUDED
 
-#include <queue>
+#include <deque>
 #include <functional>
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
@@ -33,20 +33,25 @@ public:
 	virtual ~threaded_queue();
 
 	bool pop(Item &item);
-	void push(Item const &item);
+	bool push(Item const &item);
 	void finish();
 
 	bool finished() const;
+
+	typedef std::deque<Item> raw_items_type;
+
+	bool pop_all(std::deque<Item> &data);
+	void swap_data(std::deque<Item> &data);
 
 private:
 	threaded_queue(threaded_queue const &);
 	threaded_queue& operator = (threaded_queue const &);
 
 private:
-	bool finished_;
+	volatile bool finished_;
 	mutable boost::mutex mutex_;
 	boost::condition condition_;
-	std::queue<Item> items_;
+	std::deque<Item> items_;
 };
 
 template <typename Item> inline
@@ -65,20 +70,38 @@ threaded_queue<Item>::pop(Item &item) {
 	while (!finished_ && items_.empty()) {
 		condition_.wait(lock);
 	}
-	if (!finished_) {
-		Item i = items_.front();
-		items_.pop();
-		std::swap(i, item);
-		return true;
+	if (finished_) {
+		return false;
 	}
-	return false;
+	Item i = items_.front();
+	items_.pop_front();
+	std::swap(i, item);
+	return true;
 }
 
-template <typename Item> inline void
+template <typename Item> inline bool
+threaded_queue<Item>::pop_all(std::deque<Item> &data) {
+	data.clear();
+	boost::mutex::scoped_lock lock(mutex_);
+	while (!finished_ && items_.empty()) {
+		condition_.wait(lock);
+	}
+	if (finished_) {
+		return false;
+	}
+	items_.swap(data);
+	return true;
+}
+
+template <typename Item> inline bool
 threaded_queue<Item>::push(Item const &item) {
 	boost::mutex::scoped_lock lock(mutex_);
-	items_.push(item);
+	if (finished_) {
+		return false;
+	}
+	items_.push_back(item);
 	condition_.notify_all();
+	return true;
 }
 
 template <typename Item> inline void
@@ -92,6 +115,12 @@ template <typename Item> inline bool
 threaded_queue<Item>::finished() const {
 	boost::mutex::scoped_lock lock(mutex_);
 	return finished_;
+}
+
+template <typename Item> inline void
+threaded_queue<Item>::swap_data(std::deque<Item> &data) {
+	boost::mutex::scoped_lock lock(mutex_);
+	items_.swap(data);
 }
 
 }} // namespaces
