@@ -51,7 +51,7 @@ Summary:        Python binding for %{name}
 Group:          System Environment/Libraries
 Requires:       %{name} = %{version}-%{release}
 
-%description    syslog
+%description    python
 Python binding for %{name}
 
 
