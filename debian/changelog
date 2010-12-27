@@ -1,3 +1,14 @@
+xiva (1.5.7-1) unstable; urgency=low
+
+  * do stop() from destructor of server_impl
+  * fixed wait_for_complete() in connection_manager
+  * added wait_for_complete() to handler_invoker
+  * fast cleanup handled connections when connection_manager is already
+    finished
+  * python binding: destroy server_impl on python_server::stop()
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 27 Dec 2010 17:55:40 +0300
+
 xiva (1.5.6-1) unstable; urgency=low
 
   * bulk operations from read events in threaded_listener
