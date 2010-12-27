@@ -33,18 +33,24 @@
 namespace xiva { namespace details {
 
 server_impl::server_impl() :
-	io_(), strand_(io_), started_(false)
+	io_(), strand_(io_), started_(false), stopped_(false)
 {
 	data_.reset(new connection_data(*this));
 	listener_ = boost::intrusive_ptr<threaded_listener>(new threaded_listener(*data_));
 }
 
 server_impl::~server_impl() {
+	stop();
 	join_all();
+
+	boost::mutex::scoped_lock lock(stop_mutex_);
+	if (started_ && !stopped_) {
+		stop_condition_.wait(lock);
+	}
 }
 
-void
-server_impl::stop() {
+void 
+server_impl::finish() {
 	data_->stop();
 	if (acceptor_) {
 		acceptor_->stop();
@@ -56,10 +62,19 @@ server_impl::stop() {
 	if (message_queue_) {
 		message_queue_->finish();
 	}
-	strand_.dispatch(boost::bind(&server_impl::stop_service, this));
+	if (handler_invoker_) {
+		handler_invoker_->finish();
+	}
+}
+
+void
+server_impl::stop() {
+	finish();
 	if (connection_manager_) {
+		strand_.dispatch(boost::bind(&connection_manager_base::finish, connection_manager_));
 		connection_manager_->wait_for_complete();
 	}
+	io_.stop();
 }
 
 template <typename invoker_type>
@@ -151,10 +166,20 @@ server_impl::init_channels_stat() {
 
 void
 server_impl::start() {
+	boost::mutex::scoped_lock lock(stop_mutex_);
 	assert(!started_);
 	started_ = true;
 
 	run_io();
+	finish();
+	if (handler_invoker_) {
+		handler_invoker_->wait_for_complete();
+	}
+	if (connection_manager_) {
+		connection_manager_->finish();
+	}
+	stopped_ = true;
+	stop_condition_.notify_all();
 }
 
 void
@@ -287,23 +312,6 @@ server_impl::add_connection_listener(boost::intrusive_ptr<connection_listener> c
 void
 server_impl::start_provider(unsigned short nthreads, boost::function<globals::provider_type> f) {
 	providers_.push_back(thread_param_type(f, nthreads));
-}
-
-void
-server_impl::stop_service() {
-	if (acceptor_) {
-		acceptor_->stop();
-	}
-	if (ssl_acceptor_) {
-		ssl_acceptor_->stop();
-	}
-	if (connection_manager_) {
-		connection_manager_->finish();
-	}
-	if (handler_invoker_) {
-		handler_invoker_->finish();
-	}
-	io_.stop();
 }
 
 void

@@ -26,6 +26,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 #include "xiva/config.hpp"
 #include "xiva/forward.hpp"
@@ -75,7 +76,6 @@ private:
 
 	typedef std::pair<provider_closure_type, unsigned short> thread_param_type;
 
-	void stop_service();
 	void start_provider_thread(thread_param_type const &tp);
 	void provider_thread_func(boost::function<globals::provider_type> f);
 
@@ -87,6 +87,8 @@ private:
 	};
 
 	void run_io();
+	void finish();
+
 	void process_failure(failure_data const &fd);
 	void process_failures();
 
@@ -103,18 +105,22 @@ private:
 	std::auto_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
 
+	boost::mutex stop_mutex_;
+	boost::condition stop_condition_;
+
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<message_filter> message_filter_;
-	boost::intrusive_ptr<handler_invoker_base> handler_invoker_;
-	boost::intrusive_ptr<connection_traits_base> ssl_connection_traits_;
-	boost::intrusive_ptr<connection_traits_base> connection_traits_;
-	boost::intrusive_ptr<acceptor_base> ssl_acceptor_;
-	boost::intrusive_ptr<acceptor_base> acceptor_;
+	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<response_handler> handler_;
 	boost::intrusive_ptr<threaded_listener> listener_;
+	boost::intrusive_ptr<connection_traits_base> ssl_connection_traits_;
+	boost::intrusive_ptr<connection_traits_base> connection_traits_;
+	boost::intrusive_ptr<handler_invoker_base> handler_invoker_;
+	boost::intrusive_ptr<acceptor_base> ssl_acceptor_;
+	boost::intrusive_ptr<acceptor_base> acceptor_;
 	boost::intrusive_ptr<message_queue> message_queue_;
-	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	bool started_;
+	bool stopped_;
 };
 
 inline
