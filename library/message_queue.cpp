@@ -16,6 +16,7 @@ namespace xiva { namespace details {
 message_queue::message_queue(asio::io_service::strand &st, boost::intrusive_ptr<connection_manager_base> const &cm) :
 	strand_(st), accepting_messages_(true), manager_(cm)
 {
+	assert(manager_);
 }
 
 message_queue::~message_queue() {
@@ -73,14 +74,16 @@ message_queue::active() const {
 
 void
 message_queue::send(std::string const &to, boost::shared_ptr<message> const &m) {
-	push_message(to, m);
-	strand_.dispatch(boost::bind(&message_queue::pop_by_name, this));
+	if (push_message(to, m)) {
+		strand_.dispatch(boost::bind(&message_queue::pop_by_name, this));
+	}
 }
 
 void
 message_queue::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
-	push_message(to, m);
-	strand_.dispatch(boost::bind(&message_queue::pop_by_id, this));
+	if (push_message(to, m)) {
+		strand_.dispatch(boost::bind(&message_queue::pop_by_id, this));
+	}
 }
 
 void
@@ -89,20 +92,22 @@ message_queue::attach_logger(boost::intrusive_ptr<logger> const &log) {
 	logger_ = log;
 }
 
-void
+bool
 message_queue::push_message(std::string const &to, boost::shared_ptr<message> const &m) {
 	boost::mutex::scoped_lock sl(mutex_);
 	if (accepting_messages_) {
 		messages_by_name_.push_back(std::make_pair(to, m));
 	}
+	return accepting_messages_;
 }
 
-void
+bool
 message_queue::push_message(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	boost::mutex::scoped_lock sl(mutex_);
 	if (accepting_messages_) {
 		messages_by_id_.push_back(std::make_pair(to, m));
 	}
+	return accepting_messages_;
 }
 
 }} // namespaces

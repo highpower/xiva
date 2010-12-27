@@ -59,8 +59,8 @@ private:
 	typedef std::pair<std::string, message_ptr_type> queue_item_name_type;
 	typedef std::pair<globals::connection_id, message_ptr_type> queue_item_id_type;
 
-	void push_message(std::string const &to, boost::shared_ptr<message> const &m);
-	void push_message(globals::connection_id to, boost::shared_ptr<message> const &m);
+	bool push_message(std::string const &to, boost::shared_ptr<message> const &m);
+	bool push_message(globals::connection_id to, boost::shared_ptr<message> const &m);
 
 private:
 	asio::io_service::strand &strand_;
