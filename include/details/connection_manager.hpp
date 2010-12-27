@@ -70,7 +70,7 @@ public:
 	typedef typename boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
 
 	bool empty() const; // for test only
-	void insert_connection(connection_ptr_type const &conn); // from stranded thread
+	bool insert_connection(connection_ptr_type const &conn); // from stranded thread
 	void remove_connection(connection_ptr_type const &conn); // from stranded thread
 
 	virtual void send(std::string const &to, boost::shared_ptr<message> const &m); // from stranded thread
@@ -128,21 +128,20 @@ connection_manager<ConnectionBase>::empty() const {
 	return connections_.empty();
 }
 
-template <typename ConnectionBase> void
+template <typename ConnectionBase> bool
 connection_manager<ConnectionBase>::insert_connection(connection_ptr_type const &conn) {
 
 	if (finished()) {
-		return;
+		return false; // don't try remove_connection() in the future
 	}
 	assert(conn);
 
 	std::pair<typename connection_set_type::iterator, bool> p = connections_.insert(conn);
-	if (p.second) {
-		fire_connection_opened(*conn);
-	}
-	else {
+	if (!p.second) {
 		throw error("same connection");
 	}
+	fire_connection_opened(*conn);
+	return true;
 }
 
 template <typename ConnectionBase> void

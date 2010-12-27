@@ -199,15 +199,20 @@ connection_impl<ConnectionTraits>::handled(request_impl const &req, response_imp
 		if (name.empty()) {
 			throw http_error(http_error::not_found);
 		}
+
+		boost::intrusive_ptr<connection_base_type> self(this);
+		if (!ct_.manager().insert_connection(self)) {
+			cleanup();
+			return;
+		}
+
+		managed_ = true;
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), connection_base_type::id(), address());
 		single_message_ = resp.single_message();
 		connection_base_type::init_formatters(data_.fmt_factory(), req, resp);
 		disable_ping_ =	data_.ping_interval() < MINIMAL_PING_INTERVAL ||
 				NULL == connection_base_type::default_formatter();
 		write_headers(resp);
-		boost::intrusive_ptr<connection_base_type> self(this);
-		ct_.manager().insert_connection(self);
-		managed_ = true;
 	}
 	catch (http_error const &h) {
 		write_http_error(h);
