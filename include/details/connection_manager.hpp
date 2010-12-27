@@ -25,6 +25,8 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 
 #define BOOST_MULTI_INDEX_DISABLE_SERIALIZATION
 
@@ -67,18 +69,17 @@ public:
 
 	typedef typename boost::intrusive_ptr<ConnectionBase> connection_ptr_type;
 
-	void clear();
-	bool empty() const;
-	void insert_connection(connection_ptr_type const &conn);
-	void remove_connection(connection_ptr_type const &conn);
+	bool empty() const; // for test only
+	void insert_connection(connection_ptr_type const &conn); // from stranded thread
+	void remove_connection(connection_ptr_type const &conn); // from stranded thread
 
-	virtual void send(std::string const &to, boost::shared_ptr<message> const &m);
-	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m);
+	virtual void send(std::string const &to, boost::shared_ptr<message> const &m); // from stranded thread
+	virtual void send(globals::connection_id const &to, boost::shared_ptr<message> const &m); // from stranded thread
 
-	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id);
+	virtual void notify_connection_opened_failed(std::string const &to, globals::connection_id id); // from stranded thread
 
-	virtual void finish();
-	virtual void wait_for_complete();
+	virtual void finish();            // from stranded thread
+	virtual void wait_for_complete(); // from non-stranded thread
 
 private:
 	bool finished() const;
@@ -92,8 +93,10 @@ private:
 	typedef mi::multi_index_container<connection_ptr_type, index_type, allocator_type> connection_set_type;
 
 private:
-	bool finished_;
 	connection_set_type connections_;
+	boost::mutex mutex_;
+	boost::condition condition_;
+	bool finished_;
 };
 
 
@@ -120,11 +123,6 @@ template <typename ConnectionBase>
 connection_manager<ConnectionBase>::~connection_manager() {
 }
 
-template <typename ConnectionBase> void
-connection_manager<ConnectionBase>::clear() {
-	connections_.clear();
-}
-
 template <typename ConnectionBase> bool
 connection_manager<ConnectionBase>::empty() const {
 	return connections_.empty();
@@ -132,10 +130,12 @@ connection_manager<ConnectionBase>::empty() const {
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::insert_connection(connection_ptr_type const &conn) {
+
 	if (finished()) {
 		return;
 	}
 	assert(conn);
+
 	std::pair<typename connection_set_type::iterator, bool> p = connections_.insert(conn);
 	if (p.second) {
 		fire_connection_opened(*conn);
@@ -147,6 +147,13 @@ connection_manager<ConnectionBase>::insert_connection(connection_ptr_type const 
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::remove_connection(connection_ptr_type const &conn) {
+
+	if (finished()) {
+		// the listener already finished
+		// the container will be clear in finish()
+		return;
+	}
+	assert(conn);
 
 	typedef typename connection_set_type::template nth_index<0>::type index_type;
 
@@ -227,14 +234,39 @@ connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string 
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::finish() {
-	for (typename connection_set_type::iterator i = connections_.begin(), end = connections_.end(); i != end; ++i) {
-		(*i)->finish();
+
+	std::list<connection_ptr_type> conns;
+	{
+		boost::mutex::scoped_lock lock(mutex_);
+		if (finished_) {
+			return;
+		}
+		finished_ = true;
+
+		for (typename connection_set_type::iterator i = connections_.begin(), end = connections_.end(); i != end; ++i) {
+			conns.push_back(*i);
+		}
+		connections_.clear();
 	}
-	finished_ = true;
+
+	for (typename std::list<connection_ptr_type>::iterator it = conns.begin(), end = conns.end(); it != end; ++it) {
+		connection_ptr_type &conn = *it;
+		try {
+			conn->finish();
+			conn->close();
+		}
+		catch (...) {
+		}
+	}
+	condition_.notify_all();
 }
 
 template <typename ConnectionBase> void
 connection_manager<ConnectionBase>::wait_for_complete() {
+	boost::mutex::scoped_lock lock(mutex_);
+	while (!finished_) {
+		condition_.wait(lock);
+	}
 }
 
 template <typename ConnectionBase> bool
