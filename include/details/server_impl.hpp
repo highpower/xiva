@@ -79,18 +79,8 @@ private:
 	void start_provider_thread(thread_param_type const &tp);
 	void provider_thread_func(boost::function<globals::provider_type> f);
 
-	struct failure_data {
-		failure_data(std::string const &a_to, globals::connection_id an_id);
-
-		std::string to;
-		globals::connection_id id;
-	};
-
 	void run_io();
 	void finish();
-
-	void process_failure(failure_data const &fd);
-	void process_failures();
 
 	template <typename invoker_type>
 	void init_data(settings const &s, bool ssl);
@@ -98,9 +88,6 @@ private:
 private:
 	asio::io_service io_;
 	asio::io_service::strand strand_;
-
-	mutable boost::mutex mutex_;
-	std::deque<failure_data> failures_;
 
 	std::auto_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
@@ -122,12 +109,6 @@ private:
 	bool started_;
 	bool stopped_;
 };
-
-inline
-server_impl::failure_data::failure_data(std::string const &a_to, globals::connection_id an_id) :
-	to(a_to), id(an_id)
-{
-}
 
 
 }} // namespaces

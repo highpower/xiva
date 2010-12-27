@@ -199,12 +199,10 @@ server_impl::send(globals::connection_id to, boost::shared_ptr<message> const &m
 void
 server_impl::notify_connection_opened_failed(std::string const &to, globals::connection_id id) {
 
-	failure_data fd(to, id);
-	{
-		boost::mutex::scoped_lock sl(mutex_);
-		failures_.push_back(fd);
+	if (!data_->stopping() && connection_manager_) {
+		strand_.dispatch(boost::bind(
+			&connection_manager_base::notify_connection_opened_failed, connection_manager_, to, id));
 	}
-	strand_.dispatch(boost::bind(&server_impl::process_failures, this));
 }
 
 void
@@ -220,61 +218,6 @@ server_impl::run_io() {
 	catch (...) {
 		if (logger_ && !data_->stopping()) {
 			logger_->error("server_impl::start failed, unknown exception");
-		}
-	}
-}
-
-void
-server_impl::process_failure(failure_data const &fd) {
-
-	std::string id_str;
-	if (logger_) {
-		id_str = boost::lexical_cast<std::string>(fd.id);
-		logger_->info("try close connection name:%s, id:%s",
-			fd.to.c_str(), id_str.c_str());
-	}
-
-	try {
-		connection_manager_->notify_connection_opened_failed(fd.to, fd.id);
-	}
-	catch (std::exception const &e) {
-		if (logger_) {
-			logger_->error("exception was caught on process failure name:%s, id:%s: %s",
-				fd.to.c_str(), id_str.c_str(), e.what());
-		}
-	}
-	catch (...) {
-		if (logger_) {
-			logger_->error("unknown exception was caught on process failure name:%s, id:%s",
-				fd.to.c_str(), id_str.c_str());
-		}
-	}
-}
-
-void
-server_impl::process_failures() {
-
-	try {
-		std::deque<failure_data> l;
-		boost::mutex::scoped_lock sl(mutex_);
-		l.swap(failures_);
-		sl.unlock();
-		if (data_->stopping() || !connection_manager_) {
-			return;
-		}
-
-		for (std::deque<failure_data>::const_iterator i = l.begin(), end = l.end(); i != end; ++i) {
-			process_failure(*i);
-		}
-	}
-	catch (std::exception const &e) {
-		if (logger_) {
-			logger_->error("exception was caught on process failures: %s", e.what());
-		}
-	}
-	catch (...) {
-		if (logger_) {
-			logger_->error("unknown exception was caught on process failures");
 		}
 	}
 }
