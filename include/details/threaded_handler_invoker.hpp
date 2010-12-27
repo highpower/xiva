@@ -46,10 +46,10 @@ public:
 	typedef threaded_connection connection_type;
 	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
 
-	void pop();
 	void thread_func();
 
 	virtual void finish();
+	virtual void wait_for_complete();
 	virtual void init(settings const &s);
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &impl);
@@ -63,18 +63,13 @@ private:
 	typedef threaded_queue<item_type> queue_type;
 	typedef queue_type::raw_items_type items_type;
 
-	void handle_items(items_type &items) const;
-
-	void handled(item_type const &item);
-	void pop_handled(items_type &items);
+	static void handle_item(item_type &item);
 
 private:
 	asio::io_service::strand &strand_;
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;
 
-	mutable boost::mutex mutex_;
-	items_type handled_;
 	queue_type input_queue_;
 };
 

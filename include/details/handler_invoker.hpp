@@ -43,6 +43,7 @@ public:
 	typedef boost::intrusive_ptr<connection_type> connection_ptr_type;
 
 	virtual void finish();
+	virtual void wait_for_complete();
 	virtual void init(settings const &s);
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log);
 	void invoke_handler(connection_ptr_type conn, request_impl &req, response_impl &resp);

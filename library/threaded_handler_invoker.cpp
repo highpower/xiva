@@ -31,10 +31,12 @@ public:
 	request_impl& request();
 	response_impl& response();
 	void attach(request_impl &req, response_impl &resp);
+
+	void set_error_msg(std::string const &msg);
 	void set_error_msg(char const *msg);
 	void set_http_error_code(unsigned short code);
 	
-	void handled(connection_base &conn) const;
+	void handled(threaded_connection &conn) const;
 
 private:
 	request_impl req_;
@@ -42,6 +44,9 @@ private:
 	std::string error_msg_;
 	unsigned short http_code_;
 };
+
+static std::string const FINISH_ERROR_MSG("finish");
+static std::string const UNKNOWN_ERROR_MSG("unknown exception while invoking handler");
 
 threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data) : 
 	strand_(st)
@@ -60,13 +65,6 @@ threaded_handler_invoker::~threaded_handler_invoker() {
 	catch (std::exception const &e) {
 		(void) e;
 	}
-}
-
-void
-threaded_handler_invoker::pop() {
-	items_type handled;
-	pop_handled(handled);
-	handle_items(handled);
 }
 
 void
@@ -90,25 +88,34 @@ threaded_handler_invoker::thread_func() {
 		}
 		catch (...) {
 			logger_->error("unknown exception was caught in %s", BOOST_CURRENT_FUNCTION);
-			item.first->set_error_msg("unknown exception while invoking handler");
+			item.first->set_error_msg(UNKNOWN_ERROR_MSG);
 		}
-		handled(item);
-		strand_.dispatch(boost::bind(&threaded_handler_invoker::pop, this));
+		strand_.dispatch(boost::bind(threaded_handler_invoker::handle_item, item));
 	}
 }
 
 void
 threaded_handler_invoker::finish() {
 	input_queue_.finish();
-	pop();
+}
 
-	items_type unhandled;
-	input_queue_.swap_data(unhandled);
+void
+threaded_handler_invoker::wait_for_complete() {
 
-	for (items_type::iterator i = unhandled.begin(), end = unhandled.end(); i != end; ++i) {
-		i->first->set_error_msg("finish");
+	try {
+		input_queue_.finish();
+
+		items_type unhandled;
+		input_queue_.swap_data(unhandled);
+
+		for (items_type::iterator i = unhandled.begin(), end = unhandled.end(); i != end; ++i) {
+			i->first->set_error_msg(FINISH_ERROR_MSG);
+			handle_item(*i);
+		}
 	}
-	handle_items(unhandled);
+	catch (std::exception const &e) {
+		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
+	}
 }
 
 void
@@ -136,34 +143,15 @@ threaded_handler_invoker::invoke_handler(threaded_handler_invoker::connection_pt
 	holder_ptr_type holder(new request_holder());
 	holder->attach(req, resp);
 	if (!input_queue_.push(item_type(holder, conn))) {
-		throw std::runtime_error("finish");
+		throw std::runtime_error(FINISH_ERROR_MSG);
 	}
 }
 
 void
-threaded_handler_invoker::handle_items(items_type &items) const {
-	try {
-		for (items_type::iterator i = items.begin(), end = items.end(); i != end; ++i) {
-			i->first->handled(*(i->second));
-		}
-	}
-	catch (std::exception const &e) {
-		logger_->error("exception was caught in %s: %s", BOOST_CURRENT_FUNCTION, e.what());
-	}
+threaded_handler_invoker::handle_item(item_type &item) {
+	item.first->handled(*(item.second));
 }
 
-void
-threaded_handler_invoker::handled(threaded_handler_invoker::item_type const &item) {
-	boost::mutex::scoped_lock sl(mutex_);
-	handled_.push_back(item);
-}
-
-void
-threaded_handler_invoker::pop_handled(items_type &items) {
-	items.clear();
-	boost::mutex::scoped_lock sl(mutex_);
-	items.swap(handled_);
-}
 
 request_holder::request_holder() : http_code_(0)
 {
@@ -189,6 +177,11 @@ request_holder::attach(request_impl &req, response_impl &resp) {
 }
 
 void
+request_holder::set_error_msg(std::string const &msg) {
+	error_msg_.assign(msg);
+}
+
+void
 request_holder::set_error_msg(char const *msg) {
 	error_msg_.assign(msg);
 }
@@ -200,7 +193,7 @@ request_holder::set_http_error_code(unsigned short code) {
 }
 
 void
-request_holder::handled(connection_base &conn) const {
+request_holder::handled(threaded_connection &conn) const {
 	if (!http_code_ && error_msg_.empty()) {
 		conn.handled(req_, resp_);
 	}

@@ -32,6 +32,7 @@ public:
 	virtual ~handler_invoker_base();
 
 	virtual void finish() = 0;
+	virtual void wait_for_complete() = 0;
 	virtual void init(settings const &s) = 0;
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &log) = 0;
 
