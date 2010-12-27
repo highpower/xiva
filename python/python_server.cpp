@@ -34,8 +34,9 @@ python_server::~python_server() {
 void
 python_server::stop() {
 	try {
-		check_server();
-		impl_->stop();
+		if (impl_) {
+			impl_.reset();
+		}
 	}
 	catch (std::exception const &e) {
 		PyErr_SetString(PyExc_RuntimeError, e.what());
@@ -79,9 +80,6 @@ python_server::start() {
 			logger_->start();
 			impl_->start();
 		}
-		impl_.reset();
-		channels_stat_.reset();
-		logger_ = NULL;
 	}
 	catch (std::exception const &e) {
 		PyErr_SetString(PyExc_RuntimeError, e.what());
