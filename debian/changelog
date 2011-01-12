@@ -1,3 +1,9 @@
+xiva (1.5.7-3) unstable; urgency=low
+
+  * send http status-line if web-socket handshake was failed 
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 12 Jan 2011 14:56:46 +0300
+
 xiva (1.5.7-2) unstable; urgency=low
 
   * process failures directly to connection_manager throught strand 

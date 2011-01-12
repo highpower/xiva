@@ -90,10 +90,6 @@ connection_base::print_policy_data(std::string const &data, std::streambuf &buf)
 bool
 connection_base::print_error(std::streambuf &buf, http_error const &http) const {
 
-	if (!ws_info_.empty()) {
-		return false;
-	}
-
 	std::ostream stream(&buf);
 	stream << http_status(http.code());
 	stream << http_date(boost::posix_time::second_clock::universal_time());
