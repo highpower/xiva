@@ -16,12 +16,13 @@
 namespace xiva { namespace details {
 
 formatters_data_channels::formatters_data_channels(
-	formatters_factory const &factory, request_impl const &req, response_impl const &resp) : default_formatter_(NULL)
+	formatters_factory const &factory, request_impl const &req, response_impl const &resp)
 {
 	std::map<channel_info, std::string> ch_data = resp.channels_data();
 	assert(!ch_data.empty());
 
 	request request_adapter(req);
+	std::map<std::string, formatter_ptr> formatters;
 
 	for (std::map<channel_info, std::string>::iterator it = ch_data.begin(), end = ch_data.end(); it != end; ++it) {
 		channel_info const &ch_info = it->first;
@@ -29,42 +30,23 @@ formatters_data_channels::formatters_data_channels(
 
 		std::string const &fmt_id = it->second;
 		if (fmt_id.empty()) {
-			channels_data_[ch_info] = channel_data(ch_info.data(), NULL);
+			channels_data_[ch_info] = channel_data(ch_info.data(), formatter_ptr());
 			continue;
 		}
-		std::map<std::string, formatter*>::const_iterator fmt_it = formatters_.find(fmt_id);
-		if (formatters_.end() != fmt_it) {
+		std::map<std::string, formatter_ptr>::const_iterator fmt_it = formatters.find(fmt_id);
+		if (formatters.end() != fmt_it) {
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_it->second);
 		}
 		else {
-			std::auto_ptr<formatter> fmt_ptr = factory.find(fmt_id, request_adapter);
-			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr.get());
-			formatters_.insert(std::make_pair(fmt_id, fmt_ptr.get()));
-			fmt_ptr.release();
-		}
-	}
-
-	std::string const &def_fmt_id = resp.default_formatter_id();
-	if (!def_fmt_id.empty()) {
-		std::map<std::string, formatter*>::const_iterator it = formatters_.find(def_fmt_id);
-		if (formatters_.end() != it) {
-			default_formatter_ = it->second;
-		}
-		else {
-			std::auto_ptr<formatter> fmt_ptr = factory.find(def_fmt_id, request_adapter);
-			formatters_.insert(make_pair(def_fmt_id, fmt_ptr.get()));
-			default_formatter_ = fmt_ptr.release();
+			std::auto_ptr<formatter> fmt_auto_ptr = factory.find(fmt_id, request_adapter);
+			formatter_ptr fmt_ptr(fmt_auto_ptr.release());
+			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr);
+			formatters.insert(std::make_pair(fmt_id, fmt_ptr));
 		}
 	}
 }
 
 formatters_data_channels::~formatters_data_channels() {
-	for (std::map<std::string, formatter*>::iterator it = formatters_.begin(), end = formatters_.end(); it != end; ++it) {
-		formatter *fmt_ptr = it->second;
-		if (NULL != fmt_ptr) {
-			delete fmt_ptr;
-		}
-	}
 }
 
 bool
@@ -80,12 +62,7 @@ formatters_data_channels::allow_message(message const& msg, message_filter const
 		return false;
 	}
 	channel_data const &ch_data = ch_it->second;
-	return NULL == filter || filter->allow_message(msg, ch_data.first, ch_data.second);
-}
-
-formatter const*
-formatters_data_channels::default_formatter() const {
-	return default_formatter_;
+	return NULL == filter || filter->allow_message(msg, ch_data.first, ch_data.second.get());
 }
 
 formatter const*
@@ -100,7 +77,7 @@ formatters_data_channels::find_formatter(message const &msg) const {
 		return NULL; // unreachable code
 	}
 	channel_data const &ch_data = ch_it->second;
-	return ch_data.second;
+	return ch_data.second.get();
 }
 
 void

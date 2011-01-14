@@ -21,6 +21,8 @@
 #include <string>
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+
 #include "xiva/forward.hpp"
 #include "xiva/channel_id.hpp"
 #include "details/formatters_data.hpp"
@@ -35,19 +37,17 @@ public:
 
 	virtual bool allow_message(message const& msg, message_filter const *filter) const;
 
-	virtual formatter const* default_formatter() const;
 	virtual formatter const* find_formatter(message const& msg) const;
 
 	virtual void update(message const& msg);
 	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
 
 private:
-	typedef std::pair<std::string, formatter const*> channel_data;
+	typedef boost::shared_ptr<formatter> formatter_ptr;
+	typedef std::pair<std::string, formatter_ptr> channel_data;
 	typedef std::map<channel_id, channel_data> channels_data;
 
 	channels_data channels_data_;
-	std::map<std::string, formatter*> formatters_;
-	formatter const *default_formatter_;
 };
 
 

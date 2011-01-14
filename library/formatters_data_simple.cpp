@@ -31,9 +31,9 @@ formatters_data_simple::allow_message(message const& msg, message_filter const *
 	return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string, NULL);
 }
 
-formatter const*
-formatters_data_simple::default_formatter() const {
-	return fmt_ptr_.get();
+bool
+formatters_data_simple::has_formatter() const {
+	return NULL != fmt_ptr_.get();
 }
 
 formatter const*

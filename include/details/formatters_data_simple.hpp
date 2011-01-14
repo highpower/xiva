@@ -33,7 +33,7 @@ public:
 
 	virtual bool allow_message(message const& msg, message_filter const *filter) const;
 
-	virtual formatter const* default_formatter() const;
+	bool has_formatter() const;
 	virtual formatter const* find_formatter(message const& msg) const;
 
 	virtual void update(message const& msg);

@@ -41,9 +41,9 @@ formatters_factory::create_formatters_data(request_impl const &req, response_imp
 	if (!resp.channels_data().empty()) {
 		return std::auto_ptr<formatters_data>(new formatters_data_channels(*this, req, resp));
 	}
-	std::auto_ptr<formatters_data> fmt_data(new formatters_data_simple(*this, req, resp));
-	if (NULL != fmt_data->default_formatter()) {
-		return fmt_data;
+	std::auto_ptr<formatters_data_simple> fmt_data(new formatters_data_simple(*this, req, resp));
+	if (fmt_data->has_formatter()) {
+		return std::auto_ptr<formatters_data>(fmt_data.release());
 	}
 	return std::auto_ptr<formatters_data>();
 }

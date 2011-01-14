@@ -53,14 +53,6 @@ connection_base::update_channels_stat(channels_stat_impl &ch_stat, bool add) con
 }
 
 formatter const*
-connection_base::default_formatter() const {
-	if (NULL == fmt_data_.get()) {
-		return NULL;
-	}
-	return fmt_data_->default_formatter();
-}
-
-formatter const*
 connection_base::find_formatter(message const &msg) const {
 	if (NULL == fmt_data_.get()) {
 		return NULL;

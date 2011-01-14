@@ -62,7 +62,6 @@ protected:
 	void init(request_impl const &req, bool secure);
 	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
 
-	formatter const* default_formatter() const;
 	formatter const* find_formatter(message const &msg) const;
 
 	void notify_message_printed(message const &msg);
