@@ -9,6 +9,7 @@
 #include "xiva/logger.hpp"
 #include "xiva/settings.hpp"
 #include "xiva/message_filter.hpp"
+#include "xiva/ping_formatter.hpp"
 
 #include "details/connection_data.hpp"
 #include "details/connection.hpp"
@@ -113,7 +114,7 @@ server_impl::init(settings const &s) {
 		attach_logger(boost::intrusive_ptr<logger>(new stdio_logger()));
 	}
 	data_->attach_logger(logger_);
-	data_->init(s);
+	data_->init(s, ping_formatter_);
 
 	if (!data_->handler()) {
 		attach_response_handler(boost::intrusive_ptr<response_handler>(new url_response_handler()));
@@ -238,6 +239,12 @@ void
 server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> const &h) {
 	assert(h);
 	data_->handler(h);
+}
+
+void
+server_impl::attach_ping_formatter(boost::intrusive_ptr<ping_formatter> const &f) {
+	assert(f);
+	ping_formatter_ = f;	
 }
 
 void

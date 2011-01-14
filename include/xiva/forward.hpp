@@ -26,6 +26,7 @@ class formatter;
 class formatter_creator;
 class logger;
 class message;
+class ping_formatter;
 class request;
 class response;
 class server;

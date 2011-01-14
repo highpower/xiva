@@ -32,8 +32,6 @@ public:
 	virtual ~formatter();
 
 	virtual std::string wrap_message(std::string const &content) const = 0;
-	virtual std::string ping_message() const = 0;
-	virtual std::string ping_message_for_single() const = 0;
 
 private:
 	formatter(formatter const &);

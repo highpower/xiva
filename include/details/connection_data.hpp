@@ -33,7 +33,8 @@ public:
 	explicit connection_data(server_impl &server);
 	virtual ~connection_data();
 
-	void init(settings const &s);
+	void init(settings const &s, boost::intrusive_ptr<ping_formatter> const &f);
+
 	unsigned int read_timeout() const;
 	unsigned int write_timeout() const;
 	unsigned int inactive_timeout() const;
@@ -49,6 +50,7 @@ public:
 	formatters_factory const& fmt_factory() const;
 	formatters_factory& fmt_factory();
 
+	std::string const& ping_message(bool single) const;
 	std::string const& policy_data() const;
 
 	bool stopping() const;
@@ -62,6 +64,8 @@ private:
 
 	server_impl &server_;
 	std::auto_ptr<formatters_factory> formatters_factory_;
+	std::string ping_message_;
+	std::string ping_message_for_single_;
 	std::string policy_data_;
 	boost::intrusive_ptr<logger> logger_;
 	boost::intrusive_ptr<response_handler> handler_;
@@ -94,6 +98,11 @@ connection_data::ping_interval() const {
 inline unsigned int
 connection_data::max_request_size() const {
 	return max_request_size_;
+}
+
+inline std::string const&
+connection_data::ping_message(bool single) const {
+	return single ? ping_message_for_single_ : ping_message_;
 }
 
 inline std::string const&

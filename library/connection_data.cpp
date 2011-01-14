@@ -6,6 +6,7 @@
 
 #include "xiva/settings.hpp"
 #include "xiva/formatter.hpp"
+#include "xiva/ping_formatter.hpp"
 #include "xiva/response_handler.hpp"
 #include "xiva/logger.hpp"
 
@@ -28,11 +29,16 @@ connection_data::~connection_data() {
 }
 
 void
-connection_data::init(settings const &s) {
+connection_data::init(settings const &s, boost::intrusive_ptr<ping_formatter> const &f) {
 	read_timeout_ = s.read_timeout();
 	write_timeout_ = s.write_timeout();
 	inactive_timeout_ = s.inactive_timeout();
 	ping_interval_ = s.ping_interval();
+
+	if (f) {
+		ping_message_ = f->message();
+		ping_message_for_single_ = f->message_for_single();
+	}
 
 	std::string policy_file_name;
 	try {

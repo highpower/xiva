@@ -59,6 +59,11 @@ server::attach_response_handler(boost::intrusive_ptr<response_handler> const &m)
 }
 
 void
+server::attach_ping_formatter(boost::intrusive_ptr<ping_formatter> const &f) {
+	impl_->attach_ping_formatter(f);
+}
+
+void
 server::attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator) {
 	impl_->attach_formatter_creator(fmt_id, creator);
 }

@@ -53,6 +53,11 @@ public:
 	 */
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m) = 0;
 
+	/** sets up a formatter to ping connetions for checking heartbeat
+	 * @param f an instance of class that implements ping_formatter interface.
+	 */
+	virtual void attach_ping_formatter(boost::intrusive_ptr<ping_formatter> const &f) = 0;
+
 	/** sets up a formatter for out
 	 * @param fmt_id an id of formatter which must be set up in response.
 	 * @param creator an instance of class that implements request-cpecific formatter interface.

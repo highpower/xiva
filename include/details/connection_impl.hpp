@@ -210,8 +210,7 @@ connection_impl<ConnectionTraits>::handled(request_impl const &req, response_imp
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), connection_base_type::id(), address());
 		single_message_ = resp.single_message();
 		connection_base_type::init_formatters(data_.fmt_factory(), req, resp);
-		disable_ping_ =	data_.ping_interval() < MINIMAL_PING_INTERVAL ||
-				NULL == connection_base_type::default_formatter();
+		disable_ping_ =	data_.ping_interval() < MINIMAL_PING_INTERVAL || data_.ping_message(single_message_).empty();
 		write_headers(resp);
 	}
 	catch (http_error const &h) {
@@ -552,10 +551,7 @@ connection_impl<ConnectionTraits>::write_ping_message() {
 
 	try {
 		assert(!disable_ping_);
-		formatter const *fmt_ptr = connection_base_type::default_formatter();
-		assert(fmt_ptr);
-		if (connection_base_type::print_message_content(
-				single_message_ ? fmt_ptr->ping_message_for_single() : fmt_ptr->ping_message(), out_)) {
+		if (connection_base_type::print_message_content(data_.ping_message(single_message_), out_)) {
 			writing_message_ = true;
 			connection_impl_ptr_type self(this);
 			asio::async_write(socket().native_sock(), out_, boost::bind(&type::handle_write_ping_message,

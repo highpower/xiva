@@ -66,6 +66,7 @@ public:
 	virtual void attach_logger(boost::intrusive_ptr<logger> const &logger);
 	virtual void attach_message_filter(boost::intrusive_ptr<message_filter> const &filter);
 	virtual void attach_response_handler(boost::intrusive_ptr<response_handler> const &m);
+	virtual void attach_ping_formatter(boost::intrusive_ptr<ping_formatter> const &f);
 	virtual void attach_formatter_creator(std::string const &fmt_id, boost::intrusive_ptr<formatter_creator> const &creator);
 	virtual void add_connection_listener(boost::intrusive_ptr<connection_listener> const &l);
 	virtual void start_provider(unsigned short nthreads, boost::function<globals::provider_type> f);
@@ -96,6 +97,7 @@ private:
 	boost::condition stop_condition_;
 
 	boost::intrusive_ptr<logger> logger_;
+	boost::intrusive_ptr<ping_formatter> ping_formatter_;
 	boost::intrusive_ptr<message_filter> message_filter_;
 	boost::intrusive_ptr<connection_manager_base> connection_manager_;
 	boost::intrusive_ptr<response_handler> handler_;
