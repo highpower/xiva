@@ -8,7 +8,7 @@ libxiva_la_SOURCES = acceptor_base.cpp channels_stat_impl.cpp \
 	formatters_data.cpp formatters_data_channels.cpp formatters_data_simple.cpp \
 	formatters_factory.cpp guard.cpp handler_invoker.cpp handler_invoker_base.cpp \
 	http.cpp http_constants.cpp http_error.cpp logger.cpp message.cpp message_filter.cpp \
-	message_queue.cpp message_sender.cpp request.cpp request_impl.cpp \
+	message_queue.cpp message_sender.cpp ping_formatter.cpp request.cpp request_impl.cpp \
 	response.cpp response_handler.cpp response_impl.cpp server.cpp \
 	server_impl.cpp settings.cpp ssl_connection_socket.cpp \
 	ssl_context.cpp stdio_logger.cpp system_error.cpp \
