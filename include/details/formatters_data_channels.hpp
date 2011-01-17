@@ -20,6 +20,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include <boost/intrusive_ptr.hpp>
 
