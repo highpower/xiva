@@ -37,7 +37,7 @@ python_handler::has_enough_data(request const &req) const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_handler::has_enough_data");
+		throw std::runtime_error("caught unknown exception in python_handler::has_enough_data");
 	}
 }
 
@@ -54,7 +54,7 @@ python_handler::receiver(request const &req) const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_handler::receiver");
+		throw std::runtime_error("caught unknown exception in python_handler::receiver");
 	}
 }
 
@@ -72,7 +72,7 @@ python_handler::handle_response(request const &req, response &resp) {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in handle_response");
+		throw std::runtime_error("caught unknown exception in handle_response");
 	}
 }
 

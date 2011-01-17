@@ -34,7 +34,7 @@ python_formatter_creator::create(request const &req) const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_formatter_creator::create");
+		throw std::runtime_error("caught unknown exception in python_formatter_creator::create");
 	}
 }
 

@@ -28,7 +28,7 @@ python_ping_formatter::message() const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_formatter::ping_message");
+		throw std::runtime_error("caught unknown exception in python_formatter::ping_message");
 	}
 }
 
@@ -43,7 +43,7 @@ python_ping_formatter::message_for_single() const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_formatter::ping_message_for_single");
+		throw std::runtime_error("caught unknown exception in python_formatter::ping_message_for_single");
 	}
 }
 

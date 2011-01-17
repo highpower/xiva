@@ -33,7 +33,7 @@ python_message_filter::allow_message(message const &msg, std::string const &chan
 		throw;
 	}
 	catch (...) {
-		std::string msg = "caugth unknown exception in python_message_filter::allow_message: ";
+		std::string msg = "caught unknown exception in python_message_filter::allow_message: ";
 		msg.append(ch_info.name()).append("_").append(ch_info.key());
 		msg.append(" ").append(ch_info.data()).append(" ").append(channel_data);
 		throw std::runtime_error(msg);

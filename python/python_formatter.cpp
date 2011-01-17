@@ -28,7 +28,7 @@ python_formatter::wrap_message(std::string const &content) const {
 		throw;
 	}
 	catch (...) {
-		throw std::runtime_error("caugth unknown exception in python_formatter::wrap_message");
+		throw std::runtime_error("caught unknown exception in python_formatter::wrap_message");
 	}
 }
 

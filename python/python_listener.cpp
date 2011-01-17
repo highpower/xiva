@@ -10,7 +10,7 @@ namespace xiva { namespace python {
 
 static void
 throw_listener_unknown_error(char const *method, std::string const &to, globals::connection_id id) {
-	std::string msg = "caugth unknown exception in python_listener::";
+	std::string msg = "caught unknown exception in python_listener::";
 	msg.append(method).append(" for ").append(to);
 	if (id) {
 		msg.append(" ").append(boost::lexical_cast<std::string>(id));
