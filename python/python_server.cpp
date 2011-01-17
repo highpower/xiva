@@ -36,7 +36,12 @@ void
 python_server::stop() {
 	try {
 		if (impl_) {
+			boost::shared_ptr<details::server_impl> impl(impl_);
 			impl_.reset();
+			{
+				interpreter_unlock unlock;
+				impl->stop();
+			}
 		}
 	}
 	catch (std::exception const &e) {
