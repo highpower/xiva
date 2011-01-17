@@ -34,7 +34,6 @@
 #include "xiva/forward.hpp"
 #include "xiva/message.hpp"
 #include "xiva/http_error.hpp"
-#include "xiva/formatter.hpp"
 
 #include "details/asio.hpp"
 #include "details/connection_data.hpp"
@@ -42,10 +41,6 @@
 #include "details/response_impl.hpp"
 #include "details/request_checker.hpp"
 #include "details/http_constants.hpp"
-
-//#include "details/ssl_connection_traits.hpp"
-
-//typedef asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;
 
 namespace xiva { namespace details {
 
@@ -202,7 +197,7 @@ connection_impl<ConnectionTraits>::handled(request_impl const &req, response_imp
 
 		data_.log()->debug("name %s assigned to connection[%lu] from %s", name.c_str(), connection_base_type::id(), address());
 		single_message_ = resp.single_message();
-		connection_base_type::init_formatters(data_.fmt_factory(), req, resp);
+		connection_base_type::init_formatters(data_, req, resp);
 		disable_ping_ =	data_.ping_interval() < MINIMAL_PING_INTERVAL || data_.ping_message(single_message_).empty();
 
 		boost::intrusive_ptr<connection_base_type> self(this);
@@ -517,18 +512,7 @@ connection_impl<ConnectionTraits>::write_message() {
 				return;
 			}
 
-			std::string const &content = msg->content();
-			bool printed = false;
-			formatter const *fmt_ptr = connection_base_type::find_formatter(*msg);
-			if (NULL != fmt_ptr) {
-				printed = connection_base_type::print_message_content(fmt_ptr->wrap_message(content), out_);
-			}
-			else {
-				printed = connection_base_type::print_message_content(content, out_);
-			}
-			if (printed) {
-				connection_base_type::notify_message_printed(*msg);
-			}
+			bool printed = connection_base_type::print_message(*msg, out_);
 			messages_.pop_front();
 
 			if (printed) {

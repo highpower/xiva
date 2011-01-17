@@ -3,10 +3,12 @@
 
 #include <boost/static_assert.hpp>
 
+#include "xiva/formatter.hpp"
 #include "xiva/http_error.hpp"
 #include "xiva/message.hpp"
 #include "xiva/message_filter.hpp"
 
+#include "details/connection_data.hpp"
 #include "details/formatters_data.hpp"
 #include "details/formatters_factory.hpp"
 #include "details/http_constants.hpp"
@@ -33,8 +35,8 @@ connection_base::init(request_impl const &req, bool secure) {
 }
 
 void
-connection_base::init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp) {
-	fmt_data_ = f.create_formatters_data(req, resp);
+connection_base::init_formatters(connection_data const &cdata, request_impl const &req, response_impl const &resp) {
+	fmt_data_ = cdata.fmt_factory().create_formatters_data(req, resp);
 }
 
 bool
@@ -52,19 +54,25 @@ connection_base::update_channels_stat(channels_stat_impl &ch_stat, bool add) con
 	}
 }
 
-formatter const*
-connection_base::find_formatter(message const &msg) const {
-	if (NULL == fmt_data_.get()) {
-		return NULL;
-	}
-	return fmt_data_->find_formatter(msg);
-}
+bool
+connection_base::print_message(message const &msg, std::streambuf &buf) {
 
-void
-connection_base::notify_message_printed(message const &msg) {
+	formatter const *fmt_ptr = fmt_data_.get() ? fmt_data_->find_formatter(msg) : NULL;
+
+	std::string const &content = msg.content();
+	if (NULL != fmt_ptr) {
+		if (!print_message_content(fmt_ptr->wrap_message(content), buf)) {
+			return false;
+		}
+	}
+	if (!print_message_content(content, buf)) {
+		return false;
+	}
+
 	if (NULL != fmt_data_.get()) {
 		fmt_data_->update(msg);
 	}
+	return true;
 }
 
 bool

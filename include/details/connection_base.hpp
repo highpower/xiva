@@ -32,6 +32,7 @@
 
 namespace xiva { namespace details {
 
+class connection_data;
 class formatters_data;
 
 class connection_base {
@@ -60,11 +61,9 @@ public:
 
 protected:
 	void init(request_impl const &req, bool secure);
-	void init_formatters(formatters_factory const &f, request_impl const &req, response_impl const &resp);
+	void init_formatters(connection_data const &cdata, request_impl const &req, response_impl const &resp);
 
-	formatter const* find_formatter(message const &msg) const;
-
-	void notify_message_printed(message const &msg);
+	bool print_message(message const &msg, std::streambuf &buf);
 
 	static bool print_policy_data(std::string const &data, std::streambuf &buf);
 
