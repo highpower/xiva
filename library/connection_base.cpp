@@ -65,7 +65,7 @@ connection_base::print_message(message const &msg, std::streambuf &buf) {
 			return false;
 		}
 	}
-	if (!print_message_content(content, buf)) {
+	else if (!print_message_content(content, buf)) {
 		return false;
 	}
 
