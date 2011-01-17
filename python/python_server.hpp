@@ -55,6 +55,7 @@ public:
 
 	void attach_logger(py::object const &impl);
 	void attach_response_handler(py::object const &impl);
+	void attach_ping_formatter(py::object const &impl);
 	void attach_formatter_creator(std::string const &fmt_id, py::object const &impl);
 	void add_connection_listener(py::object const &impl);
 	void attach_message_filter(py::object const &impl);

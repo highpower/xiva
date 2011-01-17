@@ -16,6 +16,7 @@
 #include "python_listener.hpp"
 #include "python_message_filter.hpp"
 #include "python_settings.hpp"
+#include "python_ping_formatter.hpp"
 #include "python_formatter_creator.hpp"
 #include "interpreter_lock.hpp"
 
@@ -199,6 +200,20 @@ python_server::attach_response_handler(py::object const &impl) {
 }
 
 void
+python_server::attach_ping_formatter(py::object const &impl) {
+
+	try {
+		check_server();
+		boost::intrusive_ptr<ping_formatter> f(new python_ping_formatter(impl, cleanup_));
+		impl_->attach_ping_formatter(f);
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+	}
+}
+
+void
 python_server::attach_formatter_creator(std::string const &fmt_id, py::object const &impl) {
 
 	try {
@@ -260,6 +275,7 @@ register_server_class() throw () {
 	reg.def("attach_logger", &python_server::attach_logger);
 	reg.def("add_connection_listener", &python_server::add_connection_listener);
 	reg.def("attach_response_handler", &python_server::attach_response_handler);
+	reg.def("attach_ping_formatter", &python_server::attach_ping_formatter);
 	reg.def("attach_formatter_creator", &python_server::attach_formatter_creator);
 	reg.def("attach_message_filter", &python_server::attach_message_filter);
 	reg.def("list_channels_enable", &python_server::list_channels_enable);

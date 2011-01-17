@@ -15,8 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef XIVA_PYTHON_PYTHON_FORMATTER_HPP_INCLUDED
-#define XIVA_PYTHON_PYTHON_FORMATTER_HPP_INCLUDED
+#ifndef XIVA_PYTHON_PYTHON_PING_FORMATTER_HPP_INCLUDED
+#define XIVA_PYTHON_PYTHON_PING_FORMATTER_HPP_INCLUDED
 
 #include <string>
 
@@ -24,7 +24,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
-#include "xiva/formatter.hpp"
+#include "xiva/ping_formatter.hpp"
 
 namespace py = boost::python;
 
@@ -32,17 +32,18 @@ namespace xiva { namespace python {
 
 class cleanup_list;
 
-class python_formatter : public xiva::formatter {
+class python_ping_formatter : public xiva::ping_formatter {
 
 public:
-	python_formatter(py::object const &impl, cleanup_list &cleanup);
-	virtual ~python_formatter();
+	python_ping_formatter(py::object const &impl, cleanup_list &cleanup);
+	virtual ~python_ping_formatter();
 
-	virtual std::string wrap_message(std::string const &content) const;
+	virtual std::string message() const;
+	virtual std::string message_for_single() const;
 
 private:
-	python_formatter(python_formatter const &);
-	python_formatter& operator = (python_formatter const &);
+	python_ping_formatter(python_ping_formatter const &);
+	python_ping_formatter& operator = (python_ping_formatter const &);
 
 	boost::shared_ptr<py::object> impl_;
 	cleanup_list &cleanup_;
@@ -50,4 +51,4 @@ private:
 
 }} // namespaces
 
-#endif // XIVA_PYTHON_PYTHON_FORMATTER_HPP_INCLUDED
+#endif // XIVA_PYTHON_PYTHON_PING_FORMATTER_HPP_INCLUDED
