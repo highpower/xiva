@@ -112,6 +112,14 @@ class XivaListenerLog(object):
 		self.__log.info('listener: a message was dropped because disconnected to=' + to)
 
 
+class XivaPingFormatter(object):
+	def ping_message(self):
+		return "ping\n"
+
+	def ping_message_for_single(self):
+		return "\n"
+
+
 class XivaFormatterSimple(object):
 	def __init__(self, req):
 		self.__callback = req.param("callback")
@@ -120,12 +128,6 @@ class XivaFormatterSimple(object):
 		if len(self.__callback) > 0:
 			return self.__callback + "(" + content + ")\n"
 		return content + "\n" #"{'" + content + "'}\n" #simple version
-
-	def ping_message(self):
-		return "ping\n"
-
-	def ping_message_for_single(self):
-		return "\n"
 
 
 class XivaMessageFilter(object):
@@ -136,9 +138,6 @@ class XivaMessageFilter(object):
 class XivaFormatterCreatorSimple(object):
 	def create(self, req):
 		return XivaFormatterSimple(req)
-
-	def name(self):
-	    return 'simple'
 
 
 class UdsServer(object):
@@ -253,17 +252,13 @@ if __name__ == "__main__":
 		print 'undefined "socket" in config'
 		exit(3)
 
-	xiva_handler = XivaHandler()
-	xiva_listener = XivaListenerLog(log)
-	xiva_formatter_creator = XivaFormatterCreatorSimple()
-	xiva_message_filter = XivaMessageFilter()
-
 	xiva_server = xiva.server()
 	xiva_server.attach_logger(log)
-	xiva_server.add_connection_listener(xiva_listener)
-	xiva_server.attach_response_handler(xiva_handler)
-	xiva_server.attach_formatter_creator(xiva_formatter_creator.name(), xiva_formatter_creator)
-	xiva_server.attach_message_filter(xiva_message_filter)
+	xiva_server.add_connection_listener(XivaListenerLog(log))
+	xiva_server.attach_response_handler(XivaHandler())
+	xiva_server.attach_message_filter(XivaMessageFilter())
+	xiva_server.attach_ping_formatter(XivaPingFormatter())
+	xiva_server.attach_formatter_creator('simple', XivaFormatterCreatorSimple())
 
 	uds_server = UdsServer(uds_path, log, xiva_server)
 

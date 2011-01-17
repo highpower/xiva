@@ -1,3 +1,9 @@
+xiva-daemon-python (1.6.1-1) unstable; urgency=low
+
+  * split formatter to ping and wrap messages
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 14 Jan 2011 16:33:09 +0300
+
 xiva-daemon-python (1.5.1-1) unstable; urgency=low
 
   * added formatter::ping_message_for_single ("" for disable, should be "\n")
