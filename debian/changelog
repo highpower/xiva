@@ -1,3 +1,14 @@
+xiva (1.6.1-1) unstable; urgency=low
+
+  * split formatter to ping and wrap messages
+  * move works with formatters into connection_base
+  * drop unused param formatter from message_filter
+  * removed dead lock on stop python server
+  * fixed bug: insert connection into manager
+               after initialization formatters and channels 
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 17 Jan 2011 16:22:39 +0300
+
 xiva (1.5.7-3) unstable; urgency=low
 
   * send http status-line if web-socket handshake was failed 
