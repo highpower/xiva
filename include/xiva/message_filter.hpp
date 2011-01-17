@@ -34,7 +34,7 @@ public:
 	message_filter();
 	virtual ~message_filter();
 
-	virtual bool allow_message(message const &msg, std::string const &channel_data, formatter const *fmt) const = 0;
+	virtual bool allow_message(message const &msg, std::string const &channel_data) const = 0;
 
 private:
 	message_filter(message_filter const &);

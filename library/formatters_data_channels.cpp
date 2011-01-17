@@ -71,12 +71,11 @@ formatters_data_channels::allow_message(message const& msg, message_filter const
 	if (channels_data_.end() == ch_it) {
 		return false;
 	}
-	channel_data const &ch_data = ch_it->second;
 	if (NULL == filter) {
 		return true;
 	}
-	formatter const *fmt_ptr = ch_data.second ? ch_data.second->get() : NULL;
-	return filter->allow_message(msg, ch_data.first, fmt_ptr);
+	channel_data const &ch_data = ch_it->second;
+	return filter->allow_message(msg, ch_data.first);
 }
 
 formatter const*

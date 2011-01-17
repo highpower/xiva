@@ -19,9 +19,8 @@ python_message_filter::~python_message_filter() {
 }
 
 bool
-python_message_filter::allow_message(message const &msg, std::string const &channel_data, formatter const *fmt) const {
+python_message_filter::allow_message(message const &msg, std::string const &channel_data) const {
 
-	(void) fmt;
 	channel_info const &ch_info = msg.get_channel_info();
 
 	try {

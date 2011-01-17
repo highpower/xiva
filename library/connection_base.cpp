@@ -40,7 +40,7 @@ connection_base::init_formatters(formatters_factory const &f, request_impl const
 bool
 connection_base::allow_message(message const &msg, message_filter const *filter) const {
 	if (NULL == fmt_data_.get()) {
-		return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string, NULL);
+		return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string);
 	}
 	return fmt_data_->allow_message(msg, filter);
 }

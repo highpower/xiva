@@ -33,7 +33,7 @@ public:
 	python_message_filter(py::object const &impl);
 	virtual ~python_message_filter();
 
-	virtual bool allow_message(message const &msg, std::string const &channel_data, formatter const *fmt) const;
+	virtual bool allow_message(message const &msg, std::string const &channel_data) const;
 
 private:
 	python_message_filter(python_message_filter const &);

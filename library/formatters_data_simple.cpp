@@ -37,7 +37,7 @@ std::auto_ptr<formatters_data> formatters_data_simple::create(
 
 bool
 formatters_data_simple::allow_message(message const& msg, message_filter const *filter) const {
-	return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string, NULL);
+	return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string);
 }
 
 formatter const*
