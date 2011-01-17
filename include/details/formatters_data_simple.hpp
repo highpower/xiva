@@ -27,13 +27,17 @@ namespace xiva { namespace details {
 
 class formatters_data_simple : public formatters_data {
 
+protected:
+	formatters_data_simple(std::auto_ptr<formatter> fmt_ptr);
+
 public:
-	formatters_data_simple(formatters_factory const &factory, request_impl const &req, response_impl const &resp);
 	virtual ~formatters_data_simple();
+
+	static std::auto_ptr<formatters_data> create(
+		formatters_factory const &factory, request_impl const &req, response_impl const &resp);
 
 	virtual bool allow_message(message const& msg, message_filter const *filter) const;
 
-	bool has_formatter() const;
 	virtual formatter const* find_formatter(message const& msg) const;
 
 	virtual void update(message const& msg);

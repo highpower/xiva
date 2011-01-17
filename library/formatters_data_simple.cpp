@@ -11,7 +11,15 @@
 
 namespace xiva { namespace details {
 
-formatters_data_simple::formatters_data_simple(
+formatters_data_simple::formatters_data_simple(std::auto_ptr<formatter> fmt_ptr) :
+	fmt_ptr_(fmt_ptr)
+{
+}
+
+formatters_data_simple::~formatters_data_simple() {
+}
+
+std::auto_ptr<formatters_data> formatters_data_simple::create(
 	formatters_factory const &factory, request_impl const &req, response_impl const &resp)
 {
 	assert(resp.channels_data().empty());
@@ -19,21 +27,17 @@ formatters_data_simple::formatters_data_simple(
 	std::string const &fmt_id = resp.default_formatter_id();
 	if (!fmt_id.empty()) {
 		request request_adapter(req);
-		fmt_ptr_ = factory.find(fmt_id, request_adapter);
+		std::auto_ptr<formatter> fmt_ptr = factory.find(fmt_id, request_adapter);
+		if (NULL != fmt_ptr.get()) {
+			return std::auto_ptr<formatters_data>(new formatters_data_simple(fmt_ptr));
+		}
 	}
-}
-
-formatters_data_simple::~formatters_data_simple() {
+	return std::auto_ptr<formatters_data>();
 }
 
 bool
 formatters_data_simple::allow_message(message const& msg, message_filter const *filter) const {
 	return NULL == filter || filter->allow_message(msg, http_constants<char>::empty_string, NULL);
-}
-
-bool
-formatters_data_simple::has_formatter() const {
-	return NULL != fmt_ptr_.get();
 }
 
 formatter const*
