@@ -21,10 +21,11 @@
 #include <string>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/channel_id.hpp"
+#include "xiva/shared.hpp"
 #include "details/formatters_data.hpp"
 
 namespace xiva { namespace details {
@@ -43,13 +44,23 @@ public:
 	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
 
 private:
-	typedef boost::shared_ptr<formatter> formatter_ptr;
+	class formatter_holder : public shared {
+
+	public:
+		explicit formatter_holder(std::auto_ptr<formatter> fmt);
+
+		formatter const* get() const;
+
+	private:
+		std::auto_ptr<formatter> fmt_;
+	};
+	typedef boost::intrusive_ptr<formatter_holder> formatter_ptr;
+
 	typedef std::pair<std::string, formatter_ptr> channel_data;
 	typedef std::map<channel_id, channel_data> channels_data;
 
 	channels_data channels_data_;
 };
-
 
 }} // namespaces
 

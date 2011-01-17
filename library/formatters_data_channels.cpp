@@ -15,16 +15,27 @@
 
 namespace xiva { namespace details {
 
+formatters_data_channels::formatter_holder::formatter_holder(std::auto_ptr<formatter> fmt) :
+	fmt_(fmt)
+{
+}
+
+formatter const*
+formatters_data_channels::formatter_holder::get() const {
+	return fmt_.get();
+}
+
+
 formatters_data_channels::formatters_data_channels(
 	formatters_factory const &factory, request_impl const &req, response_impl const &resp)
 {
-	std::map<channel_info, std::string> ch_data = resp.channels_data();
+	std::map<channel_info, std::string> const &ch_data = resp.channels_data();
 	assert(!ch_data.empty());
 
 	request request_adapter(req);
 	std::map<std::string, formatter_ptr> formatters;
 
-	for (std::map<channel_info, std::string>::iterator it = ch_data.begin(), end = ch_data.end(); it != end; ++it) {
+	for (std::map<channel_info, std::string>::const_iterator it = ch_data.begin(), end = ch_data.end(); it != end; ++it) {
 		channel_info const &ch_info = it->first;
 		assert(!ch_info.empty());
 
@@ -38,8 +49,7 @@ formatters_data_channels::formatters_data_channels(
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_it->second);
 		}
 		else {
-			std::auto_ptr<formatter> fmt_auto_ptr = factory.find(fmt_id, request_adapter);
-			formatter_ptr fmt_ptr(fmt_auto_ptr.release());
+			formatter_ptr fmt_ptr(new formatter_holder(factory.find(fmt_id, request_adapter)));
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr);
 			formatters.insert(std::make_pair(fmt_id, fmt_ptr));
 		}
@@ -62,7 +72,11 @@ formatters_data_channels::allow_message(message const& msg, message_filter const
 		return false;
 	}
 	channel_data const &ch_data = ch_it->second;
-	return NULL == filter || filter->allow_message(msg, ch_data.first, ch_data.second.get());
+	if (NULL == filter) {
+		return true;
+	}
+	formatter const *fmt_ptr = ch_data.second ? ch_data.second->get() : NULL;
+	return filter->allow_message(msg, ch_data.first, fmt_ptr);
 }
 
 formatter const*
@@ -77,7 +91,10 @@ formatters_data_channels::find_formatter(message const &msg) const {
 		return NULL; // unreachable code
 	}
 	channel_data const &ch_data = ch_it->second;
-	return ch_data.second.get();
+	if (!ch_data.second) {
+		return NULL;
+	}
+	return ch_data.second->get();
 }
 
 void
