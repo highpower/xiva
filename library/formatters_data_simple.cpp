@@ -19,7 +19,8 @@ formatters_data_simple::formatters_data_simple(std::auto_ptr<formatter> fmt_ptr)
 formatters_data_simple::~formatters_data_simple() {
 }
 
-std::auto_ptr<formatters_data> formatters_data_simple::create(
+std::auto_ptr<formatters_data>
+formatters_data_simple::create(
 	formatters_factory const &factory, request_impl const &req, response_impl const &resp)
 {
 	assert(resp.channels_data().empty());

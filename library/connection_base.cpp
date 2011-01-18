@@ -57,7 +57,10 @@ connection_base::update_channels_stat(channels_stat_impl &ch_stat, bool add) con
 bool
 connection_base::print_message(message const &msg, std::streambuf &buf) {
 
-	formatter const *fmt_ptr = fmt_data_.get() ? fmt_data_->find_formatter(msg) : NULL;
+	formatter const *fmt_ptr = NULL;
+	if (NULL != fmt_data_.get()) {
+		fmt_ptr = fmt_data_->find_formatter(msg);
+	}
 
 	std::string const &content = msg.content();
 	if (NULL != fmt_ptr) {
