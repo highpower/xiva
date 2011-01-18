@@ -1,3 +1,10 @@
+xiva-daemon-python (1.6.2-1) unstable; urgency=low
+
+  * rename methods in python_ping_formatter
+  * set depends with xiva-python >= 1.6.2
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 18 Jan 2011 15:38:36 +0300
+
 xiva-daemon-python (1.6.1-1) unstable; urgency=low
 
   * split formatter to ping and wrap messages

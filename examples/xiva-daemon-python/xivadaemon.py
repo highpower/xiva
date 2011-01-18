@@ -113,10 +113,10 @@ class XivaListenerLog(object):
 
 
 class XivaPingFormatter(object):
-	def ping_message(self):
+	def message(self):
 		return "ping\n"
 
-	def ping_message_for_single(self):
+	def message_for_single(self):
 		return "\n"
 
 

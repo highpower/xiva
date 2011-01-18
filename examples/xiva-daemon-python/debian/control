@@ -8,7 +8,7 @@ Section: libs
 Package: xiva-daemon-python
 Section: libs
 Architecture: all
-Depends: ${shlibs:Depends}, xiva-python (>= 1.6), python
+Depends: ${shlibs:Depends}, xiva-python (>= 1.6.2), python
 Description: Simple xiva-server on python and init scripts
 
 Package: xiva-daemon-python-dev

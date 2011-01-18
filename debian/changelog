@@ -1,3 +1,9 @@
+xiva (1.6.2-1) unstable; urgency=low
+
+  * rename callback methods in python bindings
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 18 Jan 2011 15:21:07 +0300
+
 xiva (1.6.1-1) unstable; urgency=low
 
   * split formatter to ping and wrap messages
