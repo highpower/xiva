@@ -1,3 +1,10 @@
+xiva (1.6.2-2) unstable; urgency=low
+
+  * skip waiting connections if server was not started
+  * check name for failed connection
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 15 Feb 2011 18:36:35 +0300
+
 xiva (1.6.2-1) unstable; urgency=low
 
   * rename callback methods in python bindings
