@@ -227,7 +227,9 @@ connection_manager<ConnectionBase>::notify_connection_opened_failed(std::string 
 	std::pair<typename index_type::iterator, typename index_type::iterator> p = index.equal_range(id);
 	if (p.first != p.second) {
 		connection_ptr_type conn = *p.first;
-		conn->close();
+		if (conn->name() == to) {
+			conn->close();
+		}
 	}
 }
 
