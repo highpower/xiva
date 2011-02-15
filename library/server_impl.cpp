@@ -71,7 +71,7 @@ server_impl::finish() {
 void
 server_impl::stop() {
 	finish();
-	if (connection_manager_) {
+	if (connection_manager_ && started_ && !stopped_) {
 		strand_.dispatch(boost::bind(&connection_manager_base::finish, connection_manager_));
 		connection_manager_->wait_for_complete();
 	}
