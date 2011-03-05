@@ -3,7 +3,7 @@
 
 namespace xiva { namespace details {
 
-response_impl::response_impl() : content_ptr_(NULL), single_message_(false)
+response_impl::response_impl() : headers_(new headers_data_type()), content_ptr_(NULL), single_message_(false)
 {
 }
 
@@ -18,6 +18,14 @@ response_impl::swap(response_impl &other) throw () {
 	std::swap(content_ptr_, other.content_ptr_);
 	std::swap(single_message_, other.single_message_);
 	std::swap(channels_data_, other.channels_data_);
+	std::swap(headers_, other.headers_);
+}
+
+void
+response_impl::set_header(std::string const &name, std::string const &value) {
+	if (!name.empty()) {
+		headers_->insert(std::make_pair(name, value));
+	}
 }
 
 void

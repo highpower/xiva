@@ -33,6 +33,11 @@ response::formatter_by_channel(channel_info const &ch_info, std::string const &f
 }
 
 void
+response::set_header(std::string const &name, std::string const &value) {
+	impl_.set_header(name, value);
+}
+
+void
 response::single_message(bool value) {
 	impl_.single_message(value);
 }

@@ -44,6 +44,8 @@ public:
 	bool has_cookie(std::string const &name) const;
 	std::string const& cookie(std::string const &name) const;
 
+	bool is_websocket() const;
+
 private:
 	details::request_impl const &impl_;
 };

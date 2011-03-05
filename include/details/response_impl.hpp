@@ -21,8 +21,11 @@
 #include <string>
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+
 #include "xiva/shared.hpp"
 #include "xiva/channel_info.hpp"
+#include "details/functors.hpp"
 
 namespace xiva { namespace details {
 
@@ -32,6 +35,11 @@ public:
 	response_impl();
 	virtual ~response_impl();
 
+	typedef std::map<channel_info, std::string> channels_data_type;
+
+	typedef std::map<std::string, std::string, ci_less<std::string> > headers_data_type;
+	typedef boost::shared_ptr<headers_data_type> headers_ptr_type;
+
 	void swap(response_impl &impl) throw ();
 
 	std::string const& content_type() const;
@@ -40,8 +48,11 @@ public:
 	std::string const& default_formatter_id() const;
 	void formatter_id(std::string const &fmt_id);
 
-	std::map<channel_info, std::string> const& channels_data() const;
+	channels_data_type const& channels_data() const;
 	void formatter_by_channel(channel_info const &ch_info, std::string const &fmt_id);
+
+	headers_ptr_type const& headers() const;
+	void set_header(std::string const &name, std::string const &value);
 
 	bool single_message() const;
 	void single_message(bool value);
@@ -57,7 +68,8 @@ private:
 private:
 	std::string type_;
 	std::string formatter_id_;
-	std::map<channel_info, std::string> channels_data_;
+	channels_data_type channels_data_;
+	headers_ptr_type headers_;
 	std::string content_;
 	std::string const *content_ptr_;
 	bool single_message_;
@@ -84,9 +96,14 @@ response_impl::formatter_id(std::string const &fmt_id) {
 	formatter_id_.assign(fmt_id);
 }
 
-inline std::map<channel_info, std::string> const&
+inline response_impl::channels_data_type const&
 response_impl::channels_data() const {
 	return channels_data_;
+}
+
+inline response_impl::headers_ptr_type const&
+response_impl::headers() const {
+	return headers_;
 }
 
 inline bool

@@ -128,11 +128,11 @@ get_websocket_key_value(char const *s, std::string const &key) {
 	return v32;
 }
 
-void
+bool
 websocket_info::parse(request_impl const &req, bool secure) {
 
 	if (req.header(WS_STR_CONNECTION) != WS_STR_UPGRADE || req.header(WS_STR_UPGRADE) != WS_STR_WEBSOCKET) {
-		return;
+		return false;
 	}
 	empty_ = false;
 
@@ -175,6 +175,7 @@ websocket_info::parse(request_impl const &req, bool secure) {
 
 	origin_ = req.header(WS_STR_ORIGIN);
 	protocol_ = req.header(WS_STR_WEBSOCKET_PROTOCOL);
+	return true;
 }
 
 void

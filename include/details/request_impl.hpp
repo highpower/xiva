@@ -53,7 +53,10 @@ public:
 
 	bool has_cookie(std::string const &name) const;
 	std::string const& cookie(std::string const &name) const;
-	
+
+	bool is_websocket() const;
+	void set_websocket();
+
 	void swap(request_impl &other) throw ();
 
 private:
@@ -85,17 +88,19 @@ private:
 	param_map_type params_;
 	header_map_type headers_;
 	cookie_map_type cookies_;
+	bool is_websocket_;
 };
+
 
 inline
 request_impl::request_impl() :
-	params_(), headers_(), cookies_()
+	params_(), headers_(), cookies_(), is_websocket_(false)
 {
 }
 
 template <typename Iter> inline
 request_impl::request_impl(Iter begin, Iter end) :
-	params_(), headers_(), cookies_()
+	params_(), headers_(), cookies_(), is_websocket_(false)
 {
 	init(begin, end);
 }
@@ -108,6 +113,16 @@ request_impl::uri() const {
 inline std::string const&
 request_impl::body() const {
         return body_;
+}
+
+inline bool
+request_impl::is_websocket() const {
+	return is_websocket_;
+}
+
+inline void
+request_impl::set_websocket() {
+	is_websocket_ = true;
 }
 
 template <typename Iter> inline void

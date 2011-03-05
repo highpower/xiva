@@ -39,6 +39,7 @@ get(Map const &map, std::string const &name) {
 	return (map.end() != i) ? i->second : http_constants<char>::empty_string;
 }
 
+
 request_impl::~request_impl() {
 }
 
@@ -48,6 +49,7 @@ request_impl::swap(request_impl &other) throw () {
 	std::swap(params_, other.params_);
 	std::swap(headers_, other.headers_);
 	std::swap(cookies_, other.cookies_);
+	std::swap(is_websocket_, other.is_websocket_);
 }
 
 bool

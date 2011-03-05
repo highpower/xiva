@@ -185,6 +185,7 @@ template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handled(request_impl const &req, response_impl const &resp) {
 	timer_.cancel();
 	try {
+		connection_base_type::handle_response(resp);
 		std::string const *content = resp.content_ptr();
 		if (NULL != content) {
 			write_static_content(resp, *content);

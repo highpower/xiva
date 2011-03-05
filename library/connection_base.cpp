@@ -13,6 +13,7 @@
 #include "details/formatters_factory.hpp"
 #include "details/http_constants.hpp"
 #include "details/http.hpp"
+#include "details/request_impl.hpp"
 
 namespace xiva { namespace details {
 
@@ -30,13 +31,20 @@ connection_base::id() const {
 }
 
 void
-connection_base::init(request_impl const &req, bool secure) {
-	ws_info_.parse(req, secure);
+connection_base::init(request_impl &req, bool secure) {
+	if (ws_info_.parse(req, secure)) {
+		req.set_websocket();
+	}
 }
 
 void
 connection_base::init_formatters(connection_data const &cdata, request_impl const &req, response_impl const &resp) {
 	fmt_data_ = cdata.fmt_factory().create_formatters_data(req, resp);
+}
+
+void
+connection_base::handle_response(response_impl const &resp) {
+	headers_ = resp.headers();
 }
 
 bool
@@ -120,9 +128,7 @@ connection_base::print_headers(std::string const &content_type, std::streambuf &
 		stream << http_header::connection_close();
 		stream << http_header("Transfer-Encoding", "chunked");
 	}
-	stream << http_date(boost::posix_time::second_clock::universal_time());
-	stream << http_header::server();
-	stream << http_header("Content-Type", content_type.c_str());
+	print_common_headers(content_type, buf);
 	stream << http_constants<char>::endl;
 	if (is_websocket) {
 		ws_info_.write_body(stream);
@@ -142,13 +148,28 @@ connection_base::print_static_content(
 
 	stream << http_status(200);
 	stream << http_header::connection_close();
-	stream << http_date(boost::posix_time::second_clock::universal_time());
-	stream << http_header::server();
-	stream << http_header("Content-Type", content_type.c_str());
+	print_common_headers(content_type, buf);
 	stream << "Content-Length: " << content.size() << http_constants<char>::endl;
 	stream << http_constants<char>::endl;
 	stream << content;
 	return true;
+}
+
+void
+connection_base::print_common_headers(std::string const &content_type, std::streambuf &buf) const {
+
+	std::ostream stream(&buf);
+
+	stream << http_date(boost::posix_time::second_clock::universal_time());
+	stream << http_header::server();
+	stream << http_header("Content-Type", content_type.c_str());
+
+	if (headers_ && !headers_->empty()) {
+		response_impl::headers_data_type::const_iterator it = headers_->begin(), end = headers_->end();
+		for (; it != end; ++it) {
+			stream << http_header(it->first.c_str(), it->second.c_str());
+		}
+	}
 }
 
 bool

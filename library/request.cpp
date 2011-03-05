@@ -52,4 +52,9 @@ request::cookie(std::string const &name) const {
 	return impl_.cookie(name);
 }
 
+bool
+request::is_websocket() const {
+	return impl_.is_websocket();
+}
+
 } // namespace

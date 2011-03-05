@@ -29,6 +29,7 @@
 
 #include "details/guard.hpp"
 #include "details/websocket_info.hpp"
+#include "details/response_impl.hpp"
 
 namespace xiva { namespace details {
 
@@ -60,8 +61,10 @@ public:
 	boost::shared_ptr<guard> const& get_guard() const;
 
 protected:
-	void init(request_impl const &req, bool secure);
+	void init(request_impl &req, bool secure);
 	void init_formatters(connection_data const &cdata, request_impl const &req, response_impl const &resp);
+
+	void handle_response(response_impl const &resp);
 
 	bool print_message(message const &msg, std::streambuf &buf);
 
@@ -77,10 +80,13 @@ private:
 	connection_base(connection_base const &);
 	connection_base& operator = (connection_base const &);
 
+	void print_common_headers(std::string const &content_type, std::streambuf &buf) const;
+
 	std::auto_ptr<formatters_data> fmt_data_;
 	websocket_info ws_info_;
 	std::string name_;
 	boost::shared_ptr<guard> guard_;
+	response_impl::headers_ptr_type headers_;
 };
 
 inline std::string const&

@@ -38,6 +38,8 @@ public:
 
 	void formatter_by_channel(channel_info const &ch_info, std::string const &fmt_id);
 
+	void set_header(std::string const &name, std::string const &value);
+
 	void single_message(bool value);
 
 	void content(std::string const &body);
