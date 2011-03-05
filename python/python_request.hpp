@@ -44,6 +44,8 @@ public:
 	py::str cookie(std::string const &name) const;
 	bool has_cookie(std::string const &name) const;
 
+	bool is_websocket() const;
+
 private:
 	request const &req_;
 };

@@ -126,6 +126,18 @@ python_request::has_cookie(std::string const &name) const {
 	}
 }
 
+bool
+python_request::is_websocket() const {
+	try {
+		return req_.is_websocket();
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+		throw;
+	}
+}
+
 void
 register_request_class() throw () {
 
@@ -141,6 +153,8 @@ register_request_class() throw () {
 
 	reg.def("cookie", &python_request::cookie);
 	reg.def("has_cookie", &python_request::has_cookie);
+
+	reg.def("is_websocket", &python_request::is_websocket);
 }
 
 }} // namespaces
