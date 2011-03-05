@@ -1,3 +1,9 @@
+xiva-daemon-python (1.6.3-1) unstable; urgency=low
+
+  * support cross-site XmlHttpRequest
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 04 Mar 2011 19:17:22 +0300
+
 xiva-daemon-python (1.6.2-1) unstable; urgency=low
 
   * rename methods in python_ping_formatter

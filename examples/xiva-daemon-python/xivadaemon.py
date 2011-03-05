@@ -69,6 +69,8 @@ class XivaHandler(object):
 			return
 		resp.content_type('application/x-javascript; charset=utf-8')
 		resp.single_message(req.has_param("single"))
+		if not req.is_websocket():
+			resp.set_header('Access-Control-Allow-Origin', '*')
 		fmt_id = "simple"
 		resp.formatter_id(fmt_id)
 		channels = req.param("channels")
