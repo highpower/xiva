@@ -78,6 +78,17 @@ python_response::formatter_by_channel(
 }
 
 void
+python_response::set_header(std::string const &name, std::string const &value) {
+	try {
+		resp_.set_header(name, value);
+	}
+	catch (std::exception const &e) {
+		PyErr_SetString(PyExc_RuntimeError, e.what());
+		boost::python::throw_error_already_set();
+	}
+}
+
+void
 register_response_class() throw () {
 	py::class_<python_response> reg("response", py::no_init);
 	reg.def("content_type", &python_response::content_type);
@@ -85,6 +96,7 @@ register_response_class() throw () {
 	reg.def("content", &python_response::content);
 	reg.def("formatter_id", &python_response::formatter_id);
 	reg.def("formatter_by_channel", &python_response::formatter_by_channel);
+	reg.def("set_header", &python_response::set_header);
 }
 
 }} // namespaces

@@ -41,6 +41,8 @@ public:
 		std::string const &channel_name, std::string const &channel_key, std::string const &channel_data,
 	        std::string const &fmt_id);
 
+	void set_header(std::string const &name, std::string const &value);
+
 private:
 	response &resp_;
 };
