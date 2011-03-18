@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "xiva/forward.hpp"
@@ -82,7 +83,7 @@ private:
 
 	void print_common_headers(std::string const &content_type, std::streambuf &buf) const;
 
-	std::auto_ptr<formatters_data> fmt_data_;
+	boost::scoped_ptr<formatters_data> fmt_data_;
 	websocket_info ws_info_;
 	std::string name_;
 	boost::shared_ptr<guard> guard_;

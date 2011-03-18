@@ -21,12 +21,12 @@
 #include <iosfwd>
 #include <string>
 #include <cassert>
-#include <memory>
 #include <stdexcept>
 #include <algorithm>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
@@ -109,12 +109,12 @@ private:
 	ConnectionTraits &ct_;
 
 	std::string addr_;
-	std::auto_ptr<streambuf_type> in_;
+	boost::scoped_ptr<streambuf_type> in_;
 	streambuf_type out_;
 
 	asio::deadline_timer timer_;
 	boost::posix_time::ptime inactive_expires_;
-	std::auto_ptr<socket_type> socket_;
+	boost::scoped_ptr<socket_type> socket_;
 	std::list<message_ptr_type> messages_;
 
 	bool writing_message_;

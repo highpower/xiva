@@ -20,9 +20,9 @@
 
 #include <string>
 #include <map>
-#include <memory>
 
 #include <boost/intrusive_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/channel_id.hpp"
@@ -48,12 +48,13 @@ private:
 	class formatter_holder : public shared {
 
 	public:
-		explicit formatter_holder(std::auto_ptr<formatter> fmt);
+		explicit formatter_holder(formatter *fmt);
+		virtual ~formatter_holder();
 
 		formatter const* get() const;
 
 	private:
-		std::auto_ptr<formatter> fmt_;
+		boost::scoped_ptr<formatter> fmt_;
 	};
 	typedef boost::intrusive_ptr<formatter_holder> formatter_ptr;
 

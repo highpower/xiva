@@ -19,8 +19,8 @@
 #define XIVA_DETAILS_CONNECTION_DATA_HPP_INCLUDED
 
 #include <string>
-#include <memory>
 #include <boost/intrusive_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "xiva/forward.hpp"
 #include "xiva/globals.hpp"
@@ -63,7 +63,7 @@ private:
 	connection_data & operator = (connection_data const &);
 
 	server_impl &server_;
-	std::auto_ptr<formatters_factory> formatters_factory_;
+	boost::scoped_ptr<formatters_factory> formatters_factory_;
 	std::string ping_message_;
 	std::string ping_message_for_single_;
 	std::string policy_data_;

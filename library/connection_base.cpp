@@ -39,7 +39,7 @@ connection_base::init(request_impl &req, bool secure) {
 
 void
 connection_base::init_formatters(connection_data const &cdata, request_impl const &req, response_impl const &resp) {
-	fmt_data_ = cdata.fmt_factory().create_formatters_data(req, resp);
+	fmt_data_.reset(cdata.fmt_factory().create_formatters_data(req, resp).release());
 }
 
 void

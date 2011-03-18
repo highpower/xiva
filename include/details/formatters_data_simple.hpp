@@ -20,6 +20,8 @@
 
 #include <memory>
 
+#include <boost/scoped_ptr.hpp>
+
 #include "xiva/forward.hpp"
 #include "details/formatters_data.hpp"
 
@@ -28,7 +30,7 @@ namespace xiva { namespace details {
 class formatters_data_simple : public formatters_data {
 
 protected:
-	formatters_data_simple(std::auto_ptr<formatter> fmt_ptr);
+	explicit formatters_data_simple(formatter *fmt_ptr);
 
 public:
 	virtual ~formatters_data_simple();
@@ -44,7 +46,7 @@ public:
 	virtual void update_channels_stat(channels_stat_impl &ch_stat, bool add) const;
 
 private:
-	std::auto_ptr<formatter> fmt_ptr_;
+	boost::scoped_ptr<formatter> fmt_ptr_;
 };
 
 

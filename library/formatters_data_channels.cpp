@@ -15,9 +15,13 @@
 
 namespace xiva { namespace details {
 
-formatters_data_channels::formatter_holder::formatter_holder(std::auto_ptr<formatter> fmt) :
+formatters_data_channels::formatter_holder::formatter_holder(formatter *fmt) :
 	fmt_(fmt)
 {
+	assert(fmt);
+}
+
+formatters_data_channels::formatter_holder::~formatter_holder() {
 }
 
 formatter const*
@@ -49,7 +53,11 @@ formatters_data_channels::formatters_data_channels(
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_it->second);
 		}
 		else {
-			formatter_ptr fmt_ptr(new formatter_holder(factory.find(fmt_id, request_adapter)));
+			std::auto_ptr<formatter> fmt_auto_ptr = factory.find(fmt_id, request_adapter);
+			formatter_ptr fmt_ptr;
+			if (NULL != fmt_auto_ptr.get()) {
+				fmt_ptr = formatter_ptr(new formatter_holder(fmt_auto_ptr.get()));
+			}
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr);
 			formatters.insert(std::make_pair(fmt_id, fmt_ptr));
 		}

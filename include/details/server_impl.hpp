@@ -23,6 +23,7 @@
 #include <deque>
 
 #include <boost/function.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/thread/thread.hpp>
@@ -90,7 +91,7 @@ private:
 	asio::io_service io_;
 	asio::io_service::strand strand_;
 
-	std::auto_ptr<connection_data> data_;
+	boost::scoped_ptr<connection_data> data_;
 	std::vector<thread_param_type> providers_;
 
 	boost::mutex stop_mutex_;
