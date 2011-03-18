@@ -1,3 +1,10 @@
+xiva (1.6.3-2) unstable; urgency=low
+
+  * use boost::scoped_ptr instead std::auto_ptr in holders
+  * include headers with class definition on use std::auto_ptr
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Fri, 18 Mar 2011 14:33:34 +0300
+
 xiva (1.6.3-1) unstable; urgency=low
 
   * added request::is_websocket() and response::set_header(name, value)
