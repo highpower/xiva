@@ -22,6 +22,7 @@
 
 #include "xiva/config.hpp"
 #include "xiva/shared.hpp"
+#include "xiva/formatter.hpp"
 #include "xiva/forward.hpp"
 
 namespace xiva {

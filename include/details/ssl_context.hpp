@@ -22,10 +22,9 @@
 
 #include "xiva/forward.hpp"
 #include "details/asio.hpp"
+#include "details/ssl_connection_socket.hpp"
 
 namespace xiva { namespace details {
-
-class ssl_connection_socket;
 
 class ssl_context {
 

@@ -25,11 +25,10 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "xiva/forward.hpp"
-
+#include "xiva/formatter.hpp"
+#include "details/formatters_data.hpp"
 
 namespace xiva { namespace details {
-
-class formatters_data;
 
 class formatters_factory {
 
