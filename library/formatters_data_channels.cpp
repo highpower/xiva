@@ -15,20 +15,6 @@
 
 namespace xiva { namespace details {
 
-formatters_data_channels::formatter_holder::formatter_holder(formatter *fmt) :
-	fmt_(fmt)
-{
-	assert(fmt);
-}
-
-formatters_data_channels::formatter_holder::~formatter_holder() {
-}
-
-formatter const*
-formatters_data_channels::formatter_holder::get() const {
-	return fmt_.get();
-}
-
 
 formatters_data_channels::formatters_data_channels(
 	formatters_factory const &factory, request_impl const &req, response_impl const &resp)
@@ -56,7 +42,7 @@ formatters_data_channels::formatters_data_channels(
 			std::auto_ptr<formatter> fmt_auto_ptr = factory.find(fmt_id, request_adapter);
 			formatter_ptr fmt_ptr;
 			if (NULL != fmt_auto_ptr.get()) {
-				fmt_ptr = formatter_ptr(new formatter_holder(fmt_auto_ptr.get()));
+				fmt_ptr = formatter_ptr(fmt_auto_ptr.release());
 			}
 			channels_data_[ch_info] = channel_data(ch_info.data(), fmt_ptr);
 			formatters.insert(std::make_pair(fmt_id, fmt_ptr));
@@ -98,10 +84,7 @@ formatters_data_channels::find_formatter(message const &msg) const {
 		return NULL; // unreachable code
 	}
 	channel_data const &ch_data = ch_it->second;
-	if (!ch_data.second) {
-		return NULL;
-	}
-	return ch_data.second->get();
+	return ch_data.second.get();
 }
 
 void

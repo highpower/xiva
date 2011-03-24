@@ -1,3 +1,9 @@
+xiva (1.6.3-3) unstable; urgency=low
+
+  * fixed crash
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 24 Mar 2011 19:49:05 +0300
+
 xiva (1.6.3-2) unstable; urgency=low
 
   * use boost::scoped_ptr instead std::auto_ptr in holders
