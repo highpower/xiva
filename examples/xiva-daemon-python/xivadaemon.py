@@ -218,7 +218,7 @@ class UdsServer(object):
 			return 'empty id'
 		channel, sep, msg = pp[2].partition(' ')
 		if not msg or len(msg) == 0:
-			return 'empty msg for' + id
+			return 'empty msg for ' + id
 		if len(channel) > 0:
 			pp = splitChannel(channel)
 			self.__xiva_server.send_to_channel(id, msg, pp[0], pp[1], pp[2])
