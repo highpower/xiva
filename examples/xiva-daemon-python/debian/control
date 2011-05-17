@@ -11,6 +11,12 @@ Architecture: all
 Depends: ${shlibs:Depends}, xiva-python (>= 1.6.3), python
 Description: Simple xiva-server on python and init scripts
 
+Package: xiva-daemon-check
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, xiva-python, python
+Description: Checker for xiva-server on python
+
 Package: xiva-daemon-python-dev
 Section: libs
 Architecture: all

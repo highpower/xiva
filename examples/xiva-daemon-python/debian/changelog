@@ -1,3 +1,9 @@
+xiva-daemon-python (1.6.3-2) unstable; urgency=low
+
+  * added package xiva-daemon-check (xiva_check.py)
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 17 May 2011 18:00:48 +0400
+
 xiva-daemon-python (1.6.3-1) unstable; urgency=low
 
   * support cross-site XmlHttpRequest
