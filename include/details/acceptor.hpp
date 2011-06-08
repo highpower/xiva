@@ -21,6 +21,8 @@
 #include <boost/bind.hpp>
 #include <boost/intrusive_ptr.hpp>
 
+#include <time.h>
+
 #include "xiva/error.hpp"
 #include "xiva/logger.hpp"
 #include "xiva/forward.hpp"
@@ -53,6 +55,7 @@ public:
 
 	void handle_accept_first(connection_ptr_type conn, syst::error_code const &code);
 	void handle_accept_again(connection_ptr_type conn, syst::error_code const &code);
+	void handle_accept_ok(connection_ptr_type conn);
 	void process_connection(connection_ptr_type conn);
 
 	void attach_logger(boost::intrusive_ptr<logger> const &log);
@@ -66,12 +69,13 @@ private:
 	ConnectionTraits &ct_;
 	asio::ip::tcp::acceptor acceptor_;
 	boost::intrusive_ptr<logger> logger_;
+	time_t last_err_message_time_;
 };
 
 
 template <typename ConnectionTraits>
 acceptor<ConnectionTraits>::acceptor(asio::io_service &io, asio::io_service::strand &st, connection_data const &data, ConnectionTraits &ct) :
-	io_(io), strand_(st), data_(data), ct_(ct), acceptor_(io_)
+	io_(io), strand_(st), data_(data), ct_(ct), acceptor_(io_), last_err_message_time_(0)
 {
 }
 
@@ -113,10 +117,7 @@ acceptor<ConnectionTraits>::handle_accept_first(connection_ptr_type conn, syst::
 		throw error("network error occured while first accepting connection: %s",
 		            code.message().c_str());
 	}
-	//process_connection(conn);
-	acceptor_ptr_type self(this);
-	strand_.dispatch(boost::bind(&acceptor<ConnectionTraits>::process_connection, self, conn));
-	accept_again();
+	handle_accept_ok(conn);
 }
 
 template <typename ConnectionTraits> void
@@ -125,14 +126,28 @@ acceptor<ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::
 		return;
 	}
 	if (code) {
-		logger_->error("network error occured while accepting connection: %s",
-		               code.message().c_str());
+		time_t t = time(NULL);
+		if (t != last_err_message_time_ || code != syst::error_code(syst::error::no_descriptors)) {
+			logger_->error("network error occured while accepting connection: %s",
+			               code.message().c_str());
+			last_err_message_time_ = t;
+		}
+		acceptor_ptr_type self(this);
+		strand_.post(boost::bind(&acceptor<ConnectionTraits>::accept_again, self));
 	}
 	else {
-		//process_connection(conn);
-		acceptor_ptr_type self(this);
-		strand_.dispatch(boost::bind(&acceptor<ConnectionTraits>::process_connection, self, conn));
+		handle_accept_ok(conn);
 	}
+}
+
+template <typename ConnectionTraits> void
+acceptor<ConnectionTraits>::handle_accept_ok(connection_ptr_type conn) {
+	if (data_.stopping()) {
+		return;
+	}
+	//process_connection(conn);
+	acceptor_ptr_type self(this);
+	strand_.post(boost::bind(&acceptor<ConnectionTraits>::process_connection, self, conn));
 	accept_again();
 }
 

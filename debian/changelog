@@ -1,3 +1,9 @@
+xiva (1.6.3-4) unstable; urgency=low
+
+  * fixed handling if error is 'Too many open files'
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Wed, 08 Jun 2011 16:29:13 +0400
+
 xiva (1.6.3-3) unstable; urgency=low
 
   * fixed crash
