@@ -75,14 +75,14 @@ message_queue::active() const {
 void
 message_queue::send(std::string const &to, boost::shared_ptr<message> const &m) {
 	if (push_message(to, m)) {
-		strand_.dispatch(boost::bind(&message_queue::pop_by_name, this));
+		strand_.post(boost::bind(&message_queue::pop_by_name, this));
 	}
 }
 
 void
 message_queue::send(globals::connection_id to, boost::shared_ptr<message> const &m) {
 	if (push_message(to, m)) {
-		strand_.dispatch(boost::bind(&message_queue::pop_by_id, this));
+		strand_.post(boost::bind(&message_queue::pop_by_id, this));
 	}
 }
 
