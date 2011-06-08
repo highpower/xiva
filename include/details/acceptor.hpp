@@ -127,7 +127,7 @@ acceptor<ConnectionTraits>::handle_accept_again(connection_ptr_type conn, syst::
 	}
 	if (code) {
 		time_t t = time(NULL);
-		if (t != last_err_message_time_ || code != syst::error_code(syst::error::no_descriptors)) {
+		if (t != last_err_message_time_ || asio::error::no_descriptors != code) {
 			logger_->error("network error occured while accepting connection: %s",
 			               code.message().c_str());
 			last_err_message_time_ = t;
