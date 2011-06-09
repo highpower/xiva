@@ -1,3 +1,10 @@
+xiva-daemon-python (1.6.3-3) unstable; urgency=low
+
+  * fixed xiva_check.py (threaded work with unix socket)
+  * fixed conf examples (ulimit -n)
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Thu, 09 Jun 2011 12:22:02 +0400
+
 xiva-daemon-python (1.6.3-2) unstable; urgency=low
 
   * added package xiva-daemon-check (xiva_check.py)
