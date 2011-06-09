@@ -1,4 +1,4 @@
 COREDIR=/var/tmp/core-files
 ulimit -s 1024
 ulimit -c unlimited
-ulimit -n 20480
+ulimit -n 100000
