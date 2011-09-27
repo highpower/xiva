@@ -213,7 +213,7 @@ websocket_info::parse_sec_key(request_impl const &req) {
 	BUF_MEM *bptr = NULL;
         BIO_get_mem_ptr(b64, &bptr);
 
-	if (NULL == bptr || NULL == bptr->data || bptr->length != BASE64_LENGTH(SHA_OUTPUT_SIZE)) { 
+	if (NULL == bptr || NULL == bptr->data || bptr->length != (BASE64_LENGTH(SHA_OUTPUT_SIZE) + 1)) { 
 		throw std::runtime_error("can not create accept data in websocket request");
 	}
 	sec_data_.assign((const char*)bptr->data, bptr->length - 1);

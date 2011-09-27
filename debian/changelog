@@ -1,3 +1,9 @@
+xiva (1.6.3-6) unstable; urgency=low
+
+  * fixed creating WS Accept header value
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Tue, 27 Sep 2011 19:36:47 +0400
+
 xiva (1.6.3-5) unstable; urgency=low
 
   * support sec websocket protocols (ver: 7,8)

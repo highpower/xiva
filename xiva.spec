@@ -6,7 +6,7 @@
 Summary:	Xiva (acronym for HTTP Extended EVent Automata) is a simple HTTP server.
 Name:		xiva
 Version:	1.6.3
-Release:	5%{?dist}
+Release:	6%{?dist}
 
 License:	Yandex License
 Group:		System Environment/Libraries
