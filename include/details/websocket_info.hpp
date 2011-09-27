@@ -35,14 +35,19 @@ public:
 
 	bool parse(request_impl const &req, bool secure);
 
-	static void write_message(std::ostream &stream, std::string const &msg);
+	void write_message(std::ostream &stream, std::string const &msg) const;
 
 	void write_headers(std::ostream &stream) const;
 	void write_body(std::ostream &stream) const;
 
+	bool write_close(std::ostream &stream) const;
+
 private:
 	websocket_info(websocket_info const &);
 	websocket_info& operator = (websocket_info const &);
+
+	void parse_sec_key(request_impl const &req);
+	void parse_sec_keys(request_impl const &req);
 
 private:
 	std::string origin_;
@@ -50,6 +55,7 @@ private:
 	std::string location_;
 	std::string sec_data_;
 	bool empty_;
+	bool proto_78_;
 };
 
 inline bool

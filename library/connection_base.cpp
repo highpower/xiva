@@ -194,11 +194,11 @@ connection_base::print_message_content(std::string const &content, std::streambu
 bool
 connection_base::print_last_message(std::streambuf &buf) const {
 
-	if (!ws_info_.empty()) {
-		return false;
-	}
-
 	std::ostream stream(&buf);
+
+	if (!ws_info_.empty()) {
+		return ws_info_.write_close(stream);
+	}
 
 	stream << 0 << http_constants<char>::endl;
 	return true;
