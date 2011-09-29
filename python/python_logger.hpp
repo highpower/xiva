@@ -58,6 +58,10 @@ private:
 
 	py::object impl_;
 	queue_type items_;
+
+	bool enabled_debug_;
+	bool enabled_info_;
+	bool enabled_error_;
 };
 
 }} // namespaces

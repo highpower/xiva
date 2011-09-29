@@ -8,13 +8,25 @@
 
 namespace xiva { namespace python {
 
-static char const *INFO = "info";
-static char const *DEBUG = "debug";
-static char const *ERROR = "error";
+static char const INFO[] = "info";
+static char const DEBUG[] = "debug";
+static char const ERROR[] = "error";
+static char const IS_ENABLED_FOR[] = "isEnabledFor";
+
+static const int LOGLEVEL_DEBUG = 10;
+static const int LOGLEVEL_INFO = 20;
+static const int LOGLEVEL_ERROR = 40;
 
 python_logger::python_logger(py::object const &impl) :
-	impl_(impl)
+	impl_(impl), enabled_debug_(true), enabled_info_(true), enabled_error_(true)
 {
+	try {
+		enabled_debug_ = py::call_method<bool>(impl_.ptr(), IS_ENABLED_FOR, LOGLEVEL_DEBUG);
+		enabled_info_ = py::call_method<bool>(impl_.ptr(), IS_ENABLED_FOR, LOGLEVEL_INFO);
+		enabled_error_ = py::call_method<bool>(impl_.ptr(), IS_ENABLED_FOR, LOGLEVEL_ERROR);
+	}
+	catch (...) {
+	}
 }
 
 python_logger::~python_logger() {
@@ -53,31 +65,37 @@ python_logger::thread_func() {
 void
 python_logger::info(char const *format, ...) {
 
-	va_list args;
-	va_start(args, format);
+	if (enabled_info_) {
+		va_list args;
+		va_start(args, format);
 
-	invoke(*INFO, format, args);
-	va_end(args);
+		invoke(*INFO, format, args);
+		va_end(args);
+	}
 }
 
 void
 python_logger::debug(char const *format, ...) {
 
-	va_list args;
-	va_start(args, format);
+	if (enabled_debug_) {
+		va_list args;
+		va_start(args, format);
 
-	invoke(*DEBUG, format, args);
-	va_end(args);
+		invoke(*DEBUG, format, args);
+		va_end(args);
+	}
 }
 
 void
 python_logger::error(char const *format, ...) {
 
-	va_list args;
-	va_start(args, format);
+	if (enabled_error_) {
+		va_list args;
+		va_start(args, format);
 
-	invoke(*ERROR, format, args);
-	va_end(args);
+		invoke(*ERROR, format, args);
+		va_end(args);
+	}
 }
 
 void
