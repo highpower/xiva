@@ -692,8 +692,14 @@ connection_impl<ConnectionTraits>::setup_inactive_timeout() {
 template <typename ConnectionTraits> void
 connection_impl<ConnectionTraits>::handle_error(syst::error_code const &code) {
 	if (code != asio::error::operation_aborted && socket().raw_sock().is_open()) {
-		data_.log()->error("error occured with connection[%lu] from %s: %s",
-			connection_base_type::id(), address(), code.message().c_str());
+		if (code == asio::error::eof) {
+			data_.log()->info("end of stream for connection[%lu] from %s",
+				connection_base_type::id(), address());
+		}
+		else {
+			data_.log()->error("error occured with connection[%lu] from %s: %s",
+				connection_base_type::id(), address(), code.message().c_str());
+		}
 	}
 	cleanup();
 }
