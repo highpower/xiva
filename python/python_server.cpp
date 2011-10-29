@@ -24,7 +24,7 @@
 namespace xiva { namespace python {
 
 python_server::python_server() :
-	impl_(new details::server_impl()) 
+	impl_(new details::server_impl())
 {
 	signal(SIGPIPE, SIG_IGN);
 }

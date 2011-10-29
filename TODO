@@ -1,4 +1,4 @@
-* Replace std::ostream construction in connection_impl with copying to 
+* Replace std::ostream construction in connection_impl with copying to
   streambuf_iterator<char>
 
 * Fix http error response to send text representing error as well http

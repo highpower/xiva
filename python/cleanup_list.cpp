@@ -78,7 +78,7 @@ cleanup_list::thread_func() {
 
 			objects_type to_destroy_now;
 			to_destroy_now.swap(to_destroy_);
-		} 
+		}
 		catch (std::exception const &e) {
 			(void) e;
 		}
@@ -93,6 +93,6 @@ cleanup_list_auto::cleanup_list_auto(cleanup_list &cleanup) : cleanup_(cleanup) 
 cleanup_list_auto::~cleanup_list_auto() {
 	cleanup_.stop();
 }
-		
+
 
 }} // namespaces

@@ -89,7 +89,7 @@ struct request_helper {
 	check_read_body_ahead(range<Iter> const &line) {
 
 		typedef typename std::iterator_traits<Iter>::value_type char_type;
-		
+
 		enum { SEC_WEBSOCKET_BODY_SIZE = 8 };
 
 		range<Iter> head, tail;

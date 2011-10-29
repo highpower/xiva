@@ -37,7 +37,7 @@ configure-stamp: autogen-stamp
 
 build: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 	$(MAKE) release=1
 	$(MAKE) check
@@ -48,7 +48,7 @@ clean:
 	dh_testroot
 	rm -f configure-stamp build-stamp
 	-$(MAKE) distclean
-	dh_clean 
+	dh_clean
 
 tests: build
 	dh_testdir
@@ -57,7 +57,7 @@ tests: build
 install: build tests
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
@@ -65,7 +65,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_movefiles
-	dh_installchangelogs 
+	dh_installchangelogs
 	dh_installinit --no-start
 	dh_link
 #	dh_strip

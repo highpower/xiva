@@ -2,16 +2,16 @@ var Xiva = {};
 
 Xiva.Transport = function(onopen, onmessage, onclose) {
   this.ws = null;
-  
+
   // this.ws_url = window.location.hostname.toString() + ':8881/?id=chat';
   this.ws_url = 'xiva.opensource.yandex.net/?id=chat';
-  
+
   this.onopen = onopen;
   this.onmessage = onmessage;
   this.onclose = onclose;
-  
+
   this.connectionError = 0;
-    
+
   window.WEB_SOCKET_SWF_LOCATION = "web-socket-js/WebSocketMain.swf";
   window.WEB_SOCKET_DEBUG = true;
 };
@@ -26,7 +26,7 @@ Xiva.Transport.prototype = {
       this.onopen();
     }
   },
-  
+
   initWSTransport: function() {
     // Connect to Web Socket.
     // Change host/port here to your own Web Socket server.
@@ -37,10 +37,10 @@ Xiva.Transport.prototype = {
     this.ws.onmessage = this.onmessage;
     this.ws.onclose = this.onclose;
   },
-  
+
   initXHRTransport: function() {
     var self = this;
-        
+
     // A very simple JSON-P transport. Won't care about message ordering, stalled connections, or whatever.
     $.ajax({
       url: 'http://' + this.ws_url + '&single',
@@ -63,7 +63,7 @@ Xiva.Transport.prototype = {
       }
     });
   },
-  
+
   postMessage: function(message) {
     $.ajax({
       type: 'POST',
@@ -71,7 +71,7 @@ Xiva.Transport.prototype = {
       data: message
     });
   },
-  
+
   // Encodes a string into a sequence of \uXXXX codes
   encodeMessage: function(str) {
     var encodedStr = '';
@@ -83,7 +83,7 @@ Xiva.Transport.prototype = {
 
       return chr;
     }
-    
+
     for (var i=0; i<str.length; i++) {
       var chr = '\\u';
 
@@ -101,7 +101,7 @@ Xiva.Transport.prototype = {
     if (str.indexOf('\\u') == -1) {
       return str;
     }
-    
+
     var decodedStr = '';
 
     for (var i=0; i<str.length; i++) {

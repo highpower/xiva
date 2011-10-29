@@ -12,7 +12,7 @@
 namespace xiva { namespace python {
 
 python_handler::python_handler(py::object const &impl) :
-	impl_(impl) 
+	impl_(impl)
 {
 }
 
@@ -30,7 +30,7 @@ python_handler::has_enough_data(request const &req) const {
 	try {
 		python_request request_adapter(req);
 		interpreter_lock lock;
-	
+
 		return py::call_method<bool>(impl_.ptr(), "has_enough_data", request_adapter);
 	}
 	catch (std::exception const &) {
@@ -47,7 +47,7 @@ python_handler::receiver(request const &req) const {
 	try {
 		python_request request_adapter(req);
 		interpreter_lock lock;
-	
+
 		return py::call_method<std::string>(impl_.ptr(), "receiver", request_adapter);
 	}
 	catch (std::exception const &) {

@@ -51,7 +51,7 @@ private:
 
 template <typename Iter> inline
 line_reader<Iter>::line_reader(Iter begin, Iter end) :
-	begin_(begin), end_(end), multiline_(false) 
+	begin_(begin), end_(end), multiline_(false)
 {
 }
 

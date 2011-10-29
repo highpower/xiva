@@ -50,10 +50,10 @@ handler_invoker::invoke_handler(handler_invoker::connection_ptr_type conn, reque
 	request request_adapter(req);
 	if (!handler_->has_enough_data(request_adapter)) {
 		throw http_error(http_error::forbidden);
-	}	
+	}
 	std::string receiver = handler_->receiver(request_adapter);
 	conn->name(receiver);
-	
+
 	response response_adapter(resp);
 	handler_->handle_response(request_adapter, response_adapter);
 	conn->handled(req, resp);

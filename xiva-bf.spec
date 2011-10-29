@@ -137,5 +137,5 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Thu Oct 29 2009 Arkady L. Shane <ashejn@yandex-team.ru> 
+* Thu Oct 29 2009 Arkady L. Shane <ashejn@yandex-team.ru>
 - initial yandex's rpm build

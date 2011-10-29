@@ -67,7 +67,7 @@ http_header::connection_keep_alive() {
 }
 
 http_status::http_status(unsigned short status) :
-	code_(status) 
+	code_(status)
 {
 }
 

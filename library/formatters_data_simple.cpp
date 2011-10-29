@@ -57,7 +57,7 @@ formatters_data_simple::update(message const& msg) {
 
 void
 formatters_data_simple::update_channels_stat(channels_stat_impl &ch_stat, bool add) const {
-	(void) ch_stat;	
+	(void) ch_stat;
 	(void) add;
 }
 

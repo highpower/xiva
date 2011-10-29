@@ -8,13 +8,13 @@ case $1 in
             echo "WARN: lighttpd config is not valid"
         fi
         ;;
-    
+
     abort-upgrade|abort-remove|abort-deconfigure)
         ;;
-    
+
     *)
         echo "postinst called with unknown argument '$1'" >&2
         ;;
 esac
-    
+
 # vim: set ts=4 sw=4 et:

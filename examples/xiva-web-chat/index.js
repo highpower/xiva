@@ -1,6 +1,6 @@
 $(document).ready(function() {
   var inited = false;
-  
+
   // Blocks
   var bLogin = $('.b-login');
   var bUserList = $('.b-userlist');
@@ -17,7 +17,7 @@ $(document).ready(function() {
   var userLinks = $('a.b-userlist__user', bUserList);
   var roomLinks = $('.b-rooms__room a', bRooms);
   var messageArea = $('.b-writemessage__area', bMessageArea);
-  
+
   var usernames = {};
   var currentName, currentRoom;
 
@@ -38,15 +38,15 @@ $(document).ready(function() {
       transport.initSocket();
     }(transport), 1000);
   };
-  
+
   var transport = new Xiva.Transport(onopen, onmessage, onclose);
-  
+
   transport.initSocket();
 
   // UI
   loginButton.click(login);
   loginForm.submit(login);
-  
+
   var createTextareaListener = function() {
     messageArea = $('.b-writemessage__area', bMessageArea);
 
@@ -70,7 +70,7 @@ $(document).ready(function() {
       }
     });
   };
-  
+
   createTextareaListener();
   userLinks.live('click', function(e) {
     var target = $(this);
@@ -83,25 +83,25 @@ $(document).ready(function() {
 
   roomLinks.live('click', function(e) {
     var newRoom = this.id;
-    
+
     $('#messages_' + currentRoom).addClass('g-hidden');
     $('#messages_' + newRoom).removeClass('g-hidden');
-    
+
     var currentRoomLink = $('#' + currentRoom);
     var newRoomLink = $('#' + newRoom);
 
     var currentRoomElement = currentRoomLink.parent();
     var newRoomElement = newRoomLink.parent();
-    
+
     var currentRoomLabel = currentRoomLink.html();
     var newRoomLabel = newRoomLink.html();
-    
+
     currentRoomElement.removeClass('b-rooms__room_active');
     newRoomElement.addClass('b-rooms__room_active');
-    
+
     currentRoomElement.html('<a id="' + currentRoom + '" class="b-pseudo-link" href="#">' + currentRoomLabel + '</a>');
     newRoomElement.html('<span id="' + newRoom + '">' + newRoomLabel + '</a>');
-    
+
     $('header h1').html('Xiva Chatroom &mdash; ' + newRoomLabel);
 
     // Switch rooms
@@ -112,13 +112,13 @@ $(document).ready(function() {
 
     return false;
   });
-  
+
   function login(e) {
     if (inited === false) return false;
 
     var loginName = $('#username');
     var loginRoom = $('#roomname :selected');
-    
+
     var loginFieldContainer = loginName.parent();
     var loginErrorContainer = loginFieldContainer.find('.b-login__field__error');
 
@@ -137,34 +137,34 @@ $(document).ready(function() {
 
     currentName = transport.escapeHTML(loginName.val());
     currentRoom = loginRoom.attr('name');
-    
-    // Show chat window    
+
+    // Show chat window
     bChatLogin.addClass('g-hidden');
     bChatChat.removeClass('g-hidden').slideDown(1000, function() {
       $(this).height('auto');
     });
-    
+
     // Show current chat room
     $('#messages_' + currentRoom).removeClass('g-hidden');
     $('header h1').html('Xiva Chatroom &mdash; ' + $('#' + currentRoom).html());
-    
+
     // Make chosen room active
     var roomElement = $('#' + currentRoom).parent();
-    
+
     roomElement.addClass('b-rooms__room_active');
     roomElement.html('<span id="' + currentRoom + '">' + loginRoom.parent().val() + '</a>');
-    
+
     // Append user to the userlist
     bUserList.removeClass('g-hidden');
 
     // Send 'login' event
     postMessage("login", {});
-    
+
     messageArea.focus();
 
     return false;
   }
-  
+
   function postMessage(type, params) {
     var messageObj = {
       username: transport.encodeMessage(currentName),
@@ -173,15 +173,15 @@ $(document).ready(function() {
       text: (type == "message") ? transport.encodeMessage(messageArea.val()) : '',
       params: params
     };
-    
+
     var message = 'cmd=' + 'msg chat/room_1 ' + JSON.stringify(messageObj);
-    
+
     transport.postMessage(message);
   }
 
   function receiveMessage(messageObj) {
     if (messageObj === "ping\n") return;
-    
+
     messageObj = JSON.parse(messageObj);
 
     var username = transport.decodeMessage(messageObj.username),
@@ -199,23 +199,23 @@ $(document).ready(function() {
                         '</div>' +
                         '<div class="b-message__body">' + transport.escapeHTML(text) + '</div>' +
                       '</div>');
-    
+
       if (username == currentName) {
         message.addClass('b-message_you');
       }
-    
+
       // Add message to the room it was sent to
       $('#messages_' + room).append(message);
 
       // Animate new message
       message.animate({ opacity: 1 }, 1000);
       bMessages.scrollTop(bMessages.attr("scrollHeight"));
-    
+
       // Update unread count if the user is not in the current room
       if (room != currentRoom) {
         var roomElement = $('#' + room).parent();
         var roomUnread = roomElement.find('.b-rooms__room__unread');
-      
+
         if (roomUnread.length > 0) {
           roomUnread.html(parseInt(roomUnread.html(), 10) + 1);
         } else {
@@ -269,7 +269,7 @@ $(document).ready(function() {
     username = $.trim(username);
 
     if (username == '') return false;
-    
+
     var isDuplicate = false;
 
     for (var i in usernames) {
@@ -297,7 +297,7 @@ $(document).ready(function() {
     }
     return a;
   }
-  
+
   function formatDate(date) {
     return date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
   }

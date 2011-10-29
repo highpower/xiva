@@ -57,7 +57,7 @@ public:
 private:
 	threaded_handler_invoker(threaded_handler_invoker const &);
 	threaded_handler_invoker& operator = (threaded_handler_invoker const &);
-	
+
 	typedef boost::intrusive_ptr<request_holder> holder_ptr_type;
 	typedef std::pair<holder_ptr_type, connection_ptr_type> item_type;
 	typedef threaded_queue<item_type> queue_type;

@@ -52,7 +52,7 @@ private:
 	typedef std::pair<char, std::string> queue_item_type;
 	typedef details::threaded_queue<queue_item_type> queue_type;
 	typedef queue_type::raw_items_type items_type;
-	
+
 	void process_items(items_type const &items) const;
 	void invoke(char level, char const *format, va_list args);
 

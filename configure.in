@@ -76,8 +76,8 @@ AC_SUBST(LIBLTDL)
 
 AC_CHECK_LIB([ssl], [main])
 
-AC_CONFIG_FILES([Makefile include/Makefile include/xiva/Makefile 
-	include/details/Makefile library/Makefile stdext/Makefile 
+AC_CONFIG_FILES([Makefile include/Makefile include/xiva/Makefile
+	include/details/Makefile library/Makefile stdext/Makefile
 	daemon/Makefile python/Makefile tests/Makefile utils/Makefile])
 
 AC_OUTPUT

@@ -119,7 +119,7 @@ xiva (0.4.1-3) unstable; urgency=low
 
   * Free list allocator was removed due to its poor performance. All
     production general-purpose allocators I am aware of (tc_malloc,
-    jemalloc and ptmalloc3) perform faster (boost::fast_pool_allocator 
+    jemalloc and ptmalloc3) perform faster (boost::fast_pool_allocator
     sucks as well!).
 
   * m4 scripts was improved to work on various platforms
@@ -135,13 +135,13 @@ xiva (0.4.1-2) unstable; urgency=low
 xiva (0.4.1-1) unstable; urgency=low
 
   * Architecture was changed sufficiently: particurarly, levelization of
-    physical dependencies was performed as well as many minor changes. 
+    physical dependencies was performed as well as many minor changes.
 
   * Python binding was implemented.
 
   * Unit tests are implemented now with boost::test instead of cppunit.
 
-  * Notifications when connection opens or closes were implemented and 
+  * Notifications when connection opens or closes were implemented and
     tested.
 
   * Node-based STL containers now use single-threaded free-list allocator.
@@ -150,7 +150,7 @@ xiva (0.4.1-1) unstable; urgency=low
 
 xiva (0.3.1-2) unstable; urgency=low
 
-  * Implementation of connection manager was replaced with one based on 
+  * Implementation of connection manager was replaced with one based on
     boost::multi_index to support multiple connection from one user.
 
   * Small refactoring was done to ensure that every translation unit

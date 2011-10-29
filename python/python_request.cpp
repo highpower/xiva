@@ -10,7 +10,7 @@
 namespace xiva { namespace python {
 
 python_request::python_request(request const &req) :
-	req_(req) 
+	req_(req)
 {
 }
 

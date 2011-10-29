@@ -55,7 +55,7 @@ public:
 
 	boost::shared_ptr<channels_stat_impl> const& init_channels_stat();
 
-protected:	
+protected:
 	message_filter const* msg_filter() const;
 
 	void fire_connection_opened(connection_base const &conn);

@@ -41,7 +41,7 @@ public:
 	virtual void handled_errors(
 		details::request_impl const &req, details::response_impl const &resp,
 		unsigned short http_code, std::string const &error_msg);
-					
+
 
 private:
 	mock_connection(mock_connection const &);
