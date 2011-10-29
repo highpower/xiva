@@ -25,4 +25,4 @@ libxiva_loader_la_SOURCES = dynamic_loader.cpp
 AM_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/config \
 	@INCLTDL@ @BOOST_CPPFLAGS@
 AM_CXXFLAGS = -pthread
-AM_LDFLAGS = @BOOST_LDFLAGS@ 
+AM_LDFLAGS = @BOOST_LDFLAGS@

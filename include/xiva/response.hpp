@@ -48,7 +48,7 @@ public:
 private:
 	response(response const &);
 	response& operator = (response const &);
-	
+
 private:
 	details::response_impl &impl_;
 };

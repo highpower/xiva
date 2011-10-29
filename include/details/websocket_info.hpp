@@ -29,7 +29,7 @@ class websocket_info {
 
 public:
 	websocket_info();
-	
+
 	bool empty() const;
 	bool valid() const;
 

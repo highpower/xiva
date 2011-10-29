@@ -69,7 +69,7 @@ pointer_access<Base, Type*>::operator -> () const {
 
 template <typename Type, typename Traits> inline
 resource<Type, Traits>::resource() :
-	value_(Traits::default_value()), traits_() 
+	value_(Traits::default_value()), traits_()
 {
 }
 

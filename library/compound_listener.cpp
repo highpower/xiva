@@ -121,7 +121,7 @@ compound_listener::notify_connection_closed(std::string const &to, globals::conn
 void
 compound_listener::notify_disconnected(std::string const &to) {
 	try {
-		std::for_each(listeners_.begin(), listeners_.end(), 
+		std::for_each(listeners_.begin(), listeners_.end(),
 			boost::bind(&connection_listener::disconnected, _1, boost::cref(to)));
 	}
 	catch (std::exception const &e) {

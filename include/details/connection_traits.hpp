@@ -40,7 +40,7 @@ public:
 	typedef connection_manager<connection_type> connection_manager_type;
 	typedef boost::intrusive_ptr<HandlerInvoker> handler_invoker_ptr_type;
 	typedef boost::intrusive_ptr<connection_manager_type> connection_manager_ptr_type;
-	
+
 	connection_traits(connection_manager_ptr_type cm, handler_invoker_ptr_type cv);
 	virtual ~connection_traits();
 
@@ -49,7 +49,7 @@ public:
 
 	HandlerInvoker& handler_invoker();
 	connection_manager_type& manager();
-	
+
 private:
 	connection_traits(connection_traits const &);
 	connection_traits& operator = (connection_traits const &);

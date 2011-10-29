@@ -99,7 +99,7 @@ is_ci_equal(R1 const &var, R2 const &target) {
 	//BOOST_STATIC_ASSERT((boost::is_same<typename R1::value_type, typename R2::value_type>::value));
 	BOOST_STATIC_ASSERT((sizeof(typename R1::value_type) == sizeof(typename R2::value_type)));
 	if (var.size() == target.size()) {
-		return std::equal(var.begin(), var.end(), target.begin(), 
+		return std::equal(var.begin(), var.end(), target.begin(),
 			ci_equal<typename R1::value_type>());
 	}
 	return false;

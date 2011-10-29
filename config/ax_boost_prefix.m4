@@ -20,7 +20,7 @@ AC_DEFUN([_AX_CHECK_BOOST_IN],
 AC_DEFUN([AX_BOOST_PREFIX],
 [
 	ax_boost_prefix=""
-	AC_ARG_WITH([boost-prefix], 
+	AC_ARG_WITH([boost-prefix],
 		AS_HELP_STRING(--with-boost-prefix, specifies boost installation),
 	[
 		if test "f$withval" != "f"; then
@@ -34,7 +34,7 @@ AC_DEFUN([AX_BOOST_PREFIX],
 			_AX_CHECK_BOOST_IN([$i], [ax_boost_prefix="$i"], [])
 		done;
 	fi
-	
+
 	if test "f$ax_boost_prefix" != "f"; then
 		AC_SUBST([BOOST_LDFLAGS], ["-I$ax_boost_prefix/lib"])
 		AC_SUBST([BOOST_CPPFLAGS], ["-I$ax_boost_prefix/include"])

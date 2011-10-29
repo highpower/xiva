@@ -40,7 +40,7 @@ public:
 	request_impl();
 	template <typename Iter> request_impl(Iter begin, Iter end);
 	virtual ~request_impl();
-	
+
 	std::string const& uri() const;
 	std::string const& body() const;
 

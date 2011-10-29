@@ -24,7 +24,7 @@
 
 namespace xiva {
 
-/** 
+/**
  * This is the xiva-specific exception.
  */
 class XIVA_API error : public std::exception {
@@ -35,8 +35,8 @@ public:
 
 	/** destructor */
 	virtual ~error() throw ();
-	
-	/** inherited from std::exception 
+
+	/** inherited from std::exception
 	 * @return textual description of error.
 	 */
 	virtual char const* what() const throw ();

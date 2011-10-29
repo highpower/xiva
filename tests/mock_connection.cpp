@@ -53,6 +53,6 @@ mock_connection::handled_errors(
 	(void) http_code;
 	(void) error_msg;
 }
-				
+
 
 }} // namespaces

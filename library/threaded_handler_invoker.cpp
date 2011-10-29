@@ -27,7 +27,7 @@ class request_holder : public threaded_shared {
 public:
 	request_holder();
 	virtual ~request_holder();
-	
+
 	request_impl& request();
 	response_impl& response();
 	void attach(request_impl &req, response_impl &resp);
@@ -35,7 +35,7 @@ public:
 	void set_error_msg(std::string const &msg);
 	void set_error_msg(char const *msg);
 	void set_http_error_code(unsigned short code);
-	
+
 	void handled(threaded_connection &conn) const;
 
 private:
@@ -48,7 +48,7 @@ private:
 static std::string const FINISH_ERROR_MSG("finish");
 static std::string const UNKNOWN_ERROR_MSG("unknown exception while invoking handler");
 
-threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data) : 
+threaded_handler_invoker::threaded_handler_invoker(asio::io_service::strand &st, connection_data const &data) :
 	strand_(st)
 {
 	boost::intrusive_ptr<response_handler> handler = data.handler();
@@ -139,7 +139,7 @@ threaded_handler_invoker::invoke_handler(threaded_handler_invoker::connection_pt
 	if (!handler_->has_enough_data(r)) {
 		throw http_error(http_error::forbidden);
 	}
-	
+
 	holder_ptr_type holder(new request_holder());
 	holder->attach(req, resp);
 	if (!input_queue_.push(item_type(holder, conn))) {

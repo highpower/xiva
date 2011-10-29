@@ -50,7 +50,7 @@ server_impl::~server_impl() {
 	}
 }
 
-void 
+void
 server_impl::finish() {
 	data_->stop();
 	if (acceptor_) {
@@ -244,7 +244,7 @@ server_impl::attach_response_handler(boost::intrusive_ptr<response_handler> cons
 void
 server_impl::attach_ping_formatter(boost::intrusive_ptr<ping_formatter> const &f) {
 	assert(f);
-	ping_formatter_ = f;	
+	ping_formatter_ = f;
 }
 
 void

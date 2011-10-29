@@ -8,7 +8,7 @@ xiva_tests_SOURCES = main.cpp mock_connection.cpp mock_listener.cpp \
 xiva_tests_LDADD = \
 	${top_srcdir}/library/libxiva.la \
 	${top_srcdir}/library/libxiva-loader.la
-	
+
 AM_CXXFLAGS = -pthread
 AM_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/config \
 	-I${top_srcdir}/daemon @BOOST_CPPFLAGS@
@@ -26,5 +26,5 @@ noinst_DATA = test.conf
 
 noinst_HEADERS = mock_connection.hpp mock_listener.hpp mock_logger.hpp \
 	test_utils.hpp
-	
+
 TESTS = xiva-tests

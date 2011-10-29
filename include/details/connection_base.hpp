@@ -94,7 +94,7 @@ inline std::string const&
 connection_base::name() const {
 	return name_;
 }
-	
+
 inline void
 connection_base::name(std::string const &name) {
 	name_.assign(name);
@@ -105,7 +105,7 @@ connection_base::get_guard() const {
 	return guard_;
 }
 
-			
+
 }} // namespaces
 
 #endif // XIVA_DETAILS_CONNECTION_BASE_HPP_INCLUDED

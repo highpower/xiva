@@ -80,7 +80,7 @@ public:
 	virtual void handled_errors(
 		request_impl const &req, response_impl const &resp,
 		unsigned short http_code, std::string const &error_msg);
-					
+
 private:
 	typedef std::allocator<char> allocator_type;
 	typedef asio::basic_streambuf<allocator_type> streambuf_type;
@@ -158,7 +158,7 @@ connection_impl<ConnectionTraits>::start() {
 		asio::ip::address addr = endpoint.address();
 		addr_ = addr.to_string();
 		handshake();
-	} 
+	}
 	catch (std::exception const &e) {
 		handle_exception(e);
 	}
@@ -287,18 +287,18 @@ connection_impl<ConnectionTraits>::handle_read_request(syst::error_code const &c
 
 			if (sz < static_cast<std::size_t>(policy_file_request_ascz_size) ||
 				!std::equal(policy_str, policy_str + policy_file_request_ascz_size, begin, ci_equal<char>())) {
-				
+
 				throw std::runtime_error("invalid policy request");
 			}
 			is_policy_ = true;
 			write_policy_data();
-		}		
+		}
 		else {
 			parsing_request = true;
 			request_impl req(begin, end);
 			connection_base_type::init(req, ct_.secure());
 			parsing_request = false;
-			
+
 			response_impl resp;
 			boost::intrusive_ptr<connection_base_type> self(this);
 			ct_.handler_invoker().invoke_handler(self, req, resp);
@@ -440,7 +440,7 @@ connection_impl<ConnectionTraits>::read_request() {
 
 	try {
 		connection_impl_ptr_type self(this);
-		asio::async_read_until(socket().native_sock(), *in_, request_checker(data_.max_request_size()), 
+		asio::async_read_until(socket().native_sock(), *in_, request_checker(data_.max_request_size()),
 			boost::bind(&type::handle_read_request, self, asio::placeholders::error));
 		setup_timeout(data_.read_timeout());
 	}

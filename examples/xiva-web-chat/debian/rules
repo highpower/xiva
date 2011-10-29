@@ -11,7 +11,7 @@ configure-stamp:
 
 build: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 	touch $@
 
@@ -19,7 +19,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	dh_clean 
+	dh_clean
 
 install/xiva-web-chat::
 	mkdir -p $(DEBDIR)
@@ -28,7 +28,7 @@ install/xiva-web-chat::
 	find $(DEBDIR) -name '*-stamp' | xargs rm -Rf
 	find $(DEBDIR) -name .gitignore | xargs rm -f
 	rm -Rf $(DEBDIR)/web-socket-js/flash-src
-					
+
 binary-indep: build install
 
 binary-arch: build install install/xiva-web-chat

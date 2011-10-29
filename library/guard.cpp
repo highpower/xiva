@@ -53,5 +53,5 @@ guard::close() {
 	state_ = GUARD_CLOSED;
 	return true;
 }
-				
+
 }} // namespaces

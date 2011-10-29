@@ -36,7 +36,7 @@ public:
 
 	virtual bool threaded() const = 0;
 	virtual bool has_enough_data(request const &req) const = 0;
-	
+
 	virtual std::string receiver(request const &req) const = 0;
 	virtual void handle_response(request const &req, response &resp) = 0;
 

@@ -95,7 +95,7 @@ public:
 
 template <typename Iter> inline
 range_base<Iter, std::forward_iterator_tag>::range_base() :
-	begin_(), end_() 
+	begin_(), end_()
 {
 }
 
@@ -148,7 +148,7 @@ range_base<Iter, std::bidirectional_iterator_tag>::range_base() :
 
 template <typename Iter> inline
 range_base<Iter, std::bidirectional_iterator_tag>::range_base(Iter begin, Iter end) :
-	range_base<Iter, std::forward_iterator_tag>(begin, end) 
+	range_base<Iter, std::forward_iterator_tag>(begin, end)
 {
 }
 
@@ -174,13 +174,13 @@ range_base<Iter, std::bidirectional_iterator_tag>::rbegin() const {
 
 template <typename Iter> inline
 range_base<Iter, std::random_access_iterator_tag>::range_base() :
-	range_base<Iter, std::bidirectional_iterator_tag>() 
+	range_base<Iter, std::bidirectional_iterator_tag>()
 {
 }
 
 template <typename Iter> inline
 range_base<Iter, std::random_access_iterator_tag>::range_base(Iter begin, Iter end) :
-	range_base<Iter, std::bidirectional_iterator_tag>(begin, end) 
+	range_base<Iter, std::bidirectional_iterator_tag>(begin, end)
 {
 }
 
@@ -196,7 +196,7 @@ range_base<Iter, std::random_access_iterator_tag>::operator [] (typename range_b
 
 template <typename Iter> inline
 range<Iter>::range() :
-	range_base<Iter, typename std::iterator_traits<Iter>::iterator_category>() 
+	range_base<Iter, typename std::iterator_traits<Iter>::iterator_category>()
 {
 }
 

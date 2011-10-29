@@ -25,9 +25,9 @@
 
 namespace xiva {
 
-/** 
- * Analogically to java.util.Enumeration, this interface represents 
- * an abstract iterator over the sequence. 
+/**
+ * Analogically to java.util.Enumeration, this interface represents
+ * an abstract iterator over the sequence.
  */
 template <typename Item>
 class XIVA_API enumeration : public shared {
@@ -35,7 +35,7 @@ class XIVA_API enumeration : public shared {
 public:
 	/** default constructor */
 	enumeration();
-	
+
 	/** destructor */
 	virtual ~enumeration();
 
@@ -52,7 +52,7 @@ public:
 private:
 	/** should be never implemented */
 	enumeration(enumeration const &);
-	
+
 	/** should be never implemented */
 	enumeration& operator = (enumeration const &);
 };

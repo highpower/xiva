@@ -26,7 +26,7 @@ case "$1" in
 	mkdir -p $LOG_DIR
 	chown $XIVA_USER $PID_DIR
 	chown $XIVA_USER $LOG_DIR
-	
+
 	echo "Starting xiva:"
 	if /sbin/start-stop-daemon --quiet --stop --signal 0 --pidfile $XIVA_DAEMON_PID 2>/dev/null 1>/dev/null
 	then
@@ -66,7 +66,7 @@ case "$1" in
 	    fi
 	    exit
 	fi
-	
+
 	#Kill fastcgistart
 	/sbin/start-stop-daemon --quiet --stop --signal 0 --pidfile $XIVA_STARTER_PID 2>&1 >/dev/null
 	/sbin/start-stop-daemon --quiet --signal 15 --stop --pidfile $XIVA_STARTER_PID 2>&1 >/dev/null
@@ -88,7 +88,7 @@ case "$1" in
 		exit 1
 	    fi
 	done
-	
+
 	#Rm pid files
 	rm -f $XIVA_DAEMON_PID
 	rm -f $XIVA_STARTER_PID

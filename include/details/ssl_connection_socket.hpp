@@ -66,7 +66,7 @@ ssl_connection_socket::close() {
 	socket_.lowest_layer().shutdown(asio::ip::tcp::socket::shutdown_both, code);
 	socket_.lowest_layer().close();
 }
-			
+
 }} // namespaces
 
 #endif // XIVA_DETAILS_SSL_CONNECTION_SOCKET_HPP_INCLUDED

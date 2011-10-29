@@ -81,7 +81,7 @@ WS_STR_SECRET_WORD = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static const boost::uint8_t WS_SMALL_MSG_MAX_SIZE = 125;
 
 
-websocket_info::websocket_info() : 
+websocket_info::websocket_info() :
 	empty_(true), proto_78_(false)
 {
 }
@@ -144,7 +144,7 @@ websocket_info::write_close(std::ostream &stream) const {
 	stream << '\x88';
 	return true;
 }
-		
+
 static boost::int32_t
 get_websocket_key_value(char const *s, std::string const &key) {
 	boost::int64_t v = 0;
@@ -213,7 +213,7 @@ websocket_info::parse_sec_key(request_impl const &req) {
 	BUF_MEM *bptr = NULL;
         BIO_get_mem_ptr(b64, &bptr);
 
-	if (NULL == bptr || NULL == bptr->data || bptr->length != (BASE64_LENGTH(SHA_OUTPUT_SIZE) + 1)) { 
+	if (NULL == bptr || NULL == bptr->data || bptr->length != (BASE64_LENGTH(SHA_OUTPUT_SIZE) + 1)) {
 		throw std::runtime_error("can not create accept data in websocket request");
 	}
 	sec_data_.assign((const char*)bptr->data, bptr->length - 1);
