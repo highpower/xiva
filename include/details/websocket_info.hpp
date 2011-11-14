@@ -55,7 +55,8 @@ private:
 	std::string location_;
 	std::string sec_data_;
 	bool empty_;
-	bool proto_78_;
+	bool proto_newsec_;
+	bool proto_13_;
 };
 
 inline bool

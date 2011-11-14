@@ -1,3 +1,9 @@
+xiva (1.6.3-8) unstable; urgency=low
+
+  * support new sec websocket protocol (version: 13)
+
+ -- ponomarev <ponomarev@yandex-team.ru>  Mon, 14 Nov 2011 16:36:34 +0300
+
 xiva (1.6.3-7) unstable; urgency=low
 
   * write log message with level INFO on handle end of stream error

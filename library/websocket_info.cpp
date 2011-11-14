@@ -70,6 +70,9 @@ static std::string const
 WS_STR_SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
 
 static std::string const
+WS_STR_SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
+
+static std::string const
 WS_STR_SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
 
 static std::string const
@@ -82,7 +85,7 @@ static const boost::uint8_t WS_SMALL_MSG_MAX_SIZE = 125;
 
 
 websocket_info::websocket_info() : 
-	empty_(true), proto_78_(false)
+	empty_(true), proto_newsec_(false), proto_13_(false)
 {
 }
 
@@ -92,7 +95,7 @@ websocket_info::write_headers(std::ostream &stream) const {
 		throw std::logic_error("can not print websocket headers");
 	}
 
-	stream << (proto_78_ ? WS_STR_HANDSHAKE_NEW : WS_STR_HANDSHAKE) << http_constants<char>::endl;
+	stream << (proto_newsec_ ? WS_STR_HANDSHAKE_NEW : WS_STR_HANDSHAKE) << http_constants<char>::endl;
 	stream << WS_STR_UPGRADE << ": " << WS_STR_WEBSOCKET << http_constants<char>::endl;
 	stream << WS_STR_CONNECTION << ": " << WS_STR_UPGRADE << http_constants<char>::endl;
 
@@ -116,7 +119,7 @@ websocket_info::write_headers(std::ostream &stream) const {
 		stream << WS_STR_WEBSOCKET_PROTOCOL << ": " << protocol_;
 		stream << http_constants<char>::endl;
 	}
-	if (proto_78_) {
+	if (proto_newsec_) {
 		//assert: !sec_data_.empty()
 		stream << WS_STR_SEC_WEBSOCKET_ACCEPT << ": " << sec_data_;
 		stream << http_constants<char>::endl;
@@ -125,7 +128,7 @@ websocket_info::write_headers(std::ostream &stream) const {
 
 void
 websocket_info::write_body(std::ostream &stream) const {
-	if (proto_78_) {
+	if (proto_newsec_) {
 		return;
 	}
 	if (!valid()) {
@@ -138,7 +141,7 @@ websocket_info::write_body(std::ostream &stream) const {
 
 bool
 websocket_info::write_close(std::ostream &stream) const {
-	if (!proto_78_) {
+	if (!proto_newsec_) {
 		return false;
 	}
 	stream << '\x88';
@@ -260,10 +263,13 @@ websocket_info::parse(request_impl const &req, bool secure) {
 	std::string const &upgrade_hdr = req.header(WS_STR_UPGRADE);
 	if (upgrade_hdr == WS_STR_WEBSOCKET_LOWERCASE) {
 		std::string const &version_hdr = req.header(WS_STR_SEC_WEBSOCKET_VERSION);
-		if (version_hdr != "7" && version_hdr != "8") {
+		if (version_hdr == "13") {
+			proto_13_ = true;
+		}
+		else if (version_hdr != "7" && version_hdr != "8") {
 			throw std::runtime_error("not supported websocket protocol version: " + version_hdr);
 		}
-		proto_78_ = true;
+		proto_newsec_ = true;
 	}
 	else if (upgrade_hdr != WS_STR_WEBSOCKET) {
 		return false;
@@ -275,7 +281,7 @@ websocket_info::parse(request_impl const &req, bool secure) {
 		throw std::runtime_error("can not find Host in websocket request");
 	}
 
-	if (proto_78_) {
+	if (proto_newsec_) {
 		parse_sec_key(req);
 	}
 	else {
@@ -292,9 +298,18 @@ websocket_info::parse(request_impl const &req, bool secure) {
 		location_.assign(WS_STR_SCHEME_DELIMITER).append(host).append(uri);
 	}
 
-	origin_ = req.header(WS_STR_ORIGIN);
+	if (proto_newsec_ && !proto_13_) { // 7 or 8
+		origin_ = req.header(WS_STR_SEC_WEBSOCKET_ORIGIN);
+		if (origin_.empty()) { // draft 11,12 ?
+			origin_ = req.header(WS_STR_ORIGIN);
+		}
+	}
+	else {
+		origin_ = req.header(WS_STR_ORIGIN);
+	}
+
 	protocol_ = req.header(WS_STR_WEBSOCKET_PROTOCOL);
-	if (proto_78_) {
+	if (proto_newsec_) {
 		size_t pos = protocol_.find(',');
 		if (std::string::npos != pos) {
 			protocol_.erase(pos);
@@ -306,7 +321,7 @@ websocket_info::parse(request_impl const &req, bool secure) {
 void
 websocket_info::write_message(std::ostream &stream, std::string const &msg) const {
 
-	if (!proto_78_) {
+	if (!proto_newsec_) {
 		// for UTF-8 only
 		stream << '\0' << msg << '\xFF';
 		return;
